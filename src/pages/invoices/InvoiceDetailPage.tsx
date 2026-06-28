@@ -52,7 +52,7 @@ function RecordPaymentModal({ open, onClose, invoiceId, balance }: RecordPayment
   });
 
   const mutation = useMutation({
-    mutationFn: (data: PaymentForm) => api.post(`/invoices/${invoiceId}/payments`, data),
+    mutationFn: (data: PaymentForm) => api.post('/payments', { ...data, invoiceId }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['invoices', invoiceId] });
       toast.success('Payment recorded');
