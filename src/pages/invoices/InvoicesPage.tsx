@@ -41,8 +41,8 @@ function NewInvoiceModal({ open, onClose }: NewInvoiceModalProps) {
   const [roSearch, setRoSearch] = useState('');
 
   const { data: rosRes } = useQuery({
-    queryKey: ['repair-orders-completed', roSearch],
-    queryFn: () => api.get(`/repair-orders?status=COMPLETED&search=${roSearch}&limit=50`),
+    queryKey: ['repair-orders-invoiceable', roSearch],
+    queryFn: () => api.get(`/repair-orders?status=COMPLETED,CLOSED,QUALITY_CHECK&search=${roSearch}&limit=50`),
     enabled: open,
   });
 
@@ -85,7 +85,7 @@ function NewInvoiceModal({ open, onClose }: NewInvoiceModalProps) {
           <label className="label">Repair Order *</label>
           <input
             className="input mb-2"
-            placeholder="Search completed ROs..."
+            placeholder="Search ROs (Completed / Closed)..."
             value={roSearch}
             onChange={e => setRoSearch(e.target.value)}
           />
