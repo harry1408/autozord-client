@@ -7,6 +7,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';
+import VINInspection from '@/components/VINInspection';
 import { format } from 'date-fns';
 
 export default function VehicleDetailPage() {
@@ -137,6 +138,9 @@ export default function VehicleDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* VIN Inspection */}
+      {vehicle.vin && <VINInspection vin={vehicle.vin} />}
 
       {/* Repair History */}
       <div className="card overflow-hidden">
