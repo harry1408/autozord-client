@@ -140,7 +140,7 @@ export default function VehicleDetailPage() {
       </div>
 
       {/* VIN Inspection */}
-      {vehicle.vin && <VINInspection vin={vehicle.vin} />}
+      <VINInspection vin={vehicle.vin} />
 
       {/* Repair History */}
       <div className="card overflow-hidden">

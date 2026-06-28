@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ShieldCheck, ExternalLink, AlertTriangle, Car, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ShieldCheck, ExternalLink, AlertTriangle, Car, ChevronDown, ChevronUp, Loader2, Hash } from 'lucide-react';
 import axios from 'axios';
 
 interface VINInspectionProps {
-  vin: string;
+  vin?: string;
 }
 
 const DECODE_FIELDS = [
@@ -63,27 +63,31 @@ async function fetchRecalls(vin: string) {
   return (res.data.results ?? []) as Recall[];
 }
 
-export default function VINInspection({ vin }: VINInspectionProps) {
+export default function VINInspection({ vin: savedVin }: VINInspectionProps) {
+  const [manualVin, setManualVin] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [ran, setRan] = useState(false);
 
+  const activeVin = savedVin || manualVin.trim().toUpperCase();
+
   const { data: specs, isLoading: specsLoading, error: specsError } = useQuery({
-    queryKey: ['vin-decode', vin],
-    queryFn: () => decodeVIN(vin),
-    enabled: ran,
+    queryKey: ['vin-decode', activeVin],
+    queryFn: () => decodeVIN(activeVin),
+    enabled: ran && activeVin.length === 17,
     staleTime: Infinity,
   });
 
   const { data: recalls, isLoading: recallsLoading } = useQuery({
-    queryKey: ['vin-recalls', vin],
-    queryFn: () => fetchRecalls(vin),
-    enabled: ran,
+    queryKey: ['vin-recalls', activeVin],
+    queryFn: () => fetchRecalls(activeVin),
+    enabled: ran && activeVin.length === 17,
     staleTime: Infinity,
   });
 
   const loading = specsLoading || recallsLoading;
 
   function run() {
+    if (activeVin.length !== 17) return;
     setRan(true);
     setExpanded(true);
   }
@@ -98,24 +102,54 @@ export default function VINInspection({ vin }: VINInspectionProps) {
           </div>
           <div>
             <h2 className="font-semibold text-gray-900 dark:text-gray-100">VIN Inspection</h2>
-            <p className="text-xs text-gray-400 font-mono">{vin}</p>
+            <p className="text-xs text-gray-400">
+              {savedVin
+                ? <span className="font-mono">{savedVin}</span>
+                : 'Enter a VIN to check accident history, ownership & recalls'}
+            </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {!ran ? (
-            <button onClick={run} className="btn-primary text-sm py-1.5 px-4">
-              Run VIN Check
-            </button>
-          ) : (
-            <button
-              onClick={() => setExpanded(e => !e)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500"
-            >
-              {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </button>
-          )}
-        </div>
+        {ran && (
+          <button
+            onClick={() => setExpanded(e => !e)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500"
+          >
+            {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
+        )}
       </div>
+
+      {/* VIN input row (shown when no saved VIN) */}
+      {!savedVin && (
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+          <div className="relative flex-1">
+            <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              className="input pl-8 font-mono uppercase tracking-widest text-sm"
+              placeholder="e.g. 2HGFC2F59JH123456"
+              maxLength={17}
+              value={manualVin}
+              onChange={e => { setManualVin(e.target.value); setRan(false); }}
+            />
+          </div>
+          <button
+            onClick={run}
+            disabled={manualVin.trim().length !== 17}
+            className="btn-primary text-sm py-2 px-4 shrink-0 disabled:opacity-40"
+          >
+            Run VIN Check
+          </button>
+        </div>
+      )}
+
+      {/* Run button when VIN is saved but not yet run */}
+      {savedVin && !ran && (
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+          <button onClick={run} className="btn-primary text-sm py-1.5 px-4">
+            Run VIN Check
+          </button>
+        </div>
+      )}
 
       {ran && expanded && (
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
