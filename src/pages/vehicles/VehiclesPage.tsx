@@ -309,6 +309,7 @@ export default function VehiclesPage() {
       </div>
 
       <VehicleFormModal
+        key={editVehicle?.id ?? 'new'}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         vehicle={editVehicle}

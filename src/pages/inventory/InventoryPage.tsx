@@ -477,6 +477,7 @@ export default function InventoryPage() {
       )}
 
       <PartModal
+        key={editPart?.id ?? 'new'}
         open={partModalOpen}
         onClose={() => { setPartModalOpen(false); setEditPart(undefined); }}
         part={editPart}

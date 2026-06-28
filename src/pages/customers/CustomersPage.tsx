@@ -280,6 +280,7 @@ export default function CustomersPage() {
       </div>
 
       <CustomerFormModal
+        key={editCustomer?.id ?? 'new'}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         customer={editCustomer}
