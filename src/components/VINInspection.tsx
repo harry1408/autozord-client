@@ -246,7 +246,7 @@ export default function VINInspection({ vin: savedVin }: VINInspectionProps) {
               </h3>
               <div className="flex flex-wrap gap-3">
                 <a
-                  href={`https://www.carfax.ca/vehicle-history-reports/free-vin-check?vin=${vin}`}
+                  href={`https://www.carfax.ca/vehicle-history-reports/free-vin-check?vin=${activeVin}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
