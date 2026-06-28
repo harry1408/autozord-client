@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>()(
         set({ accessToken: null, user: null, isAuthenticated: false }),
     }),
     {
-      name: 'autoshop360-auth',
+      name: 'autozord-auth',
       partialize: (state) => ({ user: state.user, accessToken: state.accessToken, isAuthenticated: state.isAuthenticated }),
     }
   )

@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Zap, Check } from 'lucide-react';
 import { LogoFull } from '@/components/ui/Logo';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/auth.store';
 import toast from 'react-hot-toast';
@@ -30,7 +30,9 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
 
-  if (isAuthenticated) navigate(from, { replace: true });
+  useEffect(() => {
+    if (isAuthenticated) navigate(from, { replace: true });
+  }, [isAuthenticated, from, navigate]);
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),

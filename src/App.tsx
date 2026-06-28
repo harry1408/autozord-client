@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useThemeStore } from '@/store/theme.store';
+import { useAuthStore } from '@/store/auth.store';
+import api from '@/services/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AppLayout from '@/layouts/AppLayout';
 import LoginPage from '@/pages/auth/LoginPage';
@@ -26,10 +28,21 @@ import SettingsPage from '@/pages/settings/SettingsPage';
 
 export default function App() {
   const { theme } = useThemeStore();
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
+
+  useEffect(() => {
+    const { accessToken, logout } = useAuthStore.getState();
+    if (!accessToken) { setAuthReady(true); return; }
+    api.get('/auth/me')
+      .then(() => setAuthReady(true))
+      .catch(() => { logout(); setAuthReady(true); });
+  }, []);
+
+  if (!authReady) return null;
 
   return (
     <Routes>
