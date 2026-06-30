@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Search, Receipt } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +27,10 @@ const invoiceSchema = z.object({
   discount: z.coerce.number().min(0),
   notes: z.string().optional(),
   dueDate: z.string().optional(),
+  serviceAdvisor: z.string().min(1, 'Service advisor required'),
+  visitType: z.string().optional(),
+  mileageOut: z.string().optional(),
+  extrasWithVehicle: z.string().optional(),
 });
 
 type InvoiceForm = z.infer<typeof invoiceSchema>;
@@ -34,9 +38,10 @@ type InvoiceForm = z.infer<typeof invoiceSchema>;
 interface NewInvoiceModalProps {
   open: boolean;
   onClose: () => void;
+  onCreated: (id: string, printData: { serviceAdvisor: string; visitType: string; mileageOut: string; extrasWithVehicle: string }) => void;
 }
 
-function NewInvoiceModal({ open, onClose }: NewInvoiceModalProps) {
+function NewInvoiceModal({ open, onClose, onCreated }: NewInvoiceModalProps) {
   const qc = useQueryClient();
   const [roSearch, setRoSearch] = useState('');
 
@@ -50,17 +55,24 @@ function NewInvoiceModal({ open, onClose }: NewInvoiceModalProps) {
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<InvoiceForm>({
     resolver: zodResolver(invoiceSchema),
-    defaultValues: { taxRate: 8.5, discount: 0 },
+    defaultValues: { taxRate: 12, discount: 0 },
   });
 
   const mutation = useMutation({
-    mutationFn: (data: InvoiceForm) => api.post('/invoices', data),
-    onSuccess: () => {
+    mutationFn: ({ serviceAdvisor: _sa, visitType: _vt, mileageOut: _mo, extrasWithVehicle: _ev, ...data }: InvoiceForm) =>
+      api.post<{ success: boolean; data: { id: string } }>('/invoices', data),
+    onSuccess: (res, vars) => {
       qc.invalidateQueries({ queryKey: ['invoices'] });
-      toast.success('Invoice created');
+      toast.success('Invoice created — opening PDF…');
       reset();
       setRoSearch('');
       onClose();
+      onCreated(res.data.data.id, {
+        serviceAdvisor: vars.serviceAdvisor,
+        visitType: vars.visitType ?? '',
+        mileageOut: vars.mileageOut ?? '',
+        extrasWithVehicle: vars.extrasWithVehicle ?? '',
+      });
     },
     onError: () => toast.error('Failed to create invoice'),
   });
@@ -75,12 +87,13 @@ function NewInvoiceModal({ open, onClose }: NewInvoiceModalProps) {
         <>
           <button onClick={onClose} className="btn-secondary">Cancel</button>
           <button onClick={handleSubmit(d => mutation.mutate(d))} disabled={mutation.isPending} className="btn-primary">
-            {mutation.isPending ? 'Creating...' : 'Create Invoice'}
+            {mutation.isPending ? 'Creating…' : 'Create & Print Invoice'}
           </button>
         </>
       }
     >
       <form className="space-y-4">
+        {/* ── Repair Order ── */}
         <div>
           <label className="label">Repair Order *</label>
           <input
@@ -99,23 +112,53 @@ function NewInvoiceModal({ open, onClose }: NewInvoiceModalProps) {
           </select>
           {errors.repairOrderId && <p className="mt-1 text-xs text-red-500">{errors.repairOrderId.message}</p>}
         </div>
+
+        {/* ── Invoice numbers ── */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="label">Tax Rate (%)</label>
-            <input {...register('taxRate')} type="number" step="0.01" className="input" placeholder="8.5" />
+            <input {...register('taxRate')} type="number" step="0.01" className="input" placeholder="12" />
           </div>
           <div>
             <label className="label">Discount ($)</label>
             <input {...register('discount')} type="number" step="0.01" className="input" placeholder="0.00" />
           </div>
         </div>
-        <div>
-          <label className="label">Due Date</label>
-          <input {...register('dueDate')} type="date" className="input" />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="label">Due Date</label>
+            <input {...register('dueDate')} type="date" className="input" />
+          </div>
+          <div>
+            <label className="label">Notes</label>
+            <input {...register('notes')} className="input" placeholder="Invoice notes…" />
+          </div>
         </div>
-        <div>
-          <label className="label">Notes</label>
-          <textarea {...register('notes')} rows={2} className="input resize-none" placeholder="Invoice notes..." />
+
+        {/* ── Print / Invoice details ── */}
+        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Invoice Print Details</p>
+          <div className="space-y-3">
+            <div>
+              <label className="label">Service Advisor *</label>
+              <input {...register('serviceAdvisor')} className="input" placeholder="e.g. John Smith" />
+              {errors.serviceAdvisor && <p className="mt-1 text-xs text-red-500">{errors.serviceAdvisor.message}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="label">Visit Type</label>
+                <input {...register('visitType')} className="input" placeholder="e.g. Brake Service" />
+              </div>
+              <div>
+                <label className="label">Mileage Out (KM)</label>
+                <input {...register('mileageOut')} type="number" className="input" placeholder="e.g. 71200" />
+              </div>
+            </div>
+            <div>
+              <label className="label">Extras with Vehicle</label>
+              <input {...register('extrasWithVehicle')} className="input" placeholder="e.g. Floor mats, spare tire…" />
+            </div>
+          </div>
         </div>
       </form>
     </Modal>
@@ -123,6 +166,7 @@ function NewInvoiceModal({ open, onClose }: NewInvoiceModalProps) {
 }
 
 export default function InvoicesPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [page, setPage] = useState(1);
@@ -240,7 +284,11 @@ export default function InvoicesPage() {
         )}
       </div>
 
-      <NewInvoiceModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <NewInvoiceModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onCreated={(id, printData) => navigate(`/invoices/${id}`, { state: { autoPrint: true, printData } })}
+      />
     </div>
   );
 }
