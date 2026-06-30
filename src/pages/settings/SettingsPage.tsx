@@ -27,6 +27,10 @@ const shopSettingsSchema = z.object({
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   taxRate: z.coerce.number().min(0).max(100),
   laborRate: z.coerce.number().min(0),
+  gstNumber: z.string().optional(),
+  pstNumber: z.string().optional(),
+  gstRate: z.coerce.number().min(0).max(100),
+  pstRate: z.coerce.number().min(0).max(100),
 });
 
 type ShopSettingsForm = z.infer<typeof shopSettingsSchema>;
@@ -66,6 +70,10 @@ function ShopProfileTab() {
         email: settings.email ?? '',
         taxRate: settings.taxRate,
         laborRate: settings.laborRate,
+        gstNumber: settings.gstNumber ?? '',
+        pstNumber: settings.pstNumber ?? '',
+        gstRate: settings.gstRate ?? 5,
+        pstRate: settings.pstRate ?? 7,
       });
     }
   }, [settings, reset]);
@@ -109,14 +117,35 @@ function ShopProfileTab() {
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Default Rates</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Tax Rate (%)</label>
-              <input {...register('taxRate')} type="number" step="0.01" className="input" placeholder="8.5" />
-              {errors.taxRate && <p className="mt-1 text-xs text-red-500">{errors.taxRate.message}</p>}
-            </div>
-            <div>
               <label className="label">Labor Rate ($/hr)</label>
               <input {...register('laborRate')} type="number" step="0.50" className="input" placeholder="95.00" />
               {errors.laborRate && <p className="mt-1 text-xs text-red-500">{errors.laborRate.message}</p>}
+            </div>
+            <div>
+              <label className="label">Total Tax Rate (%) — for new invoices</label>
+              <input {...register('taxRate')} type="number" step="0.01" className="input" placeholder="12" />
+              {errors.taxRate && <p className="mt-1 text-xs text-red-500">{errors.taxRate.message}</p>}
+            </div>
+          </div>
+        </div>
+        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Tax Registration (shown on invoices)</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label">GST Rate (%)</label>
+              <input {...register('gstRate')} type="number" step="0.01" className="input" placeholder="5" />
+            </div>
+            <div>
+              <label className="label">PST Rate (%)</label>
+              <input {...register('pstRate')} type="number" step="0.01" className="input" placeholder="7" />
+            </div>
+            <div>
+              <label className="label">GST Registration #</label>
+              <input {...register('gstNumber')} className="input" placeholder="e.g. 735012957" />
+            </div>
+            <div>
+              <label className="label">PST Registration #</label>
+              <input {...register('pstNumber')} className="input" placeholder="e.g. PST-1234-5678" />
             </div>
           </div>
         </div>

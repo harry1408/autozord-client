@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, CreditCard } from 'lucide-react';
+import { Plus, CreditCard, Printer } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '@/services/api';
-import { Invoice, Payment, PaymentMethod } from '@/types';
+import { Invoice, Payment, PaymentMethod, ShopSettings } from '@/types';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Modal from '@/components/ui/Modal';
+import InvoicePrint, { PrintFormData } from '@/components/InvoicePrint';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -105,19 +106,109 @@ function RecordPaymentModal({ open, onClose, invoiceId, balance }: RecordPayment
   );
 }
 
+const printSchema = z.object({
+  serviceAdvisor: z.string().min(1, 'Service advisor name required'),
+  visitType: z.string().optional(),
+  mileageOut: z.string().optional(),
+  extrasWithVehicle: z.string().optional(),
+});
+
+type PrintForm = z.infer<typeof printSchema>;
+
+interface PrintPreviewModalProps {
+  open: boolean;
+  onClose: () => void;
+  onPrint: (data: PrintFormData) => void;
+  defaultAdvisor: string;
+  defaultMileageOut: string;
+}
+
+function PrintPreviewModal({ open, onClose, onPrint, defaultAdvisor, defaultMileageOut }: PrintPreviewModalProps) {
+  const { register, handleSubmit, formState: { errors } } = useForm<PrintForm>({
+    defaultValues: { serviceAdvisor: defaultAdvisor, mileageOut: defaultMileageOut },
+  });
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Print Invoice — Confirm Details"
+      size="md"
+      footer={
+        <>
+          <button onClick={onClose} className="btn-secondary">Cancel</button>
+          <button
+            onClick={handleSubmit(d => onPrint({
+              serviceAdvisor: d.serviceAdvisor,
+              visitType: d.visitType ?? '',
+              mileageOut: d.mileageOut ?? '',
+              extrasWithVehicle: d.extrasWithVehicle ?? '',
+            }))}
+            className="btn-primary"
+          >
+            <Printer size={15} /> Print
+          </button>
+        </>
+      }
+    >
+      <form className="space-y-4">
+        <div>
+          <label className="label">Service Advisor *</label>
+          <input {...register('serviceAdvisor')} className="input" placeholder="e.g. John Smith" />
+          {errors.serviceAdvisor && <p className="mt-1 text-xs text-red-500">{errors.serviceAdvisor.message}</p>}
+        </div>
+        <div>
+          <label className="label">Visit Type</label>
+          <input {...register('visitType')} className="input" placeholder="e.g. Oil Change, Brake Service…" />
+        </div>
+        <div>
+          <label className="label">Mileage Out (KM)</label>
+          <input {...register('mileageOut')} type="number" className="input" placeholder="e.g. 71200" />
+        </div>
+        <div>
+          <label className="label">Extras with Vehicle</label>
+          <input {...register('extrasWithVehicle')} className="input" placeholder="e.g. Floor mats, spare tire…" />
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 export default function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [printData, setPrintData] = useState<PrintFormData | null>(null);
 
   const { data: invRes, isLoading } = useQuery({
     queryKey: ['invoices', id],
     queryFn: () => api.get<{ success: boolean; data: Invoice }>(`/invoices/${id}`),
   });
 
+  const { data: shopRes } = useQuery({
+    queryKey: ['shop-settings'],
+    queryFn: () => api.get<{ success: boolean; data: ShopSettings }>('/settings'),
+  });
+
   if (isLoading) return <LoadingSpinner fullPage />;
 
   const inv = invRes?.data.data;
   if (!inv) return <div className="card p-8 text-center text-gray-500">Invoice not found</div>;
+
+  const shop = shopRes?.data.data ?? {
+    id: '', shopName: 'Auto Shop', taxRate: 0, laborRate: 85, gstRate: 5, pstRate: 7,
+  } as ShopSettings;
+
+  const roTechnicians: any[] = (inv.repairOrder as any)?.technicians ?? [];
+  const firstTech = roTechnicians[0]?.technician?.user;
+  const defaultAdvisor = firstTech ? `${firstTech.firstName} ${firstTech.lastName}` : '';
+  const defaultMileageOut = inv.repairOrder?.mileageOut ? String(inv.repairOrder.mileageOut) : '';
+
+  const handlePrint = (data: PrintFormData) => {
+    setPrintData(data);
+    setPrintModalOpen(false);
+    setTimeout(() => window.print(), 150);
+  };
 
   const ro = inv.repairOrder;
   const laborLines = ro?.laborLines ?? [];
@@ -130,11 +221,16 @@ export default function InvoiceDetailPage() {
         title={`Invoice ${inv.invoiceNumber}`}
         breadcrumbs={[{ label: 'Invoices', to: '/invoices' }, { label: inv.invoiceNumber }]}
         actions={
-          inv.balance > 0 && (
-            <button onClick={() => setPaymentModalOpen(true)} className="btn-primary">
-              <Plus size={16} /> Record Payment
+          <div className="flex gap-2">
+            <button onClick={() => setPrintModalOpen(true)} className="btn-secondary">
+              <Printer size={16} /> Print Invoice
             </button>
-          )
+            {inv.balance > 0 && (
+              <button onClick={() => setPaymentModalOpen(true)} className="btn-primary">
+                <Plus size={16} /> Record Payment
+              </button>
+            )}
+          </div>
         }
       />
 
@@ -329,6 +425,19 @@ export default function InvoiceDetailPage() {
         invoiceId={id!}
         balance={inv.balance}
       />
+
+      <PrintPreviewModal
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        onPrint={handlePrint}
+        defaultAdvisor={defaultAdvisor}
+        defaultMileageOut={defaultMileageOut}
+      />
+
+      {/* Hidden print view — becomes visible only during window.print() */}
+      {printData && (
+        <InvoicePrint invoice={inv} shop={shop} printData={printData} />
+      )}
     </div>
   );
 }

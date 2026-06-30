@@ -213,6 +213,10 @@ export interface ShopSettings {
   taxRate: number;
   laborRate: number;
   logoUrl?: string;
+  gstNumber?: string;
+  pstNumber?: string;
+  gstRate: number;
+  pstRate: number;
 }
 
 export interface PaginationMeta {
