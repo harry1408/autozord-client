@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Settings, Users } from 'lucide-react';
+import { Plus, Settings, Users, ImageIcon, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,6 +31,7 @@ const shopSettingsSchema = z.object({
   pstNumber: z.string().optional(),
   gstRate: z.coerce.number().min(0).max(100),
   pstRate: z.coerce.number().min(0).max(100),
+  logoUrl: z.string().optional(),
 });
 
 type ShopSettingsForm = z.infer<typeof shopSettingsSchema>;
@@ -49,6 +50,7 @@ type UserForm = z.infer<typeof userSchema>;
 
 function ShopProfileTab() {
   const qc = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: settingsRes, isLoading } = useQuery({
     queryKey: ['shop-settings'],
@@ -57,9 +59,11 @@ function ShopProfileTab() {
 
   const settings = settingsRes?.data.data;
 
-  const { register, handleSubmit, reset, formState: { errors, isDirty } } = useForm<ShopSettingsForm>({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<ShopSettingsForm>({
     resolver: zodResolver(shopSettingsSchema),
   });
+
+  const logoUrl = watch('logoUrl');
 
   useEffect(() => {
     if (settings) {
@@ -74,9 +78,19 @@ function ShopProfileTab() {
         pstNumber: settings.pstNumber ?? '',
         gstRate: settings.gstRate ?? 5,
         pstRate: settings.pstRate ?? 7,
+        logoUrl: settings.logoUrl ?? '',
       });
     }
   }, [settings, reset]);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error('Logo must be under 2 MB'); return; }
+    const reader = new FileReader();
+    reader.onload = () => setValue('logoUrl', reader.result as string, { shouldDirty: true });
+    reader.readAsDataURL(file);
+  };
 
   const mutation = useMutation({
     mutationFn: (data: ShopSettingsForm) => api.put('/settings', data),
@@ -93,6 +107,46 @@ function ShopProfileTab() {
     <div className="card p-6 max-w-2xl">
       <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-6">Shop Profile</h2>
       <form className="space-y-5" onSubmit={handleSubmit(d => mutation.mutate(d))}>
+
+        {/* ── Logo ── */}
+        <div>
+          <label className="label">Shop Logo</label>
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-gray-900 shrink-0 overflow-hidden">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
+              ) : (
+                <ImageIcon size={24} className="text-gray-400" />
+              )}
+            </div>
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+                className="hidden"
+                onChange={handleLogoChange}
+              />
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="btn-secondary text-sm">
+                  {logoUrl ? 'Change Logo' : 'Upload Logo'}
+                </button>
+                {logoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setValue('logoUrl', '', { shouldDirty: true })}
+                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    title="Remove logo"
+                  >
+                    <X size={15} />
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-gray-400 mt-1.5">PNG, JPG, SVG · max 2 MB · shown on printed invoices</p>
+            </div>
+          </div>
+        </div>
+
         <div>
           <label className="label">Shop Name *</label>
           <input {...register('shopName')} className="input" placeholder="Auto Care Center" />

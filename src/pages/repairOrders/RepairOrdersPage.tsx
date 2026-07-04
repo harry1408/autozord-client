@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Search, Wrench, LayoutGrid, List } from 'lucide-react';
+import { Plus, Search, ClipboardList, LayoutGrid, List } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -320,7 +320,7 @@ export default function RepairOrdersPage() {
         <LoadingSpinner fullPage />
       ) : orders.length === 0 ? (
         <EmptyState
-          icon={Wrench}
+          icon={ClipboardList}
           title="No repair orders found"
           description="Create your first repair order to get started"
           action={

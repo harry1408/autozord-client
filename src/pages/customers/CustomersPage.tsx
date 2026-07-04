@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Users, Phone, Mail, Car, Wrench } from 'lucide-react';
+import { Plus, Search, Users, Phone, Mail, Car, ClipboardList } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -246,7 +246,7 @@ export default function CustomersPage() {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-                        <Wrench size={14} className="text-gray-400" />
+                        <ClipboardList size={14} className="text-gray-400" />
                         {customer._count?.repairOrders ?? 0}
                       </span>
                     </td>

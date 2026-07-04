@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Car, Hash, Palette, Gauge, User, Wrench } from 'lucide-react';
+import { Car, Hash, Palette, Gauge, User, ClipboardList } from 'lucide-react';
 import api from '@/services/api';
 import { Vehicle, RepairOrder } from '@/types';
 import PageHeader from '@/components/ui/PageHeader';
@@ -149,7 +149,7 @@ export default function VehicleDetailPage() {
         </div>
         {orders.length === 0 ? (
           <EmptyState
-            icon={Wrench}
+            icon={ClipboardList}
             title="No repair orders"
             description="This vehicle has no repair orders yet"
           />

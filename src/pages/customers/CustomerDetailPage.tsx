@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Phone, Mail, MapPin, Car, Wrench, Edit } from 'lucide-react';
+import { Phone, Mail, MapPin, Car, ClipboardList, Edit } from 'lucide-react';
 import api from '@/services/api';
 import { Customer, Vehicle, RepairOrder } from '@/types';
 import PageHeader from '@/components/ui/PageHeader';
@@ -127,7 +127,7 @@ export default function CustomerDetailPage() {
                 <Link key={ro.id} to={`/repair-orders/${ro.id}`} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-brand-200 dark:hover:border-brand-800 transition-colors group">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950 flex items-center justify-center shrink-0">
-                      <Wrench size={14} className="text-amber-600" />
+                      <ClipboardList size={14} className="text-amber-600" />
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600">{ro.roNumber}</p>

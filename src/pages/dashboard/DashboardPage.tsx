@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
-  Wrench, Users, FileText, DollarSign, AlertTriangle, TrendingUp,
+  ClipboardList, Users, FileText, DollarSign, AlertTriangle, TrendingUp,
   ArrowRight, Clock,
 } from 'lucide-react';
 import {
@@ -109,7 +109,7 @@ export default function DashboardPage() {
         <KpiCard
           title="Open Repair Orders"
           value={stats?.openRepairOrders ?? 0}
-          icon={Wrench}
+          icon={ClipboardList}
           color="text-brand-600"
           bgColor="bg-brand-100 dark:bg-brand-950"
           link="/repair-orders"
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-950 flex items-center justify-center shrink-0">
-                      <Wrench size={14} className="text-brand-600" />
+                      <ClipboardList size={14} className="text-brand-600" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{ro.roNumber}</p>

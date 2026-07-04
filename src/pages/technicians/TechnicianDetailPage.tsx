@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Mail, DollarSign, Wrench, Tag } from 'lucide-react';
+import { Mail, DollarSign, ClipboardList, Tag } from 'lucide-react';
 import api from '@/services/api';
 import { Technician, RepairOrder } from '@/types';
 import PageHeader from '@/components/ui/PageHeader';
@@ -145,7 +145,7 @@ export default function TechnicianDetailPage() {
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">Repair Order History</h2>
         </div>
         {orders.length === 0 ? (
-          <EmptyState icon={Wrench} title="No repair orders" description="This technician has no assigned repair orders" />
+          <EmptyState icon={ClipboardList} title="No repair orders" description="This technician has no assigned repair orders" />
         ) : (
           <table className="w-full">
             <thead>

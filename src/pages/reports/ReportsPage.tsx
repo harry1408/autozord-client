@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import { TrendingUp, Wrench, Users, Package, DollarSign } from 'lucide-react';
+import { TrendingUp, ClipboardList, Users, Package, DollarSign } from 'lucide-react';
 import api from '@/services/api';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -185,7 +185,7 @@ function RepairOrdersTab() {
             <div className="card p-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-950 flex items-center justify-center">
-                  <Wrench size={20} className="text-brand-600" />
+                  <ClipboardList size={20} className="text-brand-600" />
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Total ROs</p>
               </div>
@@ -500,7 +500,7 @@ function ARAgingTab() {
 
 const TABS = [
   { id: 'revenue', label: 'Revenue', icon: TrendingUp },
-  { id: 'repair-orders', label: 'Repair Orders', icon: Wrench },
+  { id: 'repair-orders', label: 'Repair Orders', icon: ClipboardList },
   { id: 'technicians', label: 'Technicians', icon: Users },
   { id: 'inventory', label: 'Inventory', icon: Package },
   { id: 'ar-aging', label: 'AR Aging', icon: DollarSign },
