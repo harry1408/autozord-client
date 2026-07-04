@@ -141,11 +141,11 @@ function VehicleSearchDropdown() {
     <div ref={ref} className="relative hidden md:block">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors text-sm text-gray-600 dark:text-gray-300"
-        title="Search vehicle"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-gray-300 dark:hover:border-zinc-600 transition-colors text-xs font-medium text-gray-600 dark:text-gray-300"
       >
-        <Search size={14} className="text-gray-400 shrink-0" />
-        <Car size={14} className="text-gray-400 shrink-0" />
+        <Search size={13} className="text-gray-400 shrink-0" />
+        Search Vehicle
+        <ChevronDown size={13} className="text-gray-400 shrink-0" />
       </button>
 
       {open && (
@@ -248,21 +248,19 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {/* Add RO */}
         <button
           onClick={() => navigate('/repair-orders?new=1')}
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-brand-300 hover:text-brand-600 transition-colors text-xs font-medium text-gray-600 dark:text-gray-300"
-          title="New Repair Order"
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-brand-300 hover:text-brand-600 transition-colors text-xs font-medium text-gray-600 dark:text-gray-300"
         >
           <Plus size={13} />
-          <Car size={13} />
+          New RO
         </button>
 
         {/* Add Vehicle */}
         <button
           onClick={() => setAddVehicleOpen(true)}
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-brand-300 hover:text-brand-600 transition-colors text-xs font-medium text-gray-600 dark:text-gray-300"
-          title="Add Vehicle"
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-brand-300 hover:text-brand-600 transition-colors text-xs font-medium text-gray-600 dark:text-gray-300"
         >
           <Car size={13} />
-          <Plus size={10} className="-ml-0.5" />
+          Add Vehicle
         </button>
 
         {/* Search Vehicle */}
@@ -271,11 +269,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {/* Add Customer */}
         <button
           onClick={() => setAddCustomerOpen(true)}
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-brand-300 hover:text-brand-600 transition-colors text-xs font-medium text-gray-600 dark:text-gray-300"
-          title="Add Customer"
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:border-brand-300 hover:text-brand-600 transition-colors text-xs font-medium text-gray-600 dark:text-gray-300"
         >
-          <Plus size={13} />
           <UserPlus size={13} />
+          Add Customer
         </button>
 
         {/* Search Customer */}
