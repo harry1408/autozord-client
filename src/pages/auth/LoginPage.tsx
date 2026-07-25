@@ -155,24 +155,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo credentials */}
-          <div className="mt-8 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
-            <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Demo accounts</p>
-            <div className="space-y-2">
-              {[
-                { role: 'Admin',        email: 'admin@autoshop360.com',   pass: 'Admin@123'   },
-                { role: 'Manager',      email: 'manager@autoshop360.com', pass: 'Manager@123' },
-                { role: 'Technician',   email: 'mike.tech@autoshop360.com', pass: 'Tech@123'  },
-              ].map(a => (
-                <div key={a.role} className="flex items-center justify-between gap-3 text-xs">
-                  <span className="text-zinc-500 w-20 shrink-0">{a.role}</span>
-                  <code className="text-zinc-300 font-mono truncate">{a.email}</code>
-                  <code className="text-brand-400 font-mono shrink-0">{a.pass}</code>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Mobile pricing note */}
           <div className="lg:hidden mt-6 text-center">
             <span className="text-xs text-zinc-600">
