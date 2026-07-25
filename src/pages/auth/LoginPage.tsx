@@ -41,9 +41,10 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       const res = await api.post('/auth/login', data);
-      setTokens(res.data.data.accessToken, res.data.data.user);
-      toast.success(`Welcome back, ${res.data.data.user.firstName}!`);
-      navigate(from, { replace: true });
+      const loggedInUser = res.data.data.user;
+      setTokens(res.data.data.accessToken, loggedInUser);
+      toast.success(`Welcome back, ${loggedInUser.firstName}!`);
+      navigate(loggedInUser.role === 'CUSTOMER' ? '/portal' : from, { replace: true });
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Login failed';
       toast.error(msg);

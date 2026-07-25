@@ -19,6 +19,7 @@ const ROLE_COLORS: Record<Role, string> = {
   MANAGER: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400',
   TECHNICIAN: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
   RECEPTIONIST: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400',
+  CUSTOMER: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400',
 };
 
 const shopSettingsSchema = z.object({

@@ -1,4 +1,4 @@
-export type Role = 'GLOBAL_ADMIN' | 'SHOP_ADMIN' | 'MANAGER' | 'TECHNICIAN' | 'RECEPTIONIST';
+export type Role = 'GLOBAL_ADMIN' | 'SHOP_ADMIN' | 'MANAGER' | 'TECHNICIAN' | 'RECEPTIONIST' | 'CUSTOMER';
 
 export type ROStatus =
   | 'ESTIMATE'

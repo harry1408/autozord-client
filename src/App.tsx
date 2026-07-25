@@ -25,6 +25,7 @@ import InspectionDetailPage from '@/pages/inspections/InspectionDetailPage';
 import InventoryPage from '@/pages/inventory/InventoryPage';
 import ReportsPage from '@/pages/reports/ReportsPage';
 import SettingsPage from '@/pages/settings/SettingsPage';
+import CustomerPortalPage from '@/pages/portal/CustomerPortalPage';
 
 export default function App() {
   const { theme } = useThemeStore();
@@ -47,6 +48,14 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/portal"
+        element={
+          <ProtectedRoute roles={['CUSTOMER']}>
+            <CustomerPortalPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/"
         element={
