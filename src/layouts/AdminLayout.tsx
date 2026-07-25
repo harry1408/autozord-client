@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Building2, Users, Inbox, LogOut } from 'lucide-react';
+import { Building2, Users, Inbox, Mail, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 import { LogoFull } from '@/components/ui/Logo';
 import { useAuthStore } from '@/store/auth.store';
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/admin/shops', icon: Building2, label: 'Shops' },
   { to: '/admin/users', icon: Users, label: 'Users' },
   { to: '/admin/inquiries', icon: Inbox, label: 'Inquiries' },
+  { to: '/admin/emails', icon: Mail, label: 'Email Activity' },
 ];
 
 export default function AdminLayout() {

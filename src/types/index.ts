@@ -275,6 +275,19 @@ export interface Shop {
   _count?: { users: number; customers: number; vehicles: number; repairOrders: number };
 }
 
+export type EmailCategory = 'OTP' | 'PASSWORD_RESET' | 'GENERIC';
+export type EmailStatus = 'SENT' | 'FAILED';
+
+export interface EmailLog {
+  id: string;
+  to: string;
+  subject: string;
+  category: EmailCategory;
+  status: EmailStatus;
+  errorMessage?: string | null;
+  createdAt: string;
+}
+
 export interface AdminUserSummary {
   id: string;
   email: string;
