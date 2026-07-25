@@ -283,3 +283,35 @@ export interface ShopDetail {
     totalRevenue: number;
   };
 }
+
+export interface PublicShop {
+  id: string;
+  name: string;
+  city?: string;
+  state?: string;
+  phone?: string;
+}
+
+export type InquiryStatus = 'NEW' | 'VIEWED' | 'RESPONDED' | 'DECLINED';
+
+export interface Inquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  vehicleInfo?: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface InquiryShop {
+  id: string;
+  inquiryId: string;
+  shopId: string;
+  status: InquiryStatus;
+  response?: string;
+  respondedAt?: string;
+  createdAt: string;
+  inquiry: Inquiry;
+  shop?: { id: string; name: string };
+}

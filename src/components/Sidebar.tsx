@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Users, Car, FileText, Receipt,
   CreditCard, UserCog, Search, Package, BarChart3, Settings,
-  ClipboardList, X, ChevronRight, ChevronLeft,
+  ClipboardList, X, ChevronRight, ChevronLeft, Inbox,
 } from 'lucide-react';
 import { LogoIcon, LogoFull } from '@/components/ui/Logo';
+import { useAuthStore } from '@/store/auth.store';
+import { Role } from '@/types';
 
-const NAV_ITEMS = [
+const NAV_ITEMS: { to: string; icon: typeof LayoutDashboard; label: string; roles?: Role[] }[] = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard'    },
   { to: '/repair-orders',icon: ClipboardList,   label: 'Job Board'    },
   { to: '/estimates',    icon: FileText,        label: 'Estimates'    },
@@ -19,6 +21,7 @@ const NAV_ITEMS = [
   { to: '/technicians',  icon: UserCog,         label: 'Technicians'  },
   { to: '/inspections',  icon: Search,          label: 'Inspections'  },
   { to: '/inventory',    icon: Package,         label: 'Inventory'    },
+  { to: '/inquiries',    icon: Inbox,           label: 'Inquiries',    roles: ['SHOP_ADMIN', 'MANAGER'] },
   { to: '/reports',      icon: BarChart3,       label: 'Reports'      },
   { to: '/settings',     icon: Settings,        label: 'Settings'     },
 ];
@@ -66,6 +69,9 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ open, onClose, expanded, onToggleExpand }: SidebarProps) {
+  const { user } = useAuthStore();
+  const visibleItems = NAV_ITEMS.filter(item => !item.roles || (user && item.roles.includes(user.role)));
+
   return (
     <>
       {/* Mobile overlay */}
@@ -100,7 +106,7 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
           'flex-1 flex flex-col py-2 gap-0.5 overflow-y-auto overflow-x-hidden',
           expanded ? 'px-2' : 'items-center'
         )}>
-          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+          {visibleItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -193,7 +199,7 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
-          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+          {visibleItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}

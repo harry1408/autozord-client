@@ -30,6 +30,11 @@ import AdminLayout from '@/layouts/AdminLayout';
 import ShopsListPage from '@/pages/admin/ShopsListPage';
 import ShopDetailPage from '@/pages/admin/ShopDetailPage';
 import UsersListPage from '@/pages/admin/UsersListPage';
+import AdminInquiriesPage from '@/pages/admin/AdminInquiriesPage';
+import PublicLayout from '@/layouts/PublicLayout';
+import ShopDirectoryPage from '@/pages/public/ShopDirectoryPage';
+import InquiryFormPage from '@/pages/public/InquiryFormPage';
+import InquiriesPage from '@/pages/inquiries/InquiriesPage';
 import { Role } from '@/types';
 
 const SHOP_STAFF_ROLES: Role[] = ['SHOP_ADMIN', 'MANAGER', 'TECHNICIAN', 'RECEPTIONIST'];
@@ -62,6 +67,10 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route element={<PublicLayout />}>
+        <Route path="/shops" element={<ShopDirectoryPage />} />
+        <Route path="/inquiry" element={<InquiryFormPage />} />
+      </Route>
       <Route
         path="/portal"
         element={
@@ -82,6 +91,7 @@ export default function App() {
         <Route path="shops" element={<ShopsListPage />} />
         <Route path="shops/:id" element={<ShopDetailPage />} />
         <Route path="users" element={<UsersListPage />} />
+        <Route path="inquiries" element={<AdminInquiriesPage />} />
       </Route>
       <Route
         path="/"
@@ -109,6 +119,7 @@ export default function App() {
         <Route path="inspections" element={<InspectionsPage />} />
         <Route path="inspections/:id" element={<InspectionDetailPage />} />
         <Route path="inventory" element={<InventoryPage />} />
+        <Route path="inquiries" element={<InquiriesPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
