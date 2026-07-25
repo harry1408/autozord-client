@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  base: '/autozord-client/',
+  base: '/',
   plugins: [react()],
   resolve: {
     alias: {
