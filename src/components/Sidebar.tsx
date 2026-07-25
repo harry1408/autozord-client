@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Users, Car, FileText, Receipt,
   CreditCard, UserCog, Search, Package, BarChart3, Settings,
-  ClipboardList, X, ChevronRight, ChevronLeft, Inbox,
+  ClipboardList, X, ChevronRight, ChevronLeft, Inbox, Mail,
 } from 'lucide-react';
 import { LogoIcon, LogoFull } from '@/components/ui/Logo';
 import { useAuthStore } from '@/store/auth.store';
@@ -157,15 +157,21 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
           expanded ? 'px-3' : 'items-center'
         )}>
           {expanded ? (
-            <div className="bg-zinc-900 border border-white/10 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] font-black text-white uppercase tracking-wide">Lifetime Free</p>
-              <p className="text-[9px] text-zinc-500 line-through mt-0.5">$400 CAD/yr</p>
-            </div>
+            <a
+              href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request"
+              className="block bg-zinc-900 border border-white/10 rounded-xl p-2.5 text-center hover:border-brand-500/40 transition-colors"
+            >
+              <p className="text-[10px] font-black text-white uppercase tracking-wide">Request a Demo</p>
+              <p className="text-[9px] text-brand-400 mt-0.5">info@autozord.com</p>
+            </a>
           ) : (
-            <div className="flex flex-col items-center">
-              <span className="text-[9px] font-black text-brand-400 uppercase tracking-wider leading-none">FREE</span>
-              <span className="text-[8px] text-zinc-600 line-through leading-none mt-0.5">$400/yr</span>
-            </div>
+            <a
+              href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request"
+              title="Request a demo — info@autozord.com"
+              className="flex items-center justify-center w-9 h-9 rounded-xl text-brand-400 hover:bg-white/10 transition-colors"
+            >
+              <Mail size={16} />
+            </a>
           )}
         </div>
       </aside>
@@ -209,12 +215,13 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
         </nav>
 
         <div className="px-4 py-4 border-t border-white/10 shrink-0">
-          <div className="bg-zinc-900 border border-white/10 rounded-xl p-3 text-center">
-            <p className="text-xs font-black text-white uppercase tracking-wide">Lifetime Free</p>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              <span className="line-through">$400 CAD/year</span>
-            </p>
-          </div>
+          <a
+            href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request"
+            className="block bg-zinc-900 border border-white/10 rounded-xl p-3 text-center hover:border-brand-500/40 transition-colors"
+          >
+            <p className="text-xs font-black text-white uppercase tracking-wide">Request a Demo</p>
+            <p className="text-xs text-brand-400 mt-0.5">info@autozord.com</p>
+          </a>
         </div>
       </aside>
     </>

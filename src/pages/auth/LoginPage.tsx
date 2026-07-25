@@ -66,10 +66,13 @@ export default function LoginPage() {
 
         {/* Mid content */}
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-600/20 border border-brand-600/30 mb-6">
+          <a
+            href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-600/20 border border-brand-600/30 mb-6 hover:bg-brand-600/30 transition-colors"
+          >
             <Zap size={12} className="text-brand-400" />
-            <span className="text-xs font-bold text-brand-400 uppercase tracking-wider">Lifetime Free Access</span>
-          </div>
+            <span className="text-xs font-bold text-brand-400 uppercase tracking-wider">Request a Demo — info@autozord.com</span>
+          </a>
           <h2 className="text-4xl font-black text-white leading-tight mb-3">
             Your shop,<br />fully managed.
           </h2>
@@ -89,21 +92,24 @@ export default function LoginPage() {
           </ul>
         </div>
 
-        {/* Pricing */}
-        <div className="bg-zinc-900 border border-white/10 rounded-2xl p-5">
+        {/* Demo CTA */}
+        <a
+          href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request"
+          className="block bg-zinc-900 border border-white/10 rounded-2xl p-5 hover:border-brand-500/40 transition-colors"
+        >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Current plan</p>
-              <p className="text-2xl font-black text-white">Lifetime Free</p>
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Want to see it in action?</p>
+              <p className="text-2xl font-black text-white">Request a Demo</p>
               <p className="text-xs text-zinc-500 mt-0.5">
-                Regular price: <span className="line-through text-zinc-600">$400 CAD/year</span>
+                Write to us at <span className="text-brand-400">info@autozord.com</span>
               </p>
             </div>
             <span className="px-3 py-1 bg-brand-600 text-white text-xs font-black rounded-full uppercase tracking-wide">
-              FREE
+              DEMO
             </span>
           </div>
-        </div>
+        </a>
       </div>
 
       {/* Right panel — form */}
@@ -160,12 +166,12 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Mobile pricing note */}
+          {/* Mobile demo note */}
           <div className="lg:hidden mt-6 text-center">
-            <span className="text-xs text-zinc-600">
-              <span className="text-white font-bold">Lifetime Free</span>
-              {' '}· Regular: <span className="line-through text-zinc-700">$400 CAD/yr</span>
-            </span>
+            <a href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request" className="text-xs text-zinc-600">
+              <span className="text-white font-bold">Request a Demo</span>
+              {' '}· <span className="text-brand-400">info@autozord.com</span>
+            </a>
           </div>
         </div>
       </div>
