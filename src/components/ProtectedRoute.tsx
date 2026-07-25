@@ -19,7 +19,7 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
   if (roles && user && !roles.includes(user.role)) {
     const fallback =
       user.role === 'GLOBAL_ADMIN' ? '/admin/shops' :
-      user.role === 'CUSTOMER' ? '/portal' :
+      user.role === 'CUSTOMER' ? '/shops' :
       '/dashboard';
     return <Navigate to={fallback} replace />;
   }

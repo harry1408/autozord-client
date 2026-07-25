@@ -25,7 +25,6 @@ import InspectionDetailPage from '@/pages/inspections/InspectionDetailPage';
 import InventoryPage from '@/pages/inventory/InventoryPage';
 import ReportsPage from '@/pages/reports/ReportsPage';
 import SettingsPage from '@/pages/settings/SettingsPage';
-import CustomerPortalPage from '@/pages/portal/CustomerPortalPage';
 import AdminLayout from '@/layouts/AdminLayout';
 import ShopsListPage from '@/pages/admin/ShopsListPage';
 import ShopDetailPage from '@/pages/admin/ShopDetailPage';
@@ -42,7 +41,7 @@ const SHOP_STAFF_ROLES: Role[] = ['SHOP_ADMIN', 'MANAGER', 'TECHNICIAN', 'RECEPT
 function RoleAwareRedirect() {
   const { user } = useAuthStore();
   if (user?.role === 'GLOBAL_ADMIN') return <Navigate to="/admin/shops" replace />;
-  if (user?.role === 'CUSTOMER') return <Navigate to="/portal" replace />;
+  if (user?.role === 'CUSTOMER') return <Navigate to="/shops" replace />;
   return <Navigate to="/dashboard" replace />;
 }
 
@@ -71,14 +70,6 @@ export default function App() {
         <Route path="/shops" element={<ShopDirectoryPage />} />
         <Route path="/inquiry" element={<InquiryFormPage />} />
       </Route>
-      <Route
-        path="/portal"
-        element={
-          <ProtectedRoute roles={['CUSTOMER']}>
-            <CustomerPortalPage />
-          </ProtectedRoute>
-        }
-      />
       <Route
         path="/admin"
         element={

@@ -1,6 +1,7 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { LogoFull } from '@/components/ui/Logo';
+import { useAuthStore } from '@/store/auth.store';
 
 const NAV_ITEMS = [
   { to: '/shops', label: 'Find a Shop' },
@@ -9,6 +10,13 @@ const NAV_ITEMS = [
 
 export default function PublicLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, logout } = useAuthStore();
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950">
@@ -30,12 +38,21 @@ export default function PublicLayout() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              to="/login"
-              className="text-sm font-medium text-zinc-500 hover:text-white transition-colors"
-            >
-              Shop Sign In
-            </Link>
+            {isAuthenticated && user?.role === 'CUSTOMER' ? (
+              <button
+                onClick={handleSignOut}
+                className="text-sm font-medium text-zinc-500 hover:text-white transition-colors"
+              >
+                Sign out ({user.firstName})
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="text-sm font-medium text-zinc-500 hover:text-white transition-colors"
+              >
+                Shop Sign In
+              </Link>
+            )}
           </nav>
         </div>
       </header>

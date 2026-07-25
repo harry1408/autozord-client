@@ -45,7 +45,7 @@ export default function LoginPage() {
       setTokens(res.data.data.accessToken, loggedInUser);
       toast.success(`Welcome back, ${loggedInUser.firstName}!`);
       const target =
-        loggedInUser.role === 'CUSTOMER' ? '/portal' :
+        loggedInUser.role === 'CUSTOMER' ? '/shops' :
         loggedInUser.role === 'GLOBAL_ADMIN' ? '/admin/shops' :
         from;
       navigate(target, { replace: true });
