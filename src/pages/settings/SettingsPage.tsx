@@ -11,10 +11,11 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
 
-const ROLES: Role[] = ['ADMIN', 'MANAGER', 'TECHNICIAN', 'RECEPTIONIST'];
+const ROLES: Role[] = ['SHOP_ADMIN', 'MANAGER', 'TECHNICIAN', 'RECEPTIONIST'];
 
 const ROLE_COLORS: Record<Role, string> = {
-  ADMIN: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400',
+  GLOBAL_ADMIN: 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400',
+  SHOP_ADMIN: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400',
   MANAGER: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400',
   TECHNICIAN: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
   RECEPTIONIST: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400',
@@ -41,7 +42,7 @@ const userSchema = z.object({
   lastName: z.string().min(1, 'Last name required'),
   email: z.string().email('Invalid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['ADMIN', 'MANAGER', 'TECHNICIAN', 'RECEPTIONIST']),
+  role: z.enum(['SHOP_ADMIN', 'MANAGER', 'TECHNICIAN', 'RECEPTIONIST']),
 });
 
 type UserForm = z.infer<typeof userSchema>;

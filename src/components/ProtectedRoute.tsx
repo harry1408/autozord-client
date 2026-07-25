@@ -1,10 +1,11 @@
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/auth.store';
+import { Role } from '@/types';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  roles?: string[];
+  roles?: Role[];
 }
 
 export default function ProtectedRoute({ children, roles }: ProtectedRouteProps) {

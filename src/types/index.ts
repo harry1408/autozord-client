@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'MANAGER' | 'TECHNICIAN' | 'RECEPTIONIST';
+export type Role = 'GLOBAL_ADMIN' | 'SHOP_ADMIN' | 'MANAGER' | 'TECHNICIAN' | 'RECEPTIONIST';
 
 export type ROStatus =
   | 'ESTIMATE'
@@ -23,6 +23,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: Role;
+  shopId: string | null;
   isActive: boolean;
 }
 
