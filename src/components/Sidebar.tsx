@@ -82,7 +82,7 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
       {/* ── Desktop sidebar ── */}
       <aside
         className={clsx(
-          'hidden lg:flex flex-col bg-zinc-950 border-r border-white/[0.06] shrink-0 z-30 h-screen transition-all duration-200 ease-in-out',
+          'hidden lg:flex flex-col relative bg-zinc-950 border-r border-white/[0.06] shrink-0 z-30 h-screen transition-all duration-200 ease-in-out',
           expanded ? 'w-[220px]' : 'w-[64px]'
         )}
       >
@@ -97,6 +97,15 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
             <LogoIcon className="h-9 w-9" />
           )}
         </div>
+
+        {/* Expand / Collapse toggle — straddles the sidebar/content border, level with the header */}
+        <button
+          onClick={onToggleExpand}
+          title={expanded ? 'Collapse sidebar' : 'Expand sidebar'}
+          className="absolute -right-3 top-14 -translate-y-1/2 z-40 w-6 h-6 flex items-center justify-center rounded-full bg-zinc-800 border border-white/10 text-zinc-400 shadow-md hover:bg-zinc-700 hover:text-white transition-colors"
+        >
+          {expanded ? <ChevronLeft size={13} /> : <ChevronRight size={13} />}
+        </button>
 
         {/* Clock */}
         <ClockWidget expanded={expanded} />
@@ -142,12 +151,11 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
           ))}
         </nav>
 
-        {/* Expand toggle + pricing */}
+        {/* Pricing badge */}
         <div className={clsx(
           'shrink-0 border-t border-white/10 py-3 flex flex-col',
-          expanded ? 'px-3 gap-2' : 'items-center gap-2'
+          expanded ? 'px-3' : 'items-center'
         )}>
-          {/* Pricing badge */}
           {expanded ? (
             <div className="bg-zinc-900 border border-white/10 rounded-xl p-2.5 text-center">
               <p className="text-[10px] font-black text-white uppercase tracking-wide">Lifetime Free</p>
@@ -159,25 +167,6 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
               <span className="text-[8px] text-zinc-600 line-through leading-none mt-0.5">$400/yr</span>
             </div>
           )}
-
-          {/* Expand / Collapse button */}
-          <button
-            onClick={onToggleExpand}
-            title={expanded ? 'Collapse sidebar' : 'Expand sidebar'}
-            className={clsx(
-              'flex items-center justify-center rounded-xl text-zinc-500 hover:bg-white/10 hover:text-white transition-colors',
-              expanded ? 'w-full h-8 gap-2 text-xs font-medium' : 'w-9 h-8'
-            )}
-          >
-            {expanded ? (
-              <>
-                <ChevronLeft size={15} />
-                <span>Collapse</span>
-              </>
-            ) : (
-              <ChevronRight size={15} />
-            )}
-          </button>
         </div>
       </aside>
 
