@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff, Zap, Check } from 'lucide-react';
 import { LogoFull } from '@/components/ui/Logo';
 import { useState, useEffect } from 'react';
@@ -165,6 +165,10 @@ export default function LoginPage() {
               {isSubmitting ? 'Signing in…' : 'Sign In'}
             </button>
           </form>
+
+          <p className="text-center text-xs text-zinc-600 mt-6">
+            New shop? <Link to="/signup" className="text-brand-400 hover:underline">Create an account</Link>
+          </p>
 
           {/* Mobile demo note */}
           <div className="lg:hidden mt-6 text-center">

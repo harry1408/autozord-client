@@ -6,6 +6,7 @@ import api from '@/services/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AppLayout from '@/layouts/AppLayout';
 import LoginPage from '@/pages/auth/LoginPage';
+import SignupPage from '@/pages/auth/SignupPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import CustomersPage from '@/pages/customers/CustomersPage';
 import CustomerDetailPage from '@/pages/customers/CustomerDetailPage';
@@ -66,6 +67,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
       <Route element={<PublicLayout />}>
         <Route path="/shops" element={<ShopDirectoryPage />} />
         <Route path="/inquiry" element={<InquiryFormPage />} />

@@ -244,6 +244,17 @@ export interface DashboardStats {
   overdueRepairOrders: number;
 }
 
+export type PlanType = 'LIFETIME_FREE' | 'MONTHLY' | 'YEARLY';
+export type SubscriptionStatus = 'PENDING_VERIFICATION' | 'SUSPENDED' | 'TRIAL' | 'ACTIVE' | 'EXPIRED';
+
+export interface SubscriptionInfo {
+  planType: PlanType | null;
+  status: SubscriptionStatus;
+  daysLeft?: number;
+  trialEndsAt?: string;
+  paidUntil?: string;
+}
+
 export interface Shop {
   id: string;
   name: string;
@@ -255,6 +266,10 @@ export interface Shop {
   phone?: string;
   email?: string;
   isActive: boolean;
+  planType?: PlanType | null;
+  isVerified?: boolean;
+  trialEndsAt?: string | null;
+  paidUntil?: string | null;
   createdAt: string;
   updatedAt: string;
   _count?: { users: number; customers: number; vehicles: number; repairOrders: number };

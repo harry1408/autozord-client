@@ -1,10 +1,105 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Users, Car, ClipboardList, DollarSign, TrendingUp } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Users, Car, ClipboardList, DollarSign, TrendingUp, ShieldCheck, Crown } from 'lucide-react';
+import { format } from 'date-fns';
 import api from '@/services/api';
 import { ShopDetail } from '@/types';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import toast from 'react-hot-toast';
+
+const PLAN_LABELS: Record<string, string> = {
+  LIFETIME_FREE: 'Lifetime Free',
+  MONTHLY: 'Monthly ($50/mo)',
+  YEARLY: 'Yearly ($400/yr)',
+};
+
+function SubscriptionPanel({ shopId, shop }: { shopId: string; shop: ShopDetail['shop'] }) {
+  const qc = useQueryClient();
+  const [paidUntil, setPaidUntil] = useState('');
+
+  const mutation = useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.put(`/admin/shops/${shopId}`, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-shop', shopId] });
+      qc.invalidateQueries({ queryKey: ['admin-shops'] });
+      toast.success('Subscription updated');
+    },
+    onError: () => toast.error('Failed to update subscription'),
+  });
+
+  return (
+    <div className="card p-5 mb-8">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Crown size={16} className="text-gray-400" /> Subscription
+        </h3>
+        <div className="flex items-center gap-2">
+          {!shop.isVerified && (
+            <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400">Pending Verification</span>
+          )}
+          {shop.planType && (
+            <span className="badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+              {PLAN_LABELS[shop.planType] ?? shop.planType}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+        {shop.trialEndsAt && (
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Trial Ends</p>
+            <p className="text-gray-900 dark:text-gray-100">{format(new Date(shop.trialEndsAt), 'MMM d, yyyy')}</p>
+          </div>
+        )}
+        {shop.paidUntil && (
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Paid Until</p>
+            <p className="text-gray-900 dark:text-gray-100">{format(new Date(shop.paidUntil), 'MMM d, yyyy')}</p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        {!shop.isVerified && (
+          <button
+            onClick={() => mutation.mutate({ isVerified: true })}
+            disabled={mutation.isPending}
+            className="btn-primary text-xs"
+          >
+            <ShieldCheck size={13} /> Verify Account
+          </button>
+        )}
+        {shop.planType !== 'LIFETIME_FREE' && (
+          <button
+            onClick={() => mutation.mutate({ planType: 'LIFETIME_FREE', isVerified: true })}
+            disabled={mutation.isPending}
+            className="btn-secondary text-xs"
+          >
+            Grant Lifetime Free
+          </button>
+        )}
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={paidUntil}
+            onChange={e => setPaidUntil(e.target.value)}
+            className="input text-xs py-1.5"
+          />
+          <button
+            onClick={() => paidUntil && mutation.mutate({ paidUntil })}
+            disabled={mutation.isPending || !paidUntil}
+            className="btn-secondary text-xs whitespace-nowrap"
+          >
+            Set Paid Until
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const STAT_CARDS = [
   { key: 'customerCount', label: 'Customers', icon: Users },
@@ -38,6 +133,8 @@ export default function ShopDetailPage() {
         title={shop.name}
         description={[shop.address, shop.city, shop.state].filter(Boolean).join(', ') || undefined}
       />
+
+      <SubscriptionPanel shopId={shop.id} shop={shop} />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         {STAT_CARDS.map(({ key, label, icon: Icon }) => (

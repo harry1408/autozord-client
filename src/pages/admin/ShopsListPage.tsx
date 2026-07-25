@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, Building2, Users, Car, ClipboardList } from 'lucide-react';
+import { Plus, Building2, Users, Car, ClipboardList, ShieldCheck } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -98,12 +98,28 @@ function CreateShopModal({ open, onClose }: { open: boolean; onClose: () => void
   );
 }
 
+const PLAN_LABELS: Record<string, string> = {
+  LIFETIME_FREE: 'Lifetime Free',
+  MONTHLY: 'Monthly',
+  YEARLY: 'Yearly',
+};
+
 export default function ShopsListPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-shops'],
     queryFn: () => api.get<{ success: boolean; data: Shop[] }>('/admin/shops'),
+  });
+
+  const verifyMutation = useMutation({
+    mutationFn: (id: string) => api.put(`/admin/shops/${id}`, { isVerified: true }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-shops'] });
+      toast.success('Shop verified');
+    },
+    onError: () => toast.error('Failed to verify shop'),
   });
 
   const shops = data?.data.data ?? [];
@@ -134,14 +150,31 @@ export default function ShopsListPage() {
             >
               <div className="flex items-start justify-between mb-3">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100">{shop.name}</h3>
-                <span className={`badge ${shop.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
-                  {shop.isActive ? 'Active' : 'Inactive'}
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`badge ${shop.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
+                    {shop.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                  {!shop.isVerified && (
+                    <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400">Pending</span>
+                  )}
+                </div>
               </div>
               {(shop.city || shop.state) && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
                   {[shop.city, shop.state].filter(Boolean).join(', ')}
                 </p>
+              )}
+              {shop.planType && (
+                <p className="text-xs text-gray-400 mb-3">{PLAN_LABELS[shop.planType] ?? shop.planType}</p>
+              )}
+              {!shop.isVerified && (
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); verifyMutation.mutate(shop.id); }}
+                  disabled={verifyMutation.isPending}
+                  className="mb-3 w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 border border-brand-300 dark:border-brand-700 rounded-lg py-1.5 hover:bg-brand-50 dark:hover:bg-brand-950/40 transition-colors"
+                >
+                  <ShieldCheck size={13} /> Verify Account
+                </button>
               )}
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>

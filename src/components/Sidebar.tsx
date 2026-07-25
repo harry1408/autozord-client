@@ -1,14 +1,17 @@
 import { NavLink } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import {
   LayoutDashboard, Users, Car, FileText, Receipt,
   CreditCard, UserCog, Search, Package, BarChart3, Settings,
-  ClipboardList, X, ChevronRight, ChevronLeft, Inbox, Mail,
+  ClipboardList, X, ChevronRight, ChevronLeft, Inbox, Crown, Clock, AlertTriangle,
 } from 'lucide-react';
 import { LogoIcon, LogoFull } from '@/components/ui/Logo';
 import { useAuthStore } from '@/store/auth.store';
-import { Role } from '@/types';
+import api from '@/services/api';
+import { Role, SubscriptionInfo } from '@/types';
 
 const NAV_ITEMS: { to: string; icon: typeof LayoutDashboard; label: string; roles?: Role[] }[] = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard'    },
@@ -57,6 +60,82 @@ function ClockWidget({ expanded }: { expanded: boolean }) {
       <span className="text-sm font-bold text-white tabular-nums leading-tight">
         {hh}:{mm}
       </span>
+    </div>
+  );
+}
+
+function getPlanBadgeContent(sub: SubscriptionInfo) {
+  if (sub.status === 'TRIAL') {
+    return {
+      icon: Clock,
+      color: 'text-amber-400',
+      label: `Trial · ${sub.daysLeft ?? 0}d left`,
+      subtext: sub.planType === 'YEARLY' ? '$400/yr after trial' : '$50/mo after trial',
+    };
+  }
+  if (sub.status === 'EXPIRED') {
+    return {
+      icon: AlertTriangle,
+      color: 'text-red-400',
+      label: 'Subscription Expired',
+      subtext: 'Renew to regain access',
+      mailto: true,
+    };
+  }
+  if (sub.planType === 'LIFETIME_FREE') {
+    return { icon: Crown, color: 'text-brand-400', label: 'Lifetime Free', subtext: 'Thanks for being an early customer' };
+  }
+  // ACTIVE (paid Monthly/Yearly)
+  return {
+    icon: Crown,
+    color: 'text-green-400',
+    label: sub.planType === 'YEARLY' ? 'Yearly Plan' : 'Monthly Plan',
+    subtext: sub.paidUntil ? `Renews ${format(new Date(sub.paidUntil), 'MMM d, yyyy')}` : 'Active',
+  };
+}
+
+function SubscriptionBadge({ compact }: { compact: boolean }) {
+  const { data } = useQuery({
+    queryKey: ['subscription'],
+    queryFn: () => api.get<{ success: boolean; data: SubscriptionInfo }>('/settings/subscription'),
+  });
+  const sub = data?.data.data;
+  if (!sub) return null;
+
+  const { icon: Icon, color, label, subtext, mailto } = getPlanBadgeContent(sub);
+  const content = mailto ? (
+    <a href="mailto:info@autozord.com?subject=Autozord%20Subscription%20Renewal" className="contents">
+      <Icon size={compact ? 16 : 13} className={color} />
+      {!compact && (
+        <div className="min-w-0">
+          <p className={clsx('text-[10px] font-black uppercase tracking-wide', color)}>{label}</p>
+          <p className="text-[9px] text-zinc-500 mt-0.5 truncate">{subtext}</p>
+        </div>
+      )}
+    </a>
+  ) : (
+    <>
+      <Icon size={compact ? 16 : 13} className={color} />
+      {!compact && (
+        <div className="min-w-0">
+          <p className={clsx('text-[10px] font-black uppercase tracking-wide', color)}>{label}</p>
+          <p className="text-[9px] text-zinc-500 mt-0.5 truncate">{subtext}</p>
+        </div>
+      )}
+    </>
+  );
+
+  if (compact) {
+    return (
+      <div title={`${label} — ${subtext}`} className="flex items-center justify-center w-9 h-9 rounded-xl">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 bg-zinc-900 border border-white/10 rounded-xl p-2.5">
+      {content}
     </div>
   );
 }
@@ -151,28 +230,12 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
           ))}
         </nav>
 
-        {/* Pricing badge */}
+        {/* Subscription status */}
         <div className={clsx(
           'shrink-0 border-t border-white/10 py-3 flex flex-col',
           expanded ? 'px-3' : 'items-center'
         )}>
-          {expanded ? (
-            <a
-              href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request"
-              className="block bg-zinc-900 border border-white/10 rounded-xl p-2.5 text-center hover:border-brand-500/40 transition-colors"
-            >
-              <p className="text-[10px] font-black text-white uppercase tracking-wide">Request a Demo</p>
-              <p className="text-[9px] text-brand-400 mt-0.5">info@autozord.com</p>
-            </a>
-          ) : (
-            <a
-              href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request"
-              title="Request a demo — info@autozord.com"
-              className="flex items-center justify-center w-9 h-9 rounded-xl text-brand-400 hover:bg-white/10 transition-colors"
-            >
-              <Mail size={16} />
-            </a>
-          )}
+          <SubscriptionBadge compact={!expanded} />
         </div>
       </aside>
 
@@ -215,13 +278,7 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
         </nav>
 
         <div className="px-4 py-4 border-t border-white/10 shrink-0">
-          <a
-            href="mailto:info@autozord.com?subject=Autozord%20Demo%20Request"
-            className="block bg-zinc-900 border border-white/10 rounded-xl p-3 text-center hover:border-brand-500/40 transition-colors"
-          >
-            <p className="text-xs font-black text-white uppercase tracking-wide">Request a Demo</p>
-            <p className="text-xs text-brand-400 mt-0.5">info@autozord.com</p>
-          </a>
+          <SubscriptionBadge compact={false} />
         </div>
       </aside>
     </>
