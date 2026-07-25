@@ -1,11 +1,53 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Users } from 'lucide-react';
+import { Users, KeyRound, Copy } from 'lucide-react';
 import api from '@/services/api';
 import { AdminUserSummary } from '@/types';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
+import Modal from '@/components/ui/Modal';
+import toast from 'react-hot-toast';
+
+function ResetPasswordButton({ userId, email }: { userId: string; email: string }) {
+  const [result, setResult] = useState<string | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: () => api.post<{ success: boolean; data: { password: string } }>(`/admin/users/${userId}/reset-password`),
+    onSuccess: (res) => setResult(res.data.data.password),
+    onError: () => toast.error('Failed to reset password'),
+  });
+
+  return (
+    <>
+      <button
+        onClick={() => mutation.mutate()}
+        disabled={mutation.isPending}
+        className="flex items-center gap-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline"
+      >
+        <KeyRound size={13} /> Reset Password
+      </button>
+
+      <Modal open={!!result} onClose={() => setResult(null)} title="Password Reset" size="sm">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+          New temporary password for <span className="font-medium text-gray-900 dark:text-gray-100">{email}</span>. Share it with them directly — it won't be shown again.
+        </p>
+        <div className="flex items-center gap-2">
+          <code className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-mono text-gray-900 dark:text-gray-100">
+            {result}
+          </code>
+          <button
+            onClick={() => { navigator.clipboard.writeText(result ?? ''); toast.success('Copied'); }}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <Copy size={16} className="text-gray-500" />
+          </button>
+        </div>
+      </Modal>
+    </>
+  );
+}
 
 export default function UsersListPage() {
   const { data, isLoading } = useQuery({
@@ -33,6 +75,7 @@ export default function UsersListPage() {
                 <th className="px-5 py-3 font-medium">Role</th>
                 <th className="px-5 py-3 font-medium">Shop</th>
                 <th className="px-5 py-3 font-medium">Status</th>
+                <th className="px-5 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -56,6 +99,9 @@ export default function UsersListPage() {
                     <span className={`badge ${u.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
                       {u.isActive ? 'Active' : 'Inactive'}
                     </span>
+                  </td>
+                  <td className="px-5 py-3">
+                    <ResetPasswordButton userId={u.id} email={u.email} />
                   </td>
                 </tr>
               ))}
