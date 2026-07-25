@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <script>
-      // GitHub Pages SPA redirect — serves root custom domain (autozord.com)
-      // Converts /some/path to /?/some/path so index.html can restore it.
+      // GitHub Pages SPA redirect — preserves the sub-path base (/autozord-client/)
       var l = window.location;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 2).join('/') +
         '/?/' +
-        l.pathname.slice(1).replace(/&/g, '~and~') +
+        l.pathname.slice(1).split('/').slice(1).join('/').replace(/&/g, '~and~') +
         (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
         l.hash
       );
