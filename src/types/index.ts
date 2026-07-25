@@ -243,3 +243,43 @@ export interface DashboardStats {
   todayRevenue: number;
   overdueRepairOrders: number;
 }
+
+export interface Shop {
+  id: string;
+  name: string;
+  slug: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  phone?: string;
+  email?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { users: number; customers: number; vehicles: number; repairOrders: number };
+}
+
+export interface AdminUserSummary {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: Role;
+  isActive: boolean;
+  createdAt: string;
+  shopId: string | null;
+  shop?: { id: string; name: string } | null;
+}
+
+export interface ShopDetail {
+  shop: Shop;
+  users: Pick<AdminUserSummary, 'id' | 'email' | 'firstName' | 'lastName' | 'role' | 'isActive' | 'createdAt'>[];
+  stats: {
+    customerCount: number;
+    vehicleCount: number;
+    repairOrderCount: number;
+    openRepairOrderCount: number;
+    totalRevenue: number;
+  };
+}

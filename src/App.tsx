@@ -26,6 +26,20 @@ import InventoryPage from '@/pages/inventory/InventoryPage';
 import ReportsPage from '@/pages/reports/ReportsPage';
 import SettingsPage from '@/pages/settings/SettingsPage';
 import CustomerPortalPage from '@/pages/portal/CustomerPortalPage';
+import AdminLayout from '@/layouts/AdminLayout';
+import ShopsListPage from '@/pages/admin/ShopsListPage';
+import ShopDetailPage from '@/pages/admin/ShopDetailPage';
+import UsersListPage from '@/pages/admin/UsersListPage';
+import { Role } from '@/types';
+
+const SHOP_STAFF_ROLES: Role[] = ['SHOP_ADMIN', 'MANAGER', 'TECHNICIAN', 'RECEPTIONIST'];
+
+function RoleAwareRedirect() {
+  const { user } = useAuthStore();
+  if (user?.role === 'GLOBAL_ADMIN') return <Navigate to="/admin/shops" replace />;
+  if (user?.role === 'CUSTOMER') return <Navigate to="/portal" replace />;
+  return <Navigate to="/dashboard" replace />;
+}
 
 export default function App() {
   const { theme } = useThemeStore();
@@ -57,9 +71,22 @@ export default function App() {
         }
       />
       <Route
+        path="/admin"
+        element={
+          <ProtectedRoute roles={['GLOBAL_ADMIN']}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/admin/shops" replace />} />
+        <Route path="shops" element={<ShopsListPage />} />
+        <Route path="shops/:id" element={<ShopDetailPage />} />
+        <Route path="users" element={<UsersListPage />} />
+      </Route>
+      <Route
         path="/"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={SHOP_STAFF_ROLES}>
             <AppLayout />
           </ProtectedRoute>
         }
@@ -85,7 +112,7 @@ export default function App() {
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<RoleAwareRedirect />} />
     </Routes>
   );
 }

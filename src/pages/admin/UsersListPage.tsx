@@ -1,0 +1,68 @@
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { Users } from 'lucide-react';
+import api from '@/services/api';
+import { AdminUserSummary } from '@/types';
+import PageHeader from '@/components/ui/PageHeader';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import EmptyState from '@/components/ui/EmptyState';
+
+export default function UsersListPage() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: () => api.get<{ success: boolean; data: AdminUserSummary[] }>('/admin/users'),
+  });
+
+  const users = data?.data.data ?? [];
+
+  return (
+    <div>
+      <PageHeader title="Users" description="Every user across every shop" />
+
+      {isLoading ? (
+        <LoadingSpinner fullPage />
+      ) : users.length === 0 ? (
+        <EmptyState icon={Users} title="No users yet" />
+      ) : (
+        <div className="card overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-gray-800 text-left text-xs text-gray-500 uppercase tracking-wider">
+                <th className="px-5 py-3 font-medium">Name</th>
+                <th className="px-5 py-3 font-medium">Email</th>
+                <th className="px-5 py-3 font-medium">Role</th>
+                <th className="px-5 py-3 font-medium">Shop</th>
+                <th className="px-5 py-3 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id} className="border-b border-gray-100 dark:border-gray-800/50 last:border-0">
+                  <td className="px-5 py-3 font-medium text-gray-900 dark:text-gray-100">{u.firstName} {u.lastName}</td>
+                  <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{u.email}</td>
+                  <td className="px-5 py-3">
+                    <span className="badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">{u.role}</span>
+                  </td>
+                  <td className="px-5 py-3 text-gray-500 dark:text-gray-400">
+                    {u.shop ? (
+                      <Link to={`/admin/shops/${u.shop.id}`} className="text-brand-600 hover:underline">
+                        {u.shop.name}
+                      </Link>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3">
+                    <span className={`badge ${u.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
+                      {u.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}

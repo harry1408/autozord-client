@@ -44,7 +44,11 @@ export default function LoginPage() {
       const loggedInUser = res.data.data.user;
       setTokens(res.data.data.accessToken, loggedInUser);
       toast.success(`Welcome back, ${loggedInUser.firstName}!`);
-      navigate(loggedInUser.role === 'CUSTOMER' ? '/portal' : from, { replace: true });
+      const target =
+        loggedInUser.role === 'CUSTOMER' ? '/portal' :
+        loggedInUser.role === 'GLOBAL_ADMIN' ? '/admin/shops' :
+        from;
+      navigate(target, { replace: true });
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Login failed';
       toast.error(msg);
