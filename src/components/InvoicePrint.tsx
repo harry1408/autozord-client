@@ -115,12 +115,16 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
         }
       `}</style>
 
+      {/* ── LOGO (centered, top of page) ──────────────────────────────── */}
+      {shop.logoUrl && (
+        <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+          <img src={shop.logoUrl} alt="logo" style={{ height: '60px', display: 'inline-block' }} />
+        </div>
+      )}
+
       {/* ── HEADER ─────────────────────────────────────────────────────── */}
       <div style={s.header}>
         <div>
-          {shop.logoUrl && (
-            <img src={shop.logoUrl} alt="logo" style={{ height: '52px', marginBottom: '3px', display: 'block' }} />
-          )}
           <div style={s.shopName}>{shop.shopName}</div>
           {shop.address && <div>{shop.address}</div>}
           {shop.email && <div>{shop.email}</div>}
