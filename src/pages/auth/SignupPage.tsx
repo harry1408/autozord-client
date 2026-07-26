@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,7 @@ import { clsx } from 'clsx';
 import { LogoFull } from '@/components/ui/Logo';
 import api from '@/services/api';
 import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
-import { REGIONS, getRegionPricing } from '@/utils/pricing';
+import { getRegionPricing } from '@/utils/pricing';
 import { Region } from '@/types';
 
 const signupSchema = z.object({
@@ -95,18 +95,27 @@ function OtpStep({ email }: { email: string }) {
 }
 
 export default function SignupPage() {
-  const [region, setRegion] = useState<Region>('CA');
   const [planType, setPlanType] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
   const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
   });
 
+  // Region is detected server-side from IP (not user-selected) purely to
+  // show the right currency/price here - the signup endpoint independently
+  // re-derives it from the request IP at submit time, so this is
+  // display-only and can't be spoofed into a different price.
+  const { data: regionRes } = useQuery({
+    queryKey: ['detect-region'],
+    queryFn: () => api.get<{ success: boolean; data: { country: Region } }>('/public/detect-region'),
+    staleTime: Infinity,
+  });
+  const region = regionRes?.data.data.country ?? 'CA';
   const pricing = getRegionPricing(region);
   const yearlySavings = pricing.monthly * 12 - pricing.yearly;
 
   const mutation = useMutation({
-    mutationFn: (data: SignupForm) => api.post('/public/signup', { ...data, planType, country: region }),
+    mutationFn: (data: SignupForm) => api.post('/public/signup', { ...data, planType }),
     onSuccess: (_res, variables) => setSignedUpEmail(variables.email),
   });
 
@@ -125,28 +134,6 @@ export default function SignupPage() {
             <p className="text-zinc-500 text-sm mb-8 text-center">7-day free trial on either plan, no card required today</p>
 
             <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-5">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Your region</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {REGIONS.map(r => (
-                    <button
-                      key={r.value}
-                      type="button"
-                      onClick={() => setRegion(r.value)}
-                      className={clsx(
-                        'text-center px-3 py-2.5 rounded-xl border transition-colors',
-                        region === r.value
-                          ? 'border-brand-500 bg-brand-600/10'
-                          : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'
-                      )}
-                    >
-                      <span className="text-sm font-bold text-white">{r.label}</span>
-                      <p className="text-[11px] text-zinc-500">{r.currency}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <div>
                 <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Choose a plan</label>
                 <div className="grid grid-cols-2 gap-3">
