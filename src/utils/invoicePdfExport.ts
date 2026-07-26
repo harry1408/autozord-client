@@ -16,21 +16,17 @@ export async function captureInvoicePdf(node: HTMLElement): Promise<{ base64: st
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  let heightLeft = imgHeight;
-  let position = 0;
+  // Scale the whole capture to fit on a single page (the print view is
+  // designed as one page - it even prints "1 of 1"). Slicing a tall image
+  // across multiple pages by shifting it up cuts table rows in half
+  // wherever the page break lands, which is worse than shrinking to fit.
+  const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+  const imgWidth = canvas.width * ratio;
+  const imgHeight = canvas.height * ratio;
+  const x = (pageWidth - imgWidth) / 2;
 
-  pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  while (heightLeft > 0) {
-    position -= pageHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
+  pdf.addImage(imgData, 'JPEG', x, 0, imgWidth, imgHeight);
 
   const dataUri = pdf.output('datauristring');
   const base64 = dataUri.substring(dataUri.indexOf(',') + 1);
