@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, CreditCard, Printer, Mail } from 'lucide-react';
@@ -12,6 +12,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Modal from '@/components/ui/Modal';
 import InvoicePrint, { PrintFormData } from '@/components/InvoicePrint';
+import { captureInvoicePdf } from '@/utils/invoicePdfExport';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -116,10 +117,14 @@ interface EmailInvoiceModalProps {
   onClose: () => void;
   invoiceId: string;
   initialEmail?: string;
+  onPreparePdf: () => Promise<{ base64: string; blob: Blob }>;
 }
 
-function EmailInvoiceModal({ open, onClose, invoiceId, initialEmail }: EmailInvoiceModalProps) {
+function EmailInvoiceModal({ open, onClose, invoiceId, initialEmail, onPreparePdf }: EmailInvoiceModalProps) {
   const qc = useQueryClient();
+  const [pdf, setPdf] = useState<{ base64: string; url: string } | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<EmailForm>({
     resolver: zodResolver(emailSchema),
@@ -132,8 +137,40 @@ function EmailInvoiceModal({ open, onClose, invoiceId, initialEmail }: EmailInvo
     if (open) reset({ email: initialEmail ?? '' });
   }, [open, initialEmail, reset]);
 
+  // Generate the PDF preview as soon as the modal opens, so what's shown is
+  // exactly what gets sent.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setPdf(null);
+    setPdfError(null);
+    setPdfLoading(true);
+    onPreparePdf()
+      .then(({ base64, blob }) => {
+        if (cancelled) return;
+        setPdf({ base64, url: URL.createObjectURL(blob) });
+      })
+      .catch(() => {
+        if (!cancelled) setPdfError('Failed to generate PDF preview');
+      })
+      .finally(() => {
+        if (!cancelled) setPdfLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [open, onPreparePdf]);
+
+  // Release the object URL whenever it's replaced or the modal unmounts.
+  useEffect(() => {
+    return () => {
+      if (pdf?.url) URL.revokeObjectURL(pdf.url);
+    };
+  }, [pdf?.url]);
+
   const mutation = useMutation({
-    mutationFn: (data: EmailForm) => api.post(`/invoices/${invoiceId}/send-email`, data),
+    mutationFn: (data: EmailForm) => {
+      if (!pdf?.base64) throw new Error('PDF is not ready yet');
+      return api.post(`/invoices/${invoiceId}/send-email`, { ...data, pdfBase64: pdf.base64 });
+    },
     onSuccess: (res: any) => {
       qc.invalidateQueries({ queryKey: ['invoices', invoiceId] });
       toast.success(`Invoice emailed to ${res.data?.data?.email ?? 'customer'}`);
@@ -147,24 +184,46 @@ function EmailInvoiceModal({ open, onClose, invoiceId, initialEmail }: EmailInvo
       open={open}
       onClose={onClose}
       title="Email Invoice"
-      size="md"
+      size="2xl"
       footer={
         <>
           <button onClick={onClose} className="btn-secondary">Cancel</button>
-          <button onClick={handleSubmit(d => mutation.mutate(d))} disabled={mutation.isPending} className="btn-primary">
+          <button
+            onClick={handleSubmit(d => mutation.mutate(d))}
+            disabled={mutation.isPending || pdfLoading || !pdf}
+            className="btn-primary"
+          >
             {mutation.isPending ? 'Sending...' : 'Send Invoice'}
           </button>
         </>
       }
     >
-      <form className="space-y-4">
+      <div className="space-y-4">
         <div>
           <label className="label">Customer Email *</label>
           <input {...register('email')} type="email" className="input" placeholder="customer@example.com" autoFocus />
           {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
           <p className="mt-1 text-xs text-gray-400">Confirm or edit before sending — this will be saved to the customer's record.</p>
         </div>
-      </form>
+
+        <div>
+          <label className="label">PDF Preview</label>
+          <div
+            className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900"
+            style={{ height: '480px' }}
+          >
+            {pdfLoading && (
+              <div className="h-full flex items-center justify-center text-sm text-gray-400">Generating PDF preview...</div>
+            )}
+            {pdfError && (
+              <div className="h-full flex items-center justify-center text-sm text-red-500">{pdfError}</div>
+            )}
+            {pdf && !pdfLoading && (
+              <iframe src={pdf.url} title="Invoice PDF preview" className="w-full h-full" />
+            )}
+          </div>
+        </div>
+      </div>
     </Modal>
   );
 }
@@ -177,6 +236,7 @@ export default function InvoiceDetailPage() {
   const [printData, setPrintData] = useState<PrintFormData | null>(
     (location.state as any)?.printData ?? null
   );
+  const printContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: invRes, isLoading } = useQuery({
     queryKey: ['invoices', id],
@@ -188,16 +248,17 @@ export default function InvoiceDetailPage() {
     queryFn: () => api.get<{ success: boolean; data: ShopSettings }>('/settings'),
   });
 
+  const inv = invRes?.data.data;
+  const roTechnicians: any[] = (inv?.repairOrder as any)?.technicians ?? [];
+  const firstTech = roTechnicians[0]?.technician?.user;
+  const defaultAdvisor = firstTech ? `${firstTech.firstName} ${firstTech.lastName}` : '';
+  const defaultMileageOut = inv?.repairOrder?.mileageOut ? String(inv.repairOrder.mileageOut) : '';
+
   // Auto-print when navigated here after invoice creation
   useEffect(() => {
     const autoPrint = (location.state as any)?.autoPrint;
     if (!autoPrint || isLoading || !invRes) return;
-    const inv = invRes.data.data;
     if (!inv) return;
-    const roTechs: any[] = (inv.repairOrder as any)?.technicians ?? [];
-    const firstTech = roTechs[0]?.technician?.user;
-    const defaultAdvisor = firstTech ? `${firstTech.firstName} ${firstTech.lastName}` : '';
-    const defaultMileageOut = inv.repairOrder?.mileageOut ? String(inv.repairOrder.mileageOut) : '';
     const pd: PrintFormData = (location.state as any)?.printData ?? {
       serviceAdvisor: defaultAdvisor,
       visitType: '',
@@ -206,21 +267,34 @@ export default function InvoiceDetailPage() {
     };
     setPrintData(pd);
     setTimeout(() => window.print(), 300);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, invRes, location.state]);
 
-  if (isLoading) return <LoadingSpinner fullPage />;
+  // Renders the same print view off-screen and captures it to a PDF, so the
+  // emailed attachment is pixel-identical to "Print Invoice" instead of a
+  // separately hand-built layout. Defined before the loading/not-found
+  // guards below since hooks can't be called conditionally.
+  const preparePdf = useCallback(async (): Promise<{ base64: string; blob: Blob }> => {
+    if (!printData) {
+      setPrintData({
+        serviceAdvisor: defaultAdvisor,
+        visitType: '',
+        mileageOut: defaultMileageOut,
+        extrasWithVehicle: '',
+      });
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    const node = printContainerRef.current?.querySelector('#invoice-print') as HTMLElement | null;
+    if (!node) throw new Error('Could not render invoice for PDF export');
+    return captureInvoicePdf(node);
+  }, [printData, defaultAdvisor, defaultMileageOut]);
 
-  const inv = invRes?.data.data;
+  if (isLoading) return <LoadingSpinner fullPage />;
   if (!inv) return <div className="card p-8 text-center text-gray-500">Invoice not found</div>;
 
   const shop = shopRes?.data.data ?? {
     id: '', shopName: 'Autozord', taxRate: 0, laborRate: 85, gstRate: 5, pstRate: 7,
   } as ShopSettings;
-
-  const roTechnicians: any[] = (inv.repairOrder as any)?.technicians ?? [];
-  const firstTech = roTechnicians[0]?.technician?.user;
-  const defaultAdvisor = firstTech ? `${firstTech.firstName} ${firstTech.lastName}` : '';
-  const defaultMileageOut = inv.repairOrder?.mileageOut ? String(inv.repairOrder.mileageOut) : '';
 
   const triggerPrint = () => {
     const pd: PrintFormData = printData ?? {
@@ -457,12 +531,17 @@ export default function InvoiceDetailPage() {
         onClose={() => setEmailModalOpen(false)}
         invoiceId={id!}
         initialEmail={inv.customer?.email}
+        onPreparePdf={preparePdf}
       />
 
-      {/* Hidden print view — becomes visible only during window.print() */}
-      {printData && (
-        <InvoicePrint invoice={inv} shop={shop} printData={printData} />
-      )}
+      {/* Off-screen print view: becomes visible on-page during window.print()
+          (the @media print rules reposition it), and is captured directly
+          by html2canvas for the emailed PDF the rest of the time. */}
+      <div ref={printContainerRef} style={{ position: 'fixed', left: '-10000px', top: 0 }}>
+        {printData && (
+          <InvoicePrint invoice={inv} shop={shop} printData={printData} />
+        )}
+      </div>
     </div>
   );
 }
