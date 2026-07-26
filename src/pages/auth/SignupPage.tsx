@@ -8,6 +8,7 @@ import { Check, CheckCircle2, Mail } from 'lucide-react';
 import { clsx } from 'clsx';
 import { LogoFull } from '@/components/ui/Logo';
 import api from '@/services/api';
+import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
 
 const PLANS = [
   { value: 'MONTHLY' as const, label: 'Monthly', price: '$50', period: '/month' },
@@ -20,6 +21,7 @@ const signupSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  acceptedTerms: z.boolean().refine(v => v === true, { message: 'You must accept the Terms & Conditions to continue' }),
 });
 
 type SignupForm = z.infer<typeof signupSchema>;
@@ -189,6 +191,8 @@ export default function SignupPage() {
                 <input {...register('password')} type="password" className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 {errors.password && <p className="mt-1.5 text-xs text-red-400">{errors.password.message}</p>}
               </div>
+
+              <TermsCheckboxField registration={register('acceptedTerms')} error={errors.acceptedTerms?.message} />
 
               {mutation.isError && (
                 <p className="text-sm text-red-400">{errMsg(mutation.error, 'Signup failed')}</p>

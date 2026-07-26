@@ -8,6 +8,7 @@ import { CheckCircle2 } from 'lucide-react';
 import api from '@/services/api';
 import { PublicShop } from '@/types';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
 
 const inquirySchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -15,6 +16,7 @@ const inquirySchema = z.object({
   phone: z.string().optional(),
   vehicleInfo: z.string().optional(),
   message: z.string().min(1, 'Tell shops what you need'),
+  acceptedTerms: z.boolean().refine(v => v === true, { message: 'You must accept the Terms & Conditions to continue' }),
 });
 
 type InquiryForm = z.infer<typeof inquirySchema>;
@@ -125,6 +127,8 @@ export default function InquiryFormPage() {
           <textarea {...register('message')} rows={4} className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
           {errors.message && <p className="mt-1.5 text-xs text-red-400">{errors.message.message}</p>}
         </div>
+
+        <TermsCheckboxField registration={register('acceptedTerms')} error={errors.acceptedTerms?.message} />
 
         {mutation.isError && (
           <p className="text-sm text-red-400">
