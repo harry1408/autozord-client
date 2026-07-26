@@ -70,16 +70,16 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
   const subtotalBeforeTax = invoice.subtotal - invoice.discount;
 
   const s: Record<string, React.CSSProperties> = {
-    page: { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '10px', color: '#000', backgroundColor: '#fff', padding: '16px', maxWidth: '870px', margin: '0 auto', lineHeight: '1.4' },
+    page: { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', color: '#000', backgroundColor: '#fff', padding: '16px', maxWidth: '870px', margin: '0 auto', lineHeight: '1.4' },
     header: { display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #555', paddingBottom: '8px', marginBottom: '8px' },
-    shopName: { fontWeight: 'bold', fontSize: '14px', marginBottom: '2px' },
-    refTable: { fontSize: '10px', borderCollapse: 'collapse' as const },
+    shopName: { fontWeight: 'bold', fontSize: '16px', marginBottom: '2px' },
+    refTable: { fontSize: '12px', borderCollapse: 'collapse' as const },
     refTd: { paddingBottom: '1px' },
     refLabel: { fontWeight: 'bold', paddingRight: '6px', whiteSpace: 'nowrap' as const },
     infoTable: { width: '100%', borderCollapse: 'collapse' as const, border: '1px solid #aaa', marginBottom: '8px' },
     infoTh: { padding: '3px 6px', fontWeight: 'bold', backgroundColor: '#f0f0f0', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
     infoTd: { padding: '3px 6px', borderRight: '1px solid #aaa', verticalAlign: 'top' as const },
-    jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '3px 6px', marginBottom: '2px', fontWeight: 'bold', fontSize: '10px' },
+    jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '3px 6px', marginBottom: '2px', fontWeight: 'bold', fontSize: '12px' },
     itemTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     th: { backgroundColor: '#d0d0d0', padding: '3px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, fontWeight: 'bold' },
     thR: { backgroundColor: '#d0d0d0', padding: '3px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'right' as const, fontWeight: 'bold' },
@@ -88,12 +88,12 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
     footRow: { backgroundColor: '#f5f5f5', borderTop: '1px solid #aaa' },
     feesTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     termsBlock: { display: 'flex', gap: '12px', marginBottom: '8px' },
-    termsLeft: { flex: 1, fontSize: '9px', lineHeight: '1.4' },
+    termsLeft: { flex: 1, fontSize: '11px', lineHeight: '1.4' },
     termsRight: { width: '240px', flexShrink: 0 },
     summaryRow: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px', borderBottom: '1px solid #eee' },
     summaryRowBold: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px', fontWeight: 'bold', borderTop: '1px solid #aaa', borderBottom: '1px solid #eee' },
     txTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
-    authSection: { border: '1px solid #aaa', padding: '6px', fontSize: '10px' },
+    authSection: { border: '1px solid #aaa', padding: '6px', fontSize: '12px' },
     sigBox: { border: '1px solid #aaa', height: '40px', marginTop: '4px', width: '140px' },
   };
 
@@ -109,7 +109,7 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
             margin: 0 !important;
             padding: 12px !important;
             max-width: 100% !important;
-            font-size: 9px !important;
+            font-size: 11px !important;
           }
           @page { margin: 8mm; size: A4; }
         }
@@ -274,11 +274,11 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
             <th style={{ ...s.thR, width: '60px' }}>Tax</th>
             <th style={{ ...s.thR, width: '140px' }}>
               Approved Total<br />
-              <span style={{ fontWeight: 'normal', fontSize: '8px' }}>(Sub Total + Fee Amount + Fee)</span>
+              <span style={{ fontWeight: 'normal', fontSize: '10px' }}>(Sub Total + Fee Amount + Fee)</span>
             </th>
             <th style={{ ...s.thR, width: '140px', borderRight: 'none' }}>
               Estimated Total<br />
-              <span style={{ fontWeight: 'normal', fontSize: '8px' }}>(Sub Total + Fee Amount + Fee)</span>
+              <span style={{ fontWeight: 'normal', fontSize: '10px' }}>(Sub Total + Fee Amount + Fee)</span>
             </th>
           </tr>
         </thead>
@@ -286,8 +286,8 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
           <tr>
             <td style={s.td}>
               <div>Supply Fee</div>
-              <div style={{ fontSize: '8px', color: '#666' }}>calculated estimate fees: $0</div>
-              <div style={{ fontSize: '8px', color: '#666' }}>calculated approved fees: $0</div>
+              <div style={{ fontSize: '10px', color: '#666' }}>calculated estimate fees: $0</div>
+              <div style={{ fontSize: '10px', color: '#666' }}>calculated approved fees: $0</div>
             </td>
             <td style={s.tdR}>$0.00</td>
             <td style={s.tdR}>0%</td>
@@ -306,7 +306,7 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
           <div style={s.sigBox} />
         </div>
         <div style={s.termsRight}>
-          <div style={{ border: '1px solid #aaa', fontSize: '10px' }}>
+          <div style={{ border: '1px solid #aaa', fontSize: '12px' }}>
             {[
               { label: 'Total Parts & Supplies', val: `$${fmt(partsTotal)}` },
               { label: 'Subtotal', val: `$${fmt(invoice.subtotal)}` },
@@ -383,7 +383,7 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
           <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>Authorization History:</div>
           <div style={s.authSection}>
             {approvedEvent && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '3px', fontSize: '9px', color: '#555' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '3px', fontSize: '11px', color: '#555' }}>
                 <span>
                   By {approvedEvent.changedBy
                     ? `${approvedEvent.changedBy.firstName} ${approvedEvent.changedBy.lastName}`
@@ -396,7 +396,7 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontWeight: 'bold' }}>{jobName}</span>
-                <span style={{ backgroundColor: '#166534', color: '#fff', padding: '1px 6px', borderRadius: '3px', fontSize: '9px' }}>Approved</span>
+                <span style={{ backgroundColor: '#166534', color: '#fff', padding: '1px 6px', borderRadius: '3px', fontSize: '11px' }}>Approved</span>
               </div>
               <span style={{ fontWeight: 'bold' }}>${fmt(invoice.total)}</span>
             </div>

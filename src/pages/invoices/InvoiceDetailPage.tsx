@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, CreditCard, Printer } from 'lucide-react';
+import { Plus, CreditCard, Printer, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -106,10 +106,68 @@ function RecordPaymentModal({ open, onClose, invoiceId, balance }: RecordPayment
   );
 }
 
+const emailSchema = z.object({
+  email: z.string().email('Enter a valid email'),
+});
+type EmailForm = z.infer<typeof emailSchema>;
+
+interface EmailInvoiceModalProps {
+  open: boolean;
+  onClose: () => void;
+  invoiceId: string;
+}
+
+function EmailInvoiceModal({ open, onClose, invoiceId }: EmailInvoiceModalProps) {
+  const qc = useQueryClient();
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<EmailForm>({
+    resolver: zodResolver(emailSchema),
+  });
+
+  const mutation = useMutation({
+    mutationFn: (data: EmailForm) => api.post(`/invoices/${invoiceId}/send-email`, data),
+    onSuccess: (res: any) => {
+      qc.invalidateQueries({ queryKey: ['invoices', invoiceId] });
+      toast.success(`Invoice emailed to ${res.data?.data?.email ?? 'customer'}`);
+      reset();
+      onClose();
+    },
+    onError: () => toast.error('Failed to send invoice email'),
+  });
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Email Invoice"
+      size="md"
+      footer={
+        <>
+          <button onClick={onClose} className="btn-secondary">Cancel</button>
+          <button onClick={handleSubmit(d => mutation.mutate(d))} disabled={mutation.isPending} className="btn-primary">
+            {mutation.isPending ? 'Sending...' : 'Send Invoice'}
+          </button>
+        </>
+      }
+    >
+      <form className="space-y-4">
+        <div>
+          <label className="label">Customer Email *</label>
+          <input {...register('email')} type="email" className="input" placeholder="customer@example.com" autoFocus />
+          {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+          <p className="mt-1 text-xs text-gray-400">This will be saved to the customer's record.</p>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 export default function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
+  const qc = useQueryClient();
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [printData, setPrintData] = useState<PrintFormData | null>(
     (location.state as any)?.printData ?? null
   );
@@ -122,6 +180,15 @@ export default function InvoiceDetailPage() {
   const { data: shopRes } = useQuery({
     queryKey: ['shop-settings'],
     queryFn: () => api.get<{ success: boolean; data: ShopSettings }>('/settings'),
+  });
+
+  const sendEmailMutation = useMutation({
+    mutationFn: () => api.post(`/invoices/${id}/send-email`, {}),
+    onSuccess: (res: any) => {
+      qc.invalidateQueries({ queryKey: ['invoices', id] });
+      toast.success(`Invoice emailed to ${res.data?.data?.email ?? 'customer'}`);
+    },
+    onError: () => toast.error('Failed to send invoice email'),
   });
 
   // Auto-print when navigated here after invoice creation
@@ -174,6 +241,14 @@ export default function InvoiceDetailPage() {
   const partsLines = ro?.partsLines ?? [];
   const payments: Payment[] = inv.payments ?? [];
 
+  const handleEmailInvoice = () => {
+    if (inv.customer?.email) {
+      sendEmailMutation.mutate();
+    } else {
+      setEmailModalOpen(true);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -183,6 +258,9 @@ export default function InvoiceDetailPage() {
           <div className="flex gap-2">
             <button onClick={triggerPrint} className="btn-secondary">
               <Printer size={16} /> Print Invoice
+            </button>
+            <button onClick={handleEmailInvoice} disabled={sendEmailMutation.isPending} className="btn-secondary">
+              <Mail size={16} /> {sendEmailMutation.isPending ? 'Sending...' : 'Email Invoice'}
             </button>
             {inv.balance > 0 && (
               <button onClick={() => setPaymentModalOpen(true)} className="btn-primary">
@@ -383,6 +461,12 @@ export default function InvoiceDetailPage() {
         onClose={() => setPaymentModalOpen(false)}
         invoiceId={id!}
         balance={inv.balance}
+      />
+
+      <EmailInvoiceModal
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        invoiceId={id!}
       />
 
       {/* Hidden print view — becomes visible only during window.print() */}
