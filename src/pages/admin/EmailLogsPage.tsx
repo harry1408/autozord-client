@@ -9,12 +9,18 @@ import EmptyState from '@/components/ui/EmptyState';
 const CATEGORY_LABELS: Record<string, string> = {
   OTP: 'Signup OTP',
   PASSWORD_RESET: 'Password Reset',
+  INVOICE: 'Invoice',
+  REGISTRATION: 'Registration',
+  ACCOUNT_VERIFIED: 'Account Verified',
   GENERIC: 'Other',
 };
 
 const CATEGORY_STYLES: Record<string, string> = {
   OTP: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400',
   PASSWORD_RESET: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400',
+  INVOICE: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
+  REGISTRATION: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400',
+  ACCOUNT_VERIFIED: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400',
   GENERIC: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 };
 

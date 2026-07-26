@@ -282,7 +282,7 @@ export interface Shop {
   _count?: { users: number; customers: number; vehicles: number; repairOrders: number };
 }
 
-export type EmailCategory = 'OTP' | 'PASSWORD_RESET' | 'GENERIC';
+export type EmailCategory = 'OTP' | 'PASSWORD_RESET' | 'INVOICE' | 'REGISTRATION' | 'ACCOUNT_VERIFIED' | 'GENERIC';
 export type EmailStatus = 'SENT' | 'FAILED';
 
 export interface EmailLog {
