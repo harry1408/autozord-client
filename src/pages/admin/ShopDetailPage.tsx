@@ -9,11 +9,22 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
-const PLAN_LABELS: Record<string, string> = {
-  LIFETIME_FREE: 'Lifetime Free',
-  MONTHLY: 'Monthly ($50/mo)',
-  YEARLY: 'Yearly ($400/yr)',
-};
+const CURRENCY_SYMBOLS: Record<string, string> = { CAD: '$', USD: '$', INR: '₹' };
+const REGION_LABELS: Record<string, string> = { CA: 'Canada', US: 'United States', IN: 'India' };
+
+function planLabel(shop: ShopDetail['shop']): string {
+  if (shop.planType === 'LIFETIME_FREE') return 'Lifetime Free';
+  if (!shop.planType) return '—';
+  const period = shop.planType === 'YEARLY' ? '/yr' : '/mo';
+  if (shop.currency && shop.subscriptionPrice != null) {
+    const symbol = CURRENCY_SYMBOLS[shop.currency] ?? '';
+    const region = shop.country ? REGION_LABELS[shop.country] ?? shop.country : null;
+    const priceText = `${symbol}${shop.subscriptionPrice.toLocaleString()} ${shop.currency}${period}`;
+    return region ? `${shop.planType === 'YEARLY' ? 'Yearly' : 'Monthly'} (${priceText}, ${region})` : `${shop.planType === 'YEARLY' ? 'Yearly' : 'Monthly'} (${priceText})`;
+  }
+  // Pre-existing shop signed up before regional pricing existed.
+  return shop.planType === 'YEARLY' ? 'Yearly ($400/yr CAD)' : 'Monthly ($50/mo CAD)';
+}
 
 function SubscriptionPanel({ shopId, shop }: { shopId: string; shop: ShopDetail['shop'] }) {
   const qc = useQueryClient();
@@ -41,7 +52,7 @@ function SubscriptionPanel({ shopId, shop }: { shopId: string; shop: ShopDetail[
           )}
           {shop.planType && (
             <span className="badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-              {PLAN_LABELS[shop.planType] ?? shop.planType}
+              {planLabel(shop)}
             </span>
           )}
         </div>

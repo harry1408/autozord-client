@@ -9,11 +9,8 @@ import { clsx } from 'clsx';
 import { LogoFull } from '@/components/ui/Logo';
 import api from '@/services/api';
 import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
-
-const PLANS = [
-  { value: 'MONTHLY' as const, label: 'Monthly', price: '$50', period: '/month' },
-  { value: 'YEARLY' as const, label: 'Yearly', price: '$400', period: '/year', badge: 'Save $200' },
-];
+import { REGIONS, getRegionPricing } from '@/utils/pricing';
+import { Region } from '@/types';
 
 const signupSchema = z.object({
   shopName: z.string().min(1, 'Shop name is required'),
@@ -98,14 +95,18 @@ function OtpStep({ email }: { email: string }) {
 }
 
 export default function SignupPage() {
+  const [region, setRegion] = useState<Region>('CA');
   const [planType, setPlanType] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
   const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
   });
 
+  const pricing = getRegionPricing(region);
+  const yearlySavings = pricing.monthly * 12 - pricing.yearly;
+
   const mutation = useMutation({
-    mutationFn: (data: SignupForm) => api.post('/public/signup', { ...data, planType }),
+    mutationFn: (data: SignupForm) => api.post('/public/signup', { ...data, planType, country: region }),
     onSuccess: (_res, variables) => setSignedUpEmail(variables.email),
   });
 
@@ -125,39 +126,65 @@ export default function SignupPage() {
 
             <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Choose a plan</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {PLANS.map(plan => (
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Your region</label>
+                <div className="grid grid-cols-3 gap-3">
+                  {REGIONS.map(r => (
                     <button
-                      key={plan.value}
+                      key={r.value}
                       type="button"
-                      onClick={() => setPlanType(plan.value)}
+                      onClick={() => setRegion(r.value)}
                       className={clsx(
-                        'relative text-left px-4 py-3 rounded-xl border transition-colors',
-                        planType === plan.value
+                        'text-center px-3 py-2.5 rounded-xl border transition-colors',
+                        region === r.value
                           ? 'border-brand-500 bg-brand-600/10'
                           : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'
                       )}
                     >
-                      {plan.badge && (
-                        <span className="absolute -top-2 right-3 px-1.5 py-0.5 bg-brand-600 text-white text-[9px] font-bold rounded-full uppercase">
-                          {plan.badge}
-                        </span>
-                      )}
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className={clsx(
-                          'w-4 h-4 rounded-full border flex items-center justify-center shrink-0',
-                          planType === plan.value ? 'border-brand-400 bg-brand-500' : 'border-zinc-600'
-                        )}>
-                          {planType === plan.value && <Check size={10} className="text-white" />}
-                        </div>
-                        <span className="text-sm font-bold text-white">{plan.label}</span>
-                      </div>
-                      <p className="text-lg font-black text-white">
-                        {plan.price} <span className="text-xs font-normal text-zinc-500">{plan.period}</span>
-                      </p>
+                      <span className="text-sm font-bold text-white">{r.label}</span>
+                      <p className="text-[11px] text-zinc-500">{r.currency}</p>
                     </button>
                   ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Choose a plan</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {(['MONTHLY', 'YEARLY'] as const).map(value => {
+                    const isYearly = value === 'YEARLY';
+                    const price = isYearly ? pricing.yearly : pricing.monthly;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setPlanType(value)}
+                        className={clsx(
+                          'relative text-left px-4 py-3 rounded-xl border transition-colors',
+                          planType === value
+                            ? 'border-brand-500 bg-brand-600/10'
+                            : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'
+                        )}
+                      >
+                        {isYearly && yearlySavings > 0 && (
+                          <span className="absolute -top-2 right-3 px-1.5 py-0.5 bg-brand-600 text-white text-[9px] font-bold rounded-full uppercase">
+                            Save {pricing.symbol}{yearlySavings.toLocaleString()}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className={clsx(
+                            'w-4 h-4 rounded-full border flex items-center justify-center shrink-0',
+                            planType === value ? 'border-brand-400 bg-brand-500' : 'border-zinc-600'
+                          )}>
+                            {planType === value && <Check size={10} className="text-white" />}
+                          </div>
+                          <span className="text-sm font-bold text-white">{isYearly ? 'Yearly' : 'Monthly'}</span>
+                        </div>
+                        <p className="text-lg font-black text-white">
+                          {pricing.symbol}{price.toLocaleString()} <span className="text-xs font-normal text-zinc-500">{pricing.currency}{isYearly ? '/year' : '/month'}</span>
+                        </p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

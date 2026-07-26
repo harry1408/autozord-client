@@ -246,6 +246,7 @@ export interface DashboardStats {
 
 export type PlanType = 'LIFETIME_FREE' | 'MONTHLY' | 'YEARLY';
 export type SubscriptionStatus = 'PENDING_VERIFICATION' | 'SUSPENDED' | 'TRIAL' | 'ACTIVE' | 'EXPIRED';
+export type Region = 'CA' | 'US' | 'IN';
 
 export interface SubscriptionInfo {
   planType: PlanType | null;
@@ -253,6 +254,9 @@ export interface SubscriptionInfo {
   daysLeft?: number;
   trialEndsAt?: string;
   paidUntil?: string;
+  country?: Region | null;
+  currency?: string | null;
+  subscriptionPrice?: number | null;
 }
 
 export interface Shop {
@@ -270,6 +274,9 @@ export interface Shop {
   isVerified?: boolean;
   trialEndsAt?: string | null;
   paidUntil?: string | null;
+  country?: Region | null;
+  currency?: string | null;
+  subscriptionPrice?: number | null;
   createdAt: string;
   updatedAt: string;
   _count?: { users: number; customers: number; vehicles: number; repairOrders: number };

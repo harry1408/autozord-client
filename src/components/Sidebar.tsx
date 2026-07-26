@@ -13,6 +13,18 @@ import { useAuthStore } from '@/store/auth.store';
 import api from '@/services/api';
 import { Role, SubscriptionInfo } from '@/types';
 
+const CURRENCY_SYMBOLS: Record<string, string> = { CAD: '$', USD: '$', INR: '₹' };
+
+function formatSubscriptionPrice(sub: SubscriptionInfo): string {
+  if (sub.currency && sub.subscriptionPrice != null) {
+    const symbol = CURRENCY_SYMBOLS[sub.currency] ?? '';
+    return `${symbol}${sub.subscriptionPrice.toLocaleString()} ${sub.currency}`;
+  }
+  // Pre-existing shops signed up before regional pricing - assume the
+  // original Canadian rates they'd have seen at the time.
+  return sub.planType === 'YEARLY' ? '$400 CAD' : '$50 CAD';
+}
+
 const NAV_ITEMS: { to: string; icon: typeof LayoutDashboard; label: string; roles?: Role[] }[] = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard'    },
   { to: '/repair-orders',icon: ClipboardList,   label: 'Job Board'    },
@@ -70,7 +82,7 @@ function getPlanBadgeContent(sub: SubscriptionInfo) {
       icon: Clock,
       color: 'text-amber-400',
       label: `Trial · ${sub.daysLeft ?? 0}d left`,
-      subtext: sub.planType === 'YEARLY' ? '$400/yr after trial' : '$50/mo after trial',
+      subtext: `${formatSubscriptionPrice(sub)}${sub.planType === 'YEARLY' ? '/yr' : '/mo'} after trial`,
     };
   }
   if (sub.status === 'EXPIRED') {
