@@ -115,23 +115,21 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
         }
       `}</style>
 
-      {/* ── LOGO (centered, top of page) ──────────────────────────────── */}
-      {shop.logoUrl && (
-        <div style={{ textAlign: 'center', marginTop: '24px', marginBottom: '20px' }}>
-          <img src={shop.logoUrl} alt="logo" style={{ height: '60px', display: 'inline-block' }} />
-        </div>
-      )}
-
-      {/* ── HEADER ─────────────────────────────────────────────────────── */}
-      <div style={s.header}>
-        <div>
+      {/* ── HEADER (shop info left, logo centered, invoice ref right) ──── */}
+      <div style={{ ...s.header, alignItems: 'center' }}>
+        <div style={{ flex: 1 }}>
           <div style={s.shopName}>{shop.shopName}</div>
           {shop.address && <div>{shop.address}</div>}
           {shop.email && <div>{shop.email}</div>}
           {shop.phone && <div>{shop.phone}</div>}
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <table style={s.refTable}>
+        {shop.logoUrl && (
+          <div style={{ flexShrink: 0, textAlign: 'center', padding: '0 16px' }}>
+            <img src={shop.logoUrl} alt="logo" style={{ height: '90px', display: 'inline-block' }} />
+          </div>
+        )}
+        <div style={{ flex: 1, textAlign: 'right' }}>
+          <table style={{ ...s.refTable, marginLeft: 'auto' }}>
             <tbody>
               <tr>
                 <td style={{ ...s.refTd, ...s.refLabel }}>REF RO#:</td>
@@ -393,17 +391,24 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
                 <span>{format(new Date(approvedEvent.changedAt), 'hh:mm a • MM/dd/yyyy')}</span>
               </div>
             )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontWeight: 'bold' }}>{jobName}</span>
-                <span style={{ backgroundColor: '#166534', color: '#fff', padding: '1px 6px', borderRadius: '3px', fontSize: '11px' }}>Approved</span>
-              </div>
-              <span style={{ fontWeight: 'bold' }}>${fmt(invoice.total)}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3px', fontWeight: 'bold', borderTop: '1px solid #eee', paddingTop: '3px' }}>
-              <span>Total Amount:</span>
-              <span>${fmt(invoice.total)}</span>
-            </div>
+            {/* Table, not flex - html2canvas miscomputes flex row height when
+                a padded/background badge sits inline with plain text,
+                causing this row to visually overlap the one below it. */}
+            <table style={{ width: '100%', borderCollapse: 'collapse' as const }}>
+              <tbody>
+                <tr>
+                  <td style={{ padding: '6px 0', fontWeight: 'bold' }}>
+                    {jobName}{' '}
+                    <span style={{ display: 'inline-block', verticalAlign: 'middle', lineHeight: '20px', backgroundColor: '#166534', color: '#fff', padding: '3px 8px', borderRadius: '3px', fontSize: '11px', fontWeight: 'normal' }}>Approved</span>
+                  </td>
+                  <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 'bold' }}>${fmt(invoice.total)}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '6px 0 0', fontWeight: 'bold', borderTop: '1px solid #eee' }}>Total Amount:</td>
+                  <td style={{ padding: '6px 0 0', textAlign: 'right', fontWeight: 'bold', borderTop: '1px solid #eee' }}>${fmt(invoice.total)}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </>
       )}
