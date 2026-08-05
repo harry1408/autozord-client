@@ -12,6 +12,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   INVOICE: 'Invoice',
   REGISTRATION: 'Registration',
   ACCOUNT_VERIFIED: 'Account Verified',
+  DB_DUMP: 'DB Dump',
   GENERIC: 'Other',
 };
 
@@ -21,6 +22,7 @@ const CATEGORY_STYLES: Record<string, string> = {
   INVOICE: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
   REGISTRATION: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400',
   ACCOUNT_VERIFIED: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400',
+  DB_DUMP: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
   GENERIC: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 };
 

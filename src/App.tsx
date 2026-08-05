@@ -34,6 +34,7 @@ import ShopDetailPage from '@/pages/admin/ShopDetailPage';
 import UsersListPage from '@/pages/admin/UsersListPage';
 import AdminInquiriesPage from '@/pages/admin/AdminInquiriesPage';
 import EmailLogsPage from '@/pages/admin/EmailLogsPage';
+import BackupPage from '@/pages/admin/BackupPage';
 import PublicLayout from '@/layouts/PublicLayout';
 import ShopDirectoryPage from '@/pages/public/ShopDirectoryPage';
 import InquiryFormPage from '@/pages/public/InquiryFormPage';
@@ -91,6 +92,7 @@ export default function App() {
         <Route path="users" element={<UsersListPage />} />
         <Route path="inquiries" element={<AdminInquiriesPage />} />
         <Route path="emails" element={<EmailLogsPage />} />
+        <Route path="backup" element={<BackupPage />} />
       </Route>
       <Route
         path="/"
