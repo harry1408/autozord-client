@@ -42,7 +42,7 @@ export default function LoginPage() {
     try {
       const res = await api.post('/auth/login', data);
       const loggedInUser = res.data.data.user;
-      setTokens(res.data.data.accessToken, loggedInUser);
+      setTokens(res.data.data.accessToken, loggedInUser, res.data.data.refreshToken);
       toast.success(`Welcome back, ${loggedInUser.firstName}!`);
       const target =
         loggedInUser.role === 'CUSTOMER' ? '/shops' :

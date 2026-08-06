@@ -217,7 +217,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : '??';
 
   const handleLogout = async () => {
-    try { await api.post('/auth/logout'); } catch {}
+    try { await api.post('/auth/logout', { refreshToken: useAuthStore.getState().refreshToken }); } catch {}
     logout();
     navigate('/login');
     toast.success('Logged out');
