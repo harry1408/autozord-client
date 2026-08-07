@@ -8,7 +8,8 @@ interface LogoIconProps {
 export function LogoIcon({ size = 36, className = '' }: LogoIconProps) {
   const uid = useId().replace(/:/g, '');
   const gShield = `${uid}gs`;
-  const gSwoosh = `${uid}gsw`;
+  const gAZ     = `${uid}gaz`;
+  const gBolt   = `${uid}gb`;
   const gBorder = `${uid}gbo`;
 
   return (
@@ -25,10 +26,14 @@ export function LogoIcon({ size = 36, className = '' }: LogoIconProps) {
           <stop offset="0%"   stopColor="#1c0000" />
           <stop offset="100%" stopColor="#6b0000" />
         </linearGradient>
-        <linearGradient id={gSwoosh} x1="0%" y1="0%" x2="100%" y2="40%">
-          <stop offset="0%"   stopColor="#ffecec" />
-          <stop offset="50%"  stopColor="#ff5252" />
+        <linearGradient id={gAZ} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#ffd4d4" />
+          <stop offset="45%"  stopColor="#e60000" />
           <stop offset="100%" stopColor="#8b0000" />
+        </linearGradient>
+        <linearGradient id={gBolt} x1="0%" y1="0%" x2="20%" y2="100%">
+          <stop offset="0%"   stopColor="#fff0f0" />
+          <stop offset="100%" stopColor="#ff3333" />
         </linearGradient>
         <linearGradient id={gBorder} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.06" />
@@ -41,20 +46,17 @@ export function LogoIcon({ size = 36, className = '' }: LogoIconProps) {
       <path d="M60 9 L96 25 L96 72 Q96 101 60 114 Q24 101 24 72 L24 25 Z" fill={`url(#${gBorder})`} />
       <path d="M60 9 L96 25 L96 72 Q96 101 60 114 Q24 101 24 72 L24 25 Z" fill="none" stroke="#0d0000" strokeWidth="2.5" />
 
-      {/* Trailing speed accent */}
-      <path d="M23 76 C 40 70, 58 68, 82 61" fill="none" stroke={`url(#${gSwoosh})`} strokeWidth="2.6" strokeLinecap="round" opacity="0.55" />
+      <rect x="57"  y="2.5" width="6"   height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8"/>
+      <rect x="44.5" y="4"  width="5.5" height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(-20 47.25 8)"/>
+      <rect x="70"  y="4"   width="5.5" height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(20 72.75 8)"/>
+      <rect x="32"  y="10"  width="5"   height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(-40 34.5 14)"/>
+      <rect x="83"  y="10"  width="5"   height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(40 85.5 14)"/>
+      <rect x="21"  y="21"  width="4.5" height="7" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(-62 23.25 24.5)"/>
+      <rect x="94"  y="21"  width="4.5" height="7" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(62 96.25 24.5)"/>
 
-      {/* Car-swoosh wing */}
-      <path
-        d="M26 68 C 34 52, 50 41, 68 41 C 79 41, 87 44, 95 49 C 88 51, 79 49, 70 49 C 55 49, 40 56, 31 72 Z"
-        fill={`url(#${gSwoosh})`}
-      />
+      <text x="21" y="90" fontFamily="'Arial Black','Arial Bold',Arial,sans-serif" fontWeight="900" fontSize="58" fill={`url(#${gAZ})`} letterSpacing="-2">AZ</text>
 
-      {/* Sparkle */}
-      <path d="M30 40 L32.5 46.5 L39 49 L32.5 51.5 L30 58 L27.5 51.5 L21 49 L27.5 46.5 Z" fill="#fff8f8" />
-
-      {/* Bottom star */}
-      <path d="M60 94 L62 98.5 L67 99 L63.3 102.3 L64.3 107.2 L60 104.7 L55.7 107.2 L56.7 102.3 L53 99 L58 98.5 Z" fill="#fff8f8" opacity="0.9" />
+      <polygon points="74,20 64,54 72,54 55,98 65,98 79,60 69,60 82,20" fill={`url(#${gBolt})`} opacity="0.88" />
     </svg>
   );
 }
@@ -63,7 +65,8 @@ export function LogoIcon({ size = 36, className = '' }: LogoIconProps) {
 export function LogoFull({ className = '' }: { className?: string }) {
   const uid = useId().replace(/:/g, '');
   const gShield = `${uid}fgs`;
-  const gSwoosh = `${uid}fgsw`;
+  const gAZ     = `${uid}fgaz`;
+  const gBolt   = `${uid}fgb`;
   const gBorder = `${uid}fgbo`;
   const gText   = `${uid}fgt`;
 
@@ -81,10 +84,14 @@ export function LogoFull({ className = '' }: { className?: string }) {
           <stop offset="0%"   stopColor="#1c0000" />
           <stop offset="100%" stopColor="#6b0000" />
         </linearGradient>
-        <linearGradient id={gSwoosh} x1="0%" y1="0%" x2="100%" y2="40%">
-          <stop offset="0%"   stopColor="#ffecec" />
-          <stop offset="50%"  stopColor="#ff5252" />
+        <linearGradient id={gAZ} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#ffd4d4" />
+          <stop offset="45%"  stopColor="#e60000" />
           <stop offset="100%" stopColor="#8b0000" />
+        </linearGradient>
+        <linearGradient id={gBolt} x1="0%" y1="0%" x2="20%" y2="100%">
+          <stop offset="0%"   stopColor="#fff0f0" />
+          <stop offset="100%" stopColor="#ff3333" />
         </linearGradient>
         <linearGradient id={gBorder} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.06" />
@@ -102,13 +109,15 @@ export function LogoFull({ className = '' }: { className?: string }) {
         <path d="M60 9 L96 25 L96 72 Q96 101 60 114 Q24 101 24 72 L24 25 Z" fill={`url(#${gShield})`} />
         <path d="M60 9 L96 25 L96 72 Q96 101 60 114 Q24 101 24 72 L24 25 Z" fill={`url(#${gBorder})`} />
         <path d="M60 9 L96 25 L96 72 Q96 101 60 114 Q24 101 24 72 L24 25 Z" fill="none" stroke="#0d0000" strokeWidth="2.5" />
-        <path d="M23 76 C 40 70, 58 68, 82 61" fill="none" stroke={`url(#${gSwoosh})`} strokeWidth="2.6" strokeLinecap="round" opacity="0.55" />
-        <path
-          d="M26 68 C 34 52, 50 41, 68 41 C 79 41, 87 44, 95 49 C 88 51, 79 49, 70 49 C 55 49, 40 56, 31 72 Z"
-          fill={`url(#${gSwoosh})`}
-        />
-        <path d="M30 40 L32.5 46.5 L39 49 L32.5 51.5 L30 58 L27.5 51.5 L21 49 L27.5 46.5 Z" fill="#fff8f8" />
-        <path d="M60 94 L62 98.5 L67 99 L63.3 102.3 L64.3 107.2 L60 104.7 L55.7 107.2 L56.7 102.3 L53 99 L58 98.5 Z" fill="#fff8f8" opacity="0.9" />
+        <rect x="57"  y="2.5" width="6"   height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8"/>
+        <rect x="44.5" y="4"  width="5.5" height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(-20 47.25 8)"/>
+        <rect x="70"  y="4"   width="5.5" height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(20 72.75 8)"/>
+        <rect x="32"  y="10"  width="5"   height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(-40 34.5 14)"/>
+        <rect x="83"  y="10"  width="5"   height="8" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(40 85.5 14)"/>
+        <rect x="21"  y="21"  width="4.5" height="7" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(-62 23.25 24.5)"/>
+        <rect x="94"  y="21"  width="4.5" height="7" rx="1.5" fill="#3d0000" stroke="#0d0000" strokeWidth="0.8" transform="rotate(62 96.25 24.5)"/>
+        <text x="21" y="90" fontFamily="'Arial Black','Arial Bold',Arial,sans-serif" fontWeight="900" fontSize="58" fill={`url(#${gAZ})`} letterSpacing="-2">AZ</text>
+        <polygon points="74,20 64,54 72,54 55,98 65,98 79,60 69,60 82,20" fill={`url(#${gBolt})`} opacity="0.88" />
       </g>
 
       {/* Thin divider */}
