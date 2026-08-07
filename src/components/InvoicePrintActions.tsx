@@ -1,23 +1,28 @@
 import { useState, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Printer, Download } from 'lucide-react';
+import { Printer, Mail } from 'lucide-react';
 import api from '@/services/api';
 import { Invoice, ShopSettings } from '@/types';
 import InvoicePrint, { PrintFormData } from '@/components/InvoicePrint';
+import EmailInvoiceModal from '@/components/EmailInvoiceModal';
 import { captureInvoicePdf } from '@/utils/invoicePdfExport';
-import toast from 'react-hot-toast';
 
 interface Props {
   invoiceId: string;
 }
 
-// Self-contained "Print Invoice" / "Download Invoice" buttons - fetches the
+// Self-contained "Print Invoice" / "Email Invoice" buttons - fetches the
 // invoice + shop settings itself and renders InvoicePrint off-screen, so any
 // page can drop this in without re-fetching or duplicating the print/PDF
 // pipeline already used on the invoice detail page.
 export default function InvoicePrintActions({ invoiceId }: Props) {
   const [printData, setPrintData] = useState<PrintFormData | null>(null);
-  const [busy, setBusy] = useState<'print' | 'download' | null>(null);
+  const [busy, setBusy] = useState<'print' | null>(null);
+  // True only while the email modal's PDF preview is being captured, so
+  // InvoicePrint renders with the compact print-equivalent styles (see
+  // forPdf on InvoicePrint) instead of the more spacious screen ones.
+  const [preparingEmailPdf, setPreparingEmailPdf] = useState(false);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { data: invRes } = useQuery({
@@ -58,9 +63,8 @@ export default function InvoicePrintActions({ invoiceId }: Props) {
     setBusy(null);
   };
 
-  const handleDownload = async () => {
-    if (!inv) return;
-    setBusy('download');
+  const preparePdfForEmail = useCallback(async (): Promise<{ base64: string; blob: Blob }> => {
+    setPreparingEmailPdf(true);
     try {
       await ensurePrintData();
       // Let the forPdf-driven re-render (compact print-equivalent styles) commit
@@ -69,34 +73,34 @@ export default function InvoicePrintActions({ invoiceId }: Props) {
       await new Promise(resolve => setTimeout(resolve, 50));
       const node = containerRef.current?.querySelector('#invoice-print') as HTMLElement | null;
       if (!node) throw new Error('Could not render invoice for PDF export');
-      const { blob } = await captureInvoicePdf(node);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `invoice-${inv.invoiceNumber}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      toast.error('Failed to generate invoice PDF');
+      return await captureInvoicePdf(node);
     } finally {
-      setBusy(null);
+      setPreparingEmailPdf(false);
     }
-  };
+  }, [ensurePrintData]);
 
   return (
     <>
       <button onClick={handlePrint} disabled={!inv || busy !== null} className="btn-secondary">
         <Printer size={16} /> {busy === 'print' ? 'Preparing...' : 'Print Invoice'}
       </button>
-      <button onClick={handleDownload} disabled={!inv || busy !== null} className="btn-secondary">
-        <Download size={16} /> {busy === 'download' ? 'Generating...' : 'Download Invoice'}
+      <button onClick={() => setEmailModalOpen(true)} disabled={!inv} className="btn-secondary">
+        <Mail size={16} /> Email Invoice
       </button>
 
       <div ref={containerRef} style={{ position: 'fixed', left: '-10000px', top: 0 }}>
-        {printData && inv && <InvoicePrint invoice={inv} shop={shop} printData={printData} forPdf={busy === 'download'} />}
+        {printData && inv && <InvoicePrint invoice={inv} shop={shop} printData={printData} forPdf={preparingEmailPdf} />}
       </div>
+
+      {inv && (
+        <EmailInvoiceModal
+          open={emailModalOpen}
+          onClose={() => setEmailModalOpen(false)}
+          invoiceId={invoiceId}
+          initialEmail={inv.customer?.email}
+          onPreparePdf={preparePdfForEmail}
+        />
+      )}
     </>
   );
 }
