@@ -409,8 +409,11 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
               <tbody>
                 <tr>
                   <td style={{ padding: '6px 0', fontWeight: 'bold' }}>
-                    {jobName}{' '}
-                    <span style={{ display: 'inline-block', verticalAlign: 'middle', lineHeight: '20px', backgroundColor: '#166534', color: '#fff', padding: '3px 8px', borderRadius: '3px', fontSize: '11px', fontWeight: 'normal' }}>Approved</span>
+                    {jobName}
+                    {/* marginLeft, not a literal space - html2canvas drops the
+                        whitespace text node between this text and the
+                        inline-block badge, jamming them together. */}
+                    <span style={{ display: 'inline-block', verticalAlign: 'middle', lineHeight: '20px', backgroundColor: '#166534', color: '#fff', padding: '3px 8px', marginLeft: '8px', borderRadius: '3px', fontSize: '11px', fontWeight: 'normal' }}>Approved</span>
                   </td>
                   <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 'bold' }}>${fmt(invoice.total)}</td>
                 </tr>
