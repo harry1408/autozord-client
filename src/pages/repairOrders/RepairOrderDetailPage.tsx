@@ -12,6 +12,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Modal from '@/components/ui/Modal';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import InvoicePrintActions from '@/components/InvoicePrintActions';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -332,9 +333,12 @@ export default function RepairOrderDetailPage() {
               <UserCheck size={16} /> Assign Tech
             </button>
             {ro.invoice && (
-              <Link to={`/invoices/${ro.invoice.id}`} className="btn-secondary">
-                <FileText size={16} /> Invoice #{ro.invoice.invoiceNumber}
-              </Link>
+              <>
+                <Link to={`/invoices/${ro.invoice.id}`} className="btn-secondary">
+                  <FileText size={16} /> Invoice #{ro.invoice.invoiceNumber}
+                </Link>
+                <InvoicePrintActions invoiceId={ro.invoice.id} />
+              </>
             )}
           </div>
         }
