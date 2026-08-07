@@ -15,11 +15,20 @@ interface Props {
   invoice: Invoice;
   shop: ShopSettings;
   printData: PrintFormData;
+  // html2canvas captures the on-screen (non-print-media) styles, which are
+  // more spacious than the @media print rules below. That makes the
+  // captured page taller, so captureInvoicePdf's fit-to-one-page scaling
+  // shrinks it more aggressively than real printing does - producing
+  // visibly smaller text than "Print Invoice". Set this when rendering the
+  // node specifically for html2canvas capture (email/download) so it's laid
+  // out at the same compact metrics as real print, without touching the
+  // print path itself.
+  forPdf?: boolean;
 }
 
 const TERMS = `I hereby authorize the repair work listed herein, including sublet work, to be done along with necessary materials. You and your employees may operate the described vehicle for the purposes of testing, inspection or delivery at my risk. An express lien is acknowledged on said vehicle to secure the amount of repairs thereto. You will not be held responsible for loss or damage to vehicle or articles left in vehicle in case of fire, theft, accident or any other cause beyond your control. Customer agrees to pay all collection costs and /or attorneys fees in the event that default is made in any payment due. If vehicle is returned to customer without repair service being performed, a diagnostic and handling fee (including reassembly) may be charged. I have read and understand the above and acknowledge receipt of an estimate.`;
 
-export default function InvoicePrint({ invoice, shop, printData }: Props) {
+export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props) {
   const ro = invoice.repairOrder;
   const customer = invoice.customer;
   const vehicle = ro?.vehicle as ({ make: string; model: string; year: number; vin?: string; licensePlate?: string }) | undefined;
@@ -70,7 +79,9 @@ export default function InvoicePrint({ invoice, shop, printData }: Props) {
   const subtotalBeforeTax = invoice.subtotal - invoice.discount;
 
   const s: Record<string, React.CSSProperties> = {
-    page: { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', color: '#000', backgroundColor: '#fff', padding: '16px', maxWidth: '870px', margin: '0 auto', lineHeight: '1.4' },
+    page: forPdf
+      ? { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', color: '#000', backgroundColor: '#fff', padding: '12px', width: '794px', boxSizing: 'border-box' as const, margin: '0 auto', lineHeight: '1.4' }
+      : { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', color: '#000', backgroundColor: '#fff', padding: '16px', maxWidth: '870px', margin: '0 auto', lineHeight: '1.4' },
     header: { display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #555', paddingBottom: '8px', marginBottom: '8px' },
     shopName: { fontWeight: 'bold', fontSize: '16px', marginBottom: '2px' },
     refTable: { fontSize: '12px', borderCollapse: 'collapse' as const },

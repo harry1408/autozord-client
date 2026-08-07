@@ -7,11 +7,11 @@ import jsPDF from 'jspdf';
 // both a base64 string (for upload) and a Blob (for an in-browser preview)
 // from the same render, so what's previewed is exactly what gets sent.
 export async function captureInvoicePdf(node: HTMLElement): Promise<{ base64: string; blob: Blob }> {
-  const canvas = await html2canvas(node, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+  const canvas = await html2canvas(node, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
   // JPEG instead of PNG: a rasterized page compresses far better as JPEG
   // (PNG was producing ~10MB files - over Express's body limit and close to
   // email attachment limits - for a single-page invoice).
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();

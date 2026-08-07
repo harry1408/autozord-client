@@ -63,6 +63,10 @@ export default function InvoicePrintActions({ invoiceId }: Props) {
     setBusy('download');
     try {
       await ensurePrintData();
+      // Let the forPdf-driven re-render (compact print-equivalent styles) commit
+      // before capturing, even when ensurePrintData's own delay was skipped
+      // because printData was already set from a prior Print click.
+      await new Promise(resolve => setTimeout(resolve, 50));
       const node = containerRef.current?.querySelector('#invoice-print') as HTMLElement | null;
       if (!node) throw new Error('Could not render invoice for PDF export');
       const { blob } = await captureInvoicePdf(node);
@@ -91,7 +95,7 @@ export default function InvoicePrintActions({ invoiceId }: Props) {
       </button>
 
       <div ref={containerRef} style={{ position: 'fixed', left: '-10000px', top: 0 }}>
-        {printData && inv && <InvoicePrint invoice={inv} shop={shop} printData={printData} />}
+        {printData && inv && <InvoicePrint invoice={inv} shop={shop} printData={printData} forPdf={busy === 'download'} />}
       </div>
     </>
   );

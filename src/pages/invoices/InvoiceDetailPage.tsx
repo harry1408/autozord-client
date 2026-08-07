@@ -236,6 +236,11 @@ export default function InvoiceDetailPage() {
   const [printData, setPrintData] = useState<PrintFormData | null>(
     (location.state as any)?.printData ?? null
   );
+  // True only while preparePdf() is capturing the off-screen node for the
+  // email PDF, so InvoicePrint renders with the compact print-equivalent
+  // styles instead of the more spacious screen ones (see forPdf on
+  // InvoicePrint) - without affecting the separate window.print() flow.
+  const [pdfCaptureMode, setPdfCaptureMode] = useState(false);
   const printContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: invRes, isLoading } = useQuery({
@@ -275,18 +280,27 @@ export default function InvoiceDetailPage() {
   // separately hand-built layout. Defined before the loading/not-found
   // guards below since hooks can't be called conditionally.
   const preparePdf = useCallback(async (): Promise<{ base64: string; blob: Blob }> => {
-    if (!printData) {
-      setPrintData({
-        serviceAdvisor: defaultAdvisor,
-        visitType: '',
-        mileageOut: defaultMileageOut,
-        extrasWithVehicle: '',
-      });
-      await new Promise(resolve => setTimeout(resolve, 200));
+    setPdfCaptureMode(true);
+    try {
+      if (!printData) {
+        setPrintData({
+          serviceAdvisor: defaultAdvisor,
+          visitType: '',
+          mileageOut: defaultMileageOut,
+          extrasWithVehicle: '',
+        });
+        await new Promise(resolve => setTimeout(resolve, 200));
+      } else {
+        // printData was already set (e.g. from a prior print) - still give the
+        // forPdf-driven re-render a moment to commit before capturing.
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+      const node = printContainerRef.current?.querySelector('#invoice-print') as HTMLElement | null;
+      if (!node) throw new Error('Could not render invoice for PDF export');
+      return await captureInvoicePdf(node);
+    } finally {
+      setPdfCaptureMode(false);
     }
-    const node = printContainerRef.current?.querySelector('#invoice-print') as HTMLElement | null;
-    if (!node) throw new Error('Could not render invoice for PDF export');
-    return captureInvoicePdf(node);
   }, [printData, defaultAdvisor, defaultMileageOut]);
 
   if (isLoading) return <LoadingSpinner fullPage />;
@@ -539,7 +553,7 @@ export default function InvoiceDetailPage() {
           by html2canvas for the emailed PDF the rest of the time. */}
       <div ref={printContainerRef} style={{ position: 'fixed', left: '-10000px', top: 0 }}>
         {printData && (
-          <InvoicePrint invoice={inv} shop={shop} printData={printData} />
+          <InvoicePrint invoice={inv} shop={shop} printData={printData} forPdf={pdfCaptureMode} />
         )}
       </div>
     </div>
