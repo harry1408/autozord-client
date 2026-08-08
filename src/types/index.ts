@@ -52,6 +52,7 @@ export interface Vehicle {
   vin?: string;
   licensePlate?: string;
   color?: string;
+  engineSize?: string;
   mileage?: number;
   createdAt: string;
   customer?: Pick<Customer, 'firstName' | 'lastName' | 'phone'>;

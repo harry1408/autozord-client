@@ -49,7 +49,10 @@ function NewTechnicianModal({ open, onClose }: NewTechnicianModalProps) {
       reset();
       onClose();
     },
-    onError: () => toast.error('Failed to create technician'),
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to create technician';
+      toast.error(msg);
+    },
   });
 
   return (

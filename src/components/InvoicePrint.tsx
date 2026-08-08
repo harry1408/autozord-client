@@ -50,8 +50,6 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
   const firstTech = roTechnicians[0]?.technician?.user;
   const defaultAdvisor = firstTech ? `${firstTech.firstName} ${firstTech.lastName}` : '';
 
-  const mileageOut = printData.mileageOut || (ro?.mileageOut ? String(ro.mileageOut) : '');
-
   const approvedEvent = [...statusHistory].reverse().find(
     (h: any) => h.toStatus === 'APPROVED' || h.toStatus === 'INVOICED' || h.toStatus === 'COMPLETED'
   );
@@ -80,17 +78,17 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
 
   const s: Record<string, React.CSSProperties> = {
     page: forPdf
-      ? { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', color: '#000', backgroundColor: '#fff', padding: '12px', width: '794px', boxSizing: 'border-box' as const, margin: '0 auto', lineHeight: '1.4' }
-      : { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', color: '#000', backgroundColor: '#fff', padding: '16px', maxWidth: '870px', margin: '0 auto', lineHeight: '1.4' },
+      ? { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', color: '#000', backgroundColor: '#fff', padding: '12px', width: '794px', boxSizing: 'border-box' as const, margin: '0 auto', lineHeight: '1.4' }
+      : { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '13px', color: '#000', backgroundColor: '#fff', padding: '16px', maxWidth: '870px', margin: '0 auto', lineHeight: '1.4' },
     header: { display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #555', paddingBottom: '8px', marginBottom: '8px' },
-    shopName: { fontWeight: 'bold', fontSize: '16px', marginBottom: '2px' },
-    refTable: { fontSize: '12px', borderCollapse: 'collapse' as const },
+    shopName: { fontWeight: 'bold', fontSize: '17px', marginBottom: '2px' },
+    refTable: { fontSize: '13px', borderCollapse: 'collapse' as const },
     refTd: { paddingBottom: '1px' },
     refLabel: { fontWeight: 'bold', paddingRight: '6px', whiteSpace: 'nowrap' as const },
     infoTable: { width: '100%', borderCollapse: 'collapse' as const, border: '1px solid #aaa', marginBottom: '8px' },
     infoTh: { padding: '3px 6px', fontWeight: 'bold', backgroundColor: '#f0f0f0', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
     infoTd: { padding: '3px 6px', borderRight: '1px solid #aaa', verticalAlign: 'top' as const },
-    jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '3px 6px', marginBottom: '2px', fontWeight: 'bold', fontSize: '12px' },
+    jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '3px 6px', marginBottom: '2px', fontWeight: 'bold', fontSize: '13px' },
     itemTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     th: { backgroundColor: '#d0d0d0', padding: '3px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, fontWeight: 'bold' },
     thR: { backgroundColor: '#d0d0d0', padding: '3px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'right' as const, fontWeight: 'bold' },
@@ -99,12 +97,12 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
     footRow: { backgroundColor: '#f5f5f5', borderTop: '1px solid #aaa' },
     feesTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     termsBlock: { display: 'flex', gap: '12px', marginBottom: '8px' },
-    termsLeft: { flex: 1, fontSize: '11px', lineHeight: '1.4' },
+    termsLeft: { flex: 1, fontSize: '12px', lineHeight: '1.4' },
     termsRight: { width: '240px', flexShrink: 0 },
     summaryRow: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px', borderBottom: '1px solid #eee' },
     summaryRowBold: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px', fontWeight: 'bold', borderTop: '1px solid #aaa', borderBottom: '1px solid #eee' },
     txTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
-    authSection: { border: '1px solid #aaa', padding: '6px', fontSize: '12px' },
+    authSection: { border: '1px solid #aaa', padding: '6px', fontSize: '13px' },
     sigBox: { border: '1px solid #aaa', height: '40px', marginTop: '4px', width: '140px' },
   };
 
@@ -120,7 +118,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
             margin: 0 !important;
             padding: 12px !important;
             max-width: 100% !important;
-            font-size: 11px !important;
+            font-size: 12px !important;
           }
           @page { margin: 8mm; size: A4; }
         }
@@ -170,7 +168,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
             <th style={s.infoTh}>Customer Info:</th>
             <th style={s.infoTh}>Vehicle Info:</th>
             <th style={s.infoTh}>Visit Type:</th>
-            <th style={s.infoTh}>Mileage In:</th>
+            <th style={s.infoTh}>Mileage:</th>
             <th style={{ ...s.infoTh, borderRight: 'none' }}>Extras with Vehicle:</th>
           </tr>
         </thead>
@@ -199,8 +197,6 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
             </td>
             <td style={s.infoTd}>
               <div>{ro?.mileageIn ? `${ro.mileageIn} KM` : '—'}</div>
-              <div style={{ marginTop: '6px', fontWeight: 'bold' }}>Mileage Out:</div>
-              <div>{mileageOut ? `${mileageOut} KM` : '—'}</div>
             </td>
             <td style={{ ...s.infoTd, borderRight: 'none' }}>
               <div>{printData.extrasWithVehicle || '—'}</div>
@@ -283,11 +279,11 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
             <th style={{ ...s.thR, width: '60px' }}>Tax</th>
             <th style={{ ...s.thR, width: '140px' }}>
               Approved Total<br />
-              <span style={{ fontWeight: 'normal', fontSize: '10px' }}>(Sub Total + Fee Amount + Fee)</span>
+              <span style={{ fontWeight: 'normal', fontSize: '11px' }}>(Sub Total + Fee Amount + Fee)</span>
             </th>
             <th style={{ ...s.thR, width: '140px', borderRight: 'none' }}>
               Estimated Total<br />
-              <span style={{ fontWeight: 'normal', fontSize: '10px' }}>(Sub Total + Fee Amount + Fee)</span>
+              <span style={{ fontWeight: 'normal', fontSize: '11px' }}>(Sub Total + Fee Amount + Fee)</span>
             </th>
           </tr>
         </thead>
@@ -295,8 +291,8 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
           <tr>
             <td style={s.td}>
               <div>Supply Fee</div>
-              <div style={{ fontSize: '10px', color: '#666' }}>calculated estimate fees: $0</div>
-              <div style={{ fontSize: '10px', color: '#666' }}>calculated approved fees: $0</div>
+              <div style={{ fontSize: '11px', color: '#666' }}>calculated estimate fees: $0</div>
+              <div style={{ fontSize: '11px', color: '#666' }}>calculated approved fees: $0</div>
             </td>
             <td style={s.tdR}>$0.00</td>
             <td style={s.tdR}>0%</td>
@@ -320,7 +316,6 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
               { label: 'Total Parts & Supplies', val: `$${fmt(partsTotal)}` },
               { label: 'Subtotal', val: `$${fmt(invoice.subtotal)}` },
               { label: 'Total Discount', val: `-$${fmt(invoice.discount)}` },
-              { label: 'Total Tax', val: `$${fmt(invoice.taxAmount)}` },
               ...(shop.gstNumber ? [{ label: `GST #${shop.gstNumber}`, val: `$${fmt(gstAmount)}` }] : [{ label: 'GST', val: `$${fmt(gstAmount)}` }]),
               ...(shop.pstNumber ? [{ label: `PST# ${shop.pstNumber}`, val: `$${fmt(pstAmount)}` }] : [{ label: 'PST', val: `$${fmt(pstAmount)}` }]),
               { label: 'Extra Amount', val: '$0.00' },
@@ -392,7 +387,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
           <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>Authorization History:</div>
           <div style={s.authSection}>
             {approvedEvent && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '3px', fontSize: '11px', color: '#555' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '3px', fontSize: '12px', color: '#555' }}>
                 <span>
                   By {approvedEvent.changedBy
                     ? `${approvedEvent.changedBy.firstName} ${approvedEvent.changedBy.lastName}`
@@ -413,7 +408,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
                     {/* marginLeft, not a literal space - html2canvas drops the
                         whitespace text node between this text and the
                         inline-block badge, jamming them together. */}
-                    <span style={{ display: 'inline-block', verticalAlign: 'middle', lineHeight: '20px', backgroundColor: '#166534', color: '#fff', padding: '3px 8px', marginLeft: '8px', borderRadius: '3px', fontSize: '11px', fontWeight: 'normal' }}>Approved</span>
+                    <span style={{ display: 'inline-block', verticalAlign: 'middle', lineHeight: '20px', backgroundColor: '#166534', color: '#fff', padding: '3px 8px', marginLeft: '8px', borderRadius: '3px', fontSize: '12px', fontWeight: 'normal' }}>Approved</span>
                   </td>
                   <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 'bold' }}>${fmt(invoice.total)}</td>
                 </tr>

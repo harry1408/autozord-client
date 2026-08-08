@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Car, Hash, Palette, Gauge, User, ClipboardList } from 'lucide-react';
+import { Car, Hash, Palette, Gauge, User, ClipboardList, Cog } from 'lucide-react';
 import api from '@/services/api';
 import { Vehicle, RepairOrder } from '@/types';
 import PageHeader from '@/components/ui/PageHeader';
@@ -88,6 +88,15 @@ export default function VehicleDetailPage() {
                 <div>
                   <p className="text-xs text-gray-400">Mileage</p>
                   <p className="text-gray-700 dark:text-gray-300">{vehicle.mileage.toLocaleString()} mi</p>
+                </div>
+              </div>
+            )}
+            {vehicle.engineSize && (
+              <div className="flex items-center gap-3 text-sm">
+                <Cog size={15} className="text-gray-400 shrink-0" />
+                <div>
+                  <p className="text-xs text-gray-400">Engine Size</p>
+                  <p className="text-gray-700 dark:text-gray-300">{vehicle.engineSize}</p>
                 </div>
               </div>
             )}

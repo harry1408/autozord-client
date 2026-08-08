@@ -23,6 +23,7 @@ const vehicleSchema = z.object({
   vin: z.string().optional(),
   licensePlate: z.string().optional(),
   color: z.string().optional(),
+  engineSize: z.string().optional(),
   mileage: z.coerce.number().min(0).optional(),
 });
 
@@ -58,6 +59,7 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
           vin: vehicle.vin ?? '',
           licensePlate: vehicle.licensePlate ?? '',
           color: vehicle.color ?? '',
+          engineSize: vehicle.engineSize ?? '',
           mileage: vehicle.mileage,
         }
       : { year: new Date().getFullYear() },
@@ -149,6 +151,10 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
             <label className="label">Mileage</label>
             <input {...register('mileage')} type="number" className="input" placeholder="45000" />
           </div>
+        </div>
+        <div>
+          <label className="label">Engine Size</label>
+          <input {...register('engineSize')} className="input" placeholder="2.0L" />
         </div>
       </form>
     </Modal>

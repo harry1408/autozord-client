@@ -103,7 +103,7 @@ export default function EmailInvoiceModal({ open, onClose, invoiceId, initialEma
           <label className="label">Customer Email *</label>
           <input {...register('email')} type="email" className="input" placeholder="customer@example.com" autoFocus />
           {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
-          <p className="mt-1 text-xs text-gray-400">Confirm or edit before sending — this will be saved to the customer's record.</p>
+          <p className="mt-1 text-xs text-gray-400">Confirm or edit before sending — this only affects this email, the customer's saved email stays unchanged.</p>
         </div>
 
         <div>

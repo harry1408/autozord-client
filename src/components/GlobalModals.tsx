@@ -32,6 +32,7 @@ const vehicleSchema = z.object({
   vin:          z.string().optional(),
   licensePlate: z.string().optional(),
   color:        z.string().optional(),
+  engineSize:   z.string().optional(),
   mileage:      z.coerce.number().optional(),
 });
 type VehicleForm = z.infer<typeof vehicleSchema>;
@@ -287,6 +288,11 @@ function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void
             <label className="label">Current Mileage</label>
             <input {...register('mileage')} type="number" className="input" placeholder="50000" />
           </div>
+        </div>
+
+        <div>
+          <label className="label">Engine Size</label>
+          <input {...register('engineSize')} className="input" placeholder="2.0L" />
         </div>
       </form>
     </Modal>

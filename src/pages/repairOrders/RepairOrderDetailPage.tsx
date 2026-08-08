@@ -27,7 +27,7 @@ const RO_TRANSITIONS: Record<ROStatus, ROStatus[]> = {
   QUALITY_CHECK: ['COMPLETED', 'IN_PROGRESS'],
   COMPLETED: ['INVOICED', 'CLOSED'],
   INVOICED: ['CLOSED'],
-  CLOSED: [],
+  CLOSED: ['IN_PROGRESS'],
   CANCELLED: [],
 };
 

@@ -23,6 +23,7 @@ const INVOICE_STATUSES: InvoiceStatus[] = ['DRAFT', 'SENT', 'PARTIALLY_PAID', 'P
 
 const invoiceSchema = z.object({
   repairOrderId: z.string().min(1, 'Repair order required'),
+  invoiceNumber: z.string().optional(),
   taxRate: z.coerce.number().min(0).max(100),
   discount: z.coerce.number().min(0),
   notes: z.string().optional(),
@@ -74,7 +75,10 @@ function NewInvoiceModal({ open, onClose, onCreated }: NewInvoiceModalProps) {
         extrasWithVehicle: vars.extrasWithVehicle ?? '',
       });
     },
-    onError: () => toast.error('Failed to create invoice'),
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to create invoice';
+      toast.error(msg);
+    },
   });
 
   return (
@@ -114,6 +118,10 @@ function NewInvoiceModal({ open, onClose, onCreated }: NewInvoiceModalProps) {
         </div>
 
         {/* ── Invoice numbers ── */}
+        <div>
+          <label className="label">Invoice Number</label>
+          <input {...register('invoiceNumber')} className="input" placeholder="Leave blank to auto-generate" />
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="label">Tax Rate (%)</label>
@@ -243,6 +251,7 @@ export default function InvoicesPage() {
                   <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Balance</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Due Date</th>
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -270,6 +279,14 @@ export default function InvoicesPage() {
                     </td>
                     <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
                       {inv.dueDate ? format(new Date(inv.dueDate), 'MMM d, yyyy') : '—'}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Link
+                        to={`/invoices/${inv.id}`}
+                        className="text-xs text-gray-500 hover:text-brand-600 font-medium px-2 py-1 rounded hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
+                      >
+                        View Invoice
+                      </Link>
                     </td>
                   </tr>
                 ))}

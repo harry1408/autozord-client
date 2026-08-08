@@ -242,7 +242,10 @@ function NewUserModal({ open, onClose }: NewUserModalProps) {
       reset();
       onClose();
     },
-    onError: () => toast.error('Failed to create user'),
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to create user';
+      toast.error(msg);
+    },
   });
 
   return (
