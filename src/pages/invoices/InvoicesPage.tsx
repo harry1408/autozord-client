@@ -241,6 +241,7 @@ export default function InvoicesPage() {
           />
         ) : (
           <>
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -292,6 +293,7 @@ export default function InvoicesPage() {
                 ))}
               </tbody>
             </table>
+            </div>
             {pagination && (
               <div className="px-6 border-t border-gray-200 dark:border-gray-800">
                 <Pagination meta={pagination} onPageChange={setPage} />
