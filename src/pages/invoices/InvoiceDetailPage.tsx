@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, CreditCard, Printer, Mail } from 'lucide-react';
+import { Plus, CreditCard, Printer, Mail, Eye } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,6 +13,7 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import Modal from '@/components/ui/Modal';
 import InvoicePrint, { PrintFormData } from '@/components/InvoicePrint';
 import EmailInvoiceModal from '@/components/EmailInvoiceModal';
+import PdfPreviewModal from '@/components/PdfPreviewModal';
 import { captureInvoicePdf } from '@/utils/invoicePdfExport';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -113,6 +114,7 @@ export default function InvoiceDetailPage() {
   const location = useLocation();
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
   const [printData, setPrintData] = useState<PrintFormData | null>(
     (location.state as any)?.printData ?? null
   );
@@ -213,6 +215,9 @@ export default function InvoiceDetailPage() {
         breadcrumbs={[{ label: 'Invoices', to: '/invoices' }, { label: inv.invoiceNumber }]}
         actions={
           <div className="flex gap-2">
+            <button onClick={() => setPdfModalOpen(true)} className="btn-secondary">
+              <Eye size={16} /> View PDF
+            </button>
             <button onClick={triggerPrint} className="btn-secondary">
               <Printer size={16} /> Print Invoice
             </button>
@@ -425,6 +430,12 @@ export default function InvoiceDetailPage() {
         onClose={() => setEmailModalOpen(false)}
         invoiceId={id!}
         initialEmail={inv.customer?.email}
+        onPreparePdf={preparePdf}
+      />
+
+      <PdfPreviewModal
+        open={pdfModalOpen}
+        onClose={() => setPdfModalOpen(false)}
         onPreparePdf={preparePdf}
       />
 

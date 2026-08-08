@@ -1,28 +1,30 @@
 import { useState, useRef, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Printer, Mail } from 'lucide-react';
+import { Printer, Mail, Eye } from 'lucide-react';
 import api from '@/services/api';
 import { Invoice, ShopSettings } from '@/types';
 import InvoicePrint, { PrintFormData } from '@/components/InvoicePrint';
 import EmailInvoiceModal from '@/components/EmailInvoiceModal';
+import PdfPreviewModal from '@/components/PdfPreviewModal';
 import { captureInvoicePdf } from '@/utils/invoicePdfExport';
 
 interface Props {
   invoiceId: string;
 }
 
-// Self-contained "Print Invoice" / "Email Invoice" buttons - fetches the
-// invoice + shop settings itself and renders InvoicePrint off-screen, so any
-// page can drop this in without re-fetching or duplicating the print/PDF
-// pipeline already used on the invoice detail page.
+// Self-contained "View PDF" / "Print Invoice" / "Email Invoice" buttons -
+// fetches the invoice + shop settings itself and renders InvoicePrint
+// off-screen, so any page can drop this in without re-fetching or
+// duplicating the print/PDF pipeline already used on the invoice detail page.
 export default function InvoicePrintActions({ invoiceId }: Props) {
   const [printData, setPrintData] = useState<PrintFormData | null>(null);
   const [busy, setBusy] = useState<'print' | null>(null);
-  // True only while the email modal's PDF preview is being captured, so
-  // InvoicePrint renders with the compact print-equivalent styles (see
-  // forPdf on InvoicePrint) instead of the more spacious screen ones.
-  const [preparingEmailPdf, setPreparingEmailPdf] = useState(false);
+  // True only while a PDF capture (for the preview or email modal) is in
+  // flight, so InvoicePrint renders with the compact print-equivalent styles
+  // (see forPdf on InvoicePrint) instead of the more spacious screen ones.
+  const [preparingPdf, setPreparingPdf] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { data: invRes } = useQuery({
@@ -63,8 +65,8 @@ export default function InvoicePrintActions({ invoiceId }: Props) {
     setBusy(null);
   };
 
-  const preparePdfForEmail = useCallback(async (): Promise<{ base64: string; blob: Blob }> => {
-    setPreparingEmailPdf(true);
+  const preparePdf = useCallback(async (): Promise<{ base64: string; blob: Blob }> => {
+    setPreparingPdf(true);
     try {
       await ensurePrintData();
       // Let the forPdf-driven re-render (compact print-equivalent styles) commit
@@ -75,12 +77,15 @@ export default function InvoicePrintActions({ invoiceId }: Props) {
       if (!node) throw new Error('Could not render invoice for PDF export');
       return await captureInvoicePdf(node);
     } finally {
-      setPreparingEmailPdf(false);
+      setPreparingPdf(false);
     }
   }, [ensurePrintData]);
 
   return (
     <>
+      <button onClick={() => setPdfModalOpen(true)} disabled={!inv} className="btn-secondary">
+        <Eye size={16} /> View PDF
+      </button>
       <button onClick={handlePrint} disabled={!inv || busy !== null} className="btn-secondary">
         <Printer size={16} /> {busy === 'print' ? 'Preparing...' : 'Print Invoice'}
       </button>
@@ -89,17 +94,24 @@ export default function InvoicePrintActions({ invoiceId }: Props) {
       </button>
 
       <div ref={containerRef} style={{ position: 'fixed', left: '-10000px', top: 0 }}>
-        {printData && inv && <InvoicePrint invoice={inv} shop={shop} printData={printData} forPdf={preparingEmailPdf} />}
+        {printData && inv && <InvoicePrint invoice={inv} shop={shop} printData={printData} forPdf={preparingPdf} />}
       </div>
 
       {inv && (
-        <EmailInvoiceModal
-          open={emailModalOpen}
-          onClose={() => setEmailModalOpen(false)}
-          invoiceId={invoiceId}
-          initialEmail={inv.customer?.email}
-          onPreparePdf={preparePdfForEmail}
-        />
+        <>
+          <EmailInvoiceModal
+            open={emailModalOpen}
+            onClose={() => setEmailModalOpen(false)}
+            invoiceId={invoiceId}
+            initialEmail={inv.customer?.email}
+            onPreparePdf={preparePdf}
+          />
+          <PdfPreviewModal
+            open={pdfModalOpen}
+            onClose={() => setPdfModalOpen(false)}
+            onPreparePdf={preparePdf}
+          />
+        </>
       )}
     </>
   );
