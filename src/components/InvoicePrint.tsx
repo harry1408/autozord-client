@@ -86,21 +86,21 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
     refTd: { paddingBottom: '1px' },
     refLabel: { fontWeight: 'bold', paddingRight: '6px', whiteSpace: 'nowrap' as const },
     infoTable: { width: '100%', borderCollapse: 'collapse' as const, border: '1px solid #aaa', marginBottom: '8px' },
-    infoTh: { padding: '3px 6px', fontWeight: 'bold', backgroundColor: '#f0f0f0', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
-    infoTd: { padding: '3px 6px', borderRight: '1px solid #aaa', verticalAlign: 'top' as const },
+    infoTh: { padding: '3px 6px 5px', fontWeight: 'bold', backgroundColor: '#f0f0f0', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
+    infoTd: { padding: '3px 6px 5px', borderRight: '1px solid #aaa', verticalAlign: 'top' as const },
     jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '3px 6px', marginBottom: '2px', fontWeight: 'bold', fontSize: '13px' },
     itemTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
-    th: { backgroundColor: '#d0d0d0', padding: '3px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, fontWeight: 'bold' },
-    thR: { backgroundColor: '#d0d0d0', padding: '3px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'right' as const, fontWeight: 'bold' },
-    td: { padding: '3px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', verticalAlign: 'top' as const },
-    tdR: { padding: '3px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'right' as const, verticalAlign: 'top' as const },
+    th: { backgroundColor: '#d0d0d0', padding: '3px 5px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, fontWeight: 'bold' },
+    thR: { backgroundColor: '#d0d0d0', padding: '3px 5px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'right' as const, fontWeight: 'bold' },
+    td: { padding: '3px 5px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', verticalAlign: 'top' as const },
+    tdR: { padding: '3px 5px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'right' as const, verticalAlign: 'top' as const },
     footRow: { backgroundColor: '#f5f5f5', borderTop: '1px solid #aaa' },
     feesTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     termsBlock: { display: 'flex', gap: '12px', marginBottom: '8px' },
     termsLeft: { flex: 1, fontSize: '12px', lineHeight: '1.4' },
     termsRight: { width: '240px', flexShrink: 0 },
-    summaryRow: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px', borderBottom: '1px solid #eee' },
-    summaryRowBold: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px', fontWeight: 'bold', borderTop: '1px solid #aaa', borderBottom: '1px solid #eee' },
+    summaryRow: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px 4px', borderBottom: '1px solid #eee' },
+    summaryRowBold: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px 4px', fontWeight: 'bold', borderTop: '1px solid #aaa', borderBottom: '1px solid #eee' },
     txTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     authSection: { border: '1px solid #aaa', padding: '6px', fontSize: '13px' },
     sigBox: { border: '1px solid #aaa', height: '40px', marginTop: '4px', width: '140px' },
@@ -387,7 +387,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
           <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>Authorization History:</div>
           <div style={s.authSection}>
             {approvedEvent && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '3px', fontSize: '12px', color: '#555' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '6px', fontSize: '12px', color: '#555' }}>
                 <span>
                   By {approvedEvent.changedBy
                     ? `${approvedEvent.changedBy.firstName} ${approvedEvent.changedBy.lastName}`
@@ -403,14 +403,14 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
             <table style={{ width: '100%', borderCollapse: 'collapse' as const }}>
               <tbody>
                 <tr>
-                  <td style={{ padding: '6px 0', fontWeight: 'bold' }}>
+                  <td style={{ padding: '6px 0 8px', fontWeight: 'bold' }}>
                     {jobName}
                     {/* marginLeft, not a literal space - html2canvas drops the
                         whitespace text node between this text and the
                         inline-block badge, jamming them together. */}
                     <span style={{ display: 'inline-block', verticalAlign: 'middle', lineHeight: '20px', backgroundColor: '#166534', color: '#fff', padding: '3px 8px', marginLeft: '8px', borderRadius: '3px', fontSize: '12px', fontWeight: 'normal' }}>Approved</span>
                   </td>
-                  <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 'bold' }}>${fmt(invoice.total)}</td>
+                  <td style={{ padding: '5px 0 8px', textAlign: 'right', fontWeight: 'bold' }}>${fmt(invoice.total)}</td>
                 </tr>
                 <tr>
                   <td style={{ padding: '6px 0 0', fontWeight: 'bold', borderTop: '1px solid #eee' }}>Total Amount:</td>
