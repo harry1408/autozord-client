@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Users, ClipboardList } from 'lucide-react';
+import { Plus, Search, Users, ClipboardList, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,6 +12,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import Modal from '@/components/ui/Modal';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import toast from 'react-hot-toast';
 
 const formatCurrency = (val: number) =>
@@ -120,6 +121,7 @@ export default function TechniciansPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -136,6 +138,16 @@ export default function TechniciansPage() {
       toast.success('Technician status updated');
     },
     onError: () => toast.error('Failed to update status'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/technicians/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['technicians'] });
+      toast.success('Technician removed');
+      setDeleteId(null);
+    },
+    onError: () => toast.error('Failed to remove technician'),
   });
 
   const technicians: TechnicianWithActiveROs[] = data?.data.data ?? [];
@@ -216,6 +228,12 @@ export default function TechniciansPage() {
                       >
                         {tech.isActive ? 'Deactivate' : 'Activate'}
                       </button>
+                      <button
+                        onClick={() => setDeleteId(tech.id)}
+                        className="text-gray-400 hover:text-red-500 p-1"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -283,13 +301,21 @@ export default function TechniciansPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button
-                        onClick={() => toggleActiveMutation.mutate({ id: tech.id, isActive: !tech.isActive })}
-                        disabled={toggleActiveMutation.isPending}
-                        className="text-xs font-medium px-2 py-1 rounded transition-colors text-gray-500 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950"
-                      >
-                        {tech.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => toggleActiveMutation.mutate({ id: tech.id, isActive: !tech.isActive })}
+                          disabled={toggleActiveMutation.isPending}
+                          className="text-xs font-medium px-2 py-1 rounded transition-colors text-gray-500 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950"
+                        >
+                          {tech.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(tech.id)}
+                          className="text-xs text-gray-500 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -305,6 +331,16 @@ export default function TechniciansPage() {
       )}
 
       <NewTechnicianModal open={modalOpen} onClose={() => setModalOpen(false)} />
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => deleteId && deleteMutation.mutate(deleteId)}
+        title="Remove Technician"
+        message="Are you sure you want to remove this technician? They will no longer appear in your technician list or be assignable to repair orders. This action cannot be undone."
+        confirmLabel="Remove"
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }
