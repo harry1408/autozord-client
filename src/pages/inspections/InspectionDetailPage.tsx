@@ -60,7 +60,7 @@ export default function InspectionDetailPage() {
 
   const updateItemMutation = useMutation({
     mutationFn: ({ itemId, status, notes }: { itemId: string; status: ItemStatus; notes?: string }) =>
-      api.patch(`/inspections/${id}/items/${itemId}`, { status, notes }),
+      api.put(`/inspections/${id}/items/${itemId}`, { status, notes }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['inspections', id] });
     },
@@ -68,7 +68,7 @@ export default function InspectionDetailPage() {
   });
 
   const completeMutation = useMutation({
-    mutationFn: () => api.patch(`/inspections/${id}/status`, { status: 'COMPLETED' }),
+    mutationFn: () => api.put(`/inspections/${id}`, { status: 'COMPLETED' }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['inspections', id] });
       toast.success('Inspection marked as completed');

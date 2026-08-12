@@ -310,7 +310,7 @@ function UsersTab() {
 
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
-      api.patch(`/users/${id}`, { isActive }),
+      api.put(`/users/${id}`, { isActive }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['users'] });
       toast.success('User status updated');

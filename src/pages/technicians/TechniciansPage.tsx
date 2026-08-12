@@ -130,7 +130,7 @@ export default function TechniciansPage() {
 
   const toggleActiveMutation = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
-      api.patch(`/technicians/${id}`, { isActive }),
+      api.put(`/technicians/${id}`, { isActive }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['technicians'] });
       toast.success('Technician status updated');
