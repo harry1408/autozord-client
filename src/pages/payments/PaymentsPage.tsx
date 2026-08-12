@@ -79,22 +79,24 @@ export default function PaymentsPage() {
       </div>
 
       {payments.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-          <div className="card p-4">
-            <p className="text-xs text-gray-400 mb-1">Total on Page</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(totalAmount)}</p>
+        <div className="card p-4 mb-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:divide-x sm:divide-gray-100 dark:sm:divide-gray-800">
+            <div>
+              <p className="text-xs text-gray-400 mb-1">Total on Page</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(totalAmount)}</p>
+            </div>
+            {(['CASH', 'CARD', 'CHECK'] as PaymentMethod[]).map(method => {
+              const methodPayments = payments.filter(p => p.method === method);
+              const methodTotal = methodPayments.reduce((s, p) => s + p.amount, 0);
+              return (
+                <div key={method} className="sm:pl-4">
+                  <p className="text-xs text-gray-400 mb-1">{method}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(methodTotal)}</p>
+                  <p className="text-xs text-gray-400">{methodPayments.length} payment{methodPayments.length !== 1 ? 's' : ''}</p>
+                </div>
+              );
+            })}
           </div>
-          {(['CASH', 'CARD', 'CHECK'] as PaymentMethod[]).map(method => {
-            const methodPayments = payments.filter(p => p.method === method);
-            const methodTotal = methodPayments.reduce((s, p) => s + p.amount, 0);
-            return (
-              <div key={method} className="card p-4">
-                <p className="text-xs text-gray-400 mb-1">{method}</p>
-                <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(methodTotal)}</p>
-                <p className="text-xs text-gray-400">{methodPayments.length} payment{methodPayments.length !== 1 ? 's' : ''}</p>
-              </div>
-            );
-          })}
         </div>
       )}
 
