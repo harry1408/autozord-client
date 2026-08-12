@@ -332,55 +332,87 @@ export default function RepairOrdersPage() {
       ) : view === 'kanban' ? (
         <KanbanBoard orders={orders} />
       ) : (
-        <div className="card overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-zinc-800">
-                {['RO #','Customer','Vehicle','Status','Technician','Promised','Created'].map(h => (
-                  <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wide">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
-              {orders.map(ro => (
-                <tr key={ro.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
-                  <td className="px-5 py-3.5">
-                    <Link to={`/repair-orders/${ro.id}`} className="text-sm font-bold text-brand-600 hover:underline">
-                      {ro.roNumber}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-3.5 text-sm text-gray-700 dark:text-gray-300">
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2.5">
+            {orders.map(ro => (
+              <Link
+                key={ro.id}
+                to={`/repair-orders/${ro.id}`}
+                className="card p-4 block hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-bold text-brand-600">{ro.roNumber}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
                     {ro.customer ? `${ro.customer.firstName} ${ro.customer.lastName}` : '—'}
-                  </td>
-                  <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3 mt-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
                     {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : '—'}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <StatusBadge status={ro.status} />
-                  </td>
-                  <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
-                    {ro.technicians && ro.technicians.length > 0
-                      ? ro.technicians.map(t => `${t.technician.user.firstName} ${t.technician.user.lastName}`).join(', ')
-                      : '—'}
-                  </td>
-                  <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
-                    {ro.promisedDate ? format(new Date(ro.promisedDate), 'MMM d, yyyy') : '—'}
-                  </td>
-                  <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
-                    {format(new Date(ro.createdAt), 'MMM d, yyyy')}
-                  </td>
+                  </span>
+                  <StatusBadge status={ro.status} />
+                </div>
+              </Link>
+            ))}
+            {pagination && (
+              <div className="card px-4 py-3">
+                <Pagination meta={pagination} onPageChange={setPage} />
+              </div>
+            )}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block card overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-zinc-800">
+                  {['RO #','Customer','Vehicle','Status','Technician','Promised','Created'].map(h => (
+                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wide">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {pagination && view === 'list' && (
-            <div className="px-5 border-t border-gray-200 dark:border-zinc-800">
-              <Pagination meta={pagination} onPageChange={setPage} />
-            </div>
-          )}
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-zinc-800">
+                {orders.map(ro => (
+                  <tr key={ro.id} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <Link to={`/repair-orders/${ro.id}`} className="text-sm font-bold text-brand-600 hover:underline">
+                        {ro.roNumber}
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3.5 text-sm text-gray-700 dark:text-gray-300">
+                      {ro.customer ? `${ro.customer.firstName} ${ro.customer.lastName}` : '—'}
+                    </td>
+                    <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
+                      {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : '—'}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <StatusBadge status={ro.status} />
+                    </td>
+                    <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
+                      {ro.technicians && ro.technicians.length > 0
+                        ? ro.technicians.map(t => `${t.technician.user.firstName} ${t.technician.user.lastName}`).join(', ')
+                        : '—'}
+                    </td>
+                    <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
+                      {ro.promisedDate ? format(new Date(ro.promisedDate), 'MMM d, yyyy') : '—'}
+                    </td>
+                    <td className="px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">
+                      {format(new Date(ro.createdAt), 'MMM d, yyyy')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {pagination && (
+              <div className="px-5 border-t border-gray-200 dark:border-zinc-800">
+                <Pagination meta={pagination} onPageChange={setPage} />
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       <NewROModal open={modalOpen} onClose={() => setModalOpen(false)} />
