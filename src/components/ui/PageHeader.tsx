@@ -16,10 +16,10 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, description, breadcrumbs, actions }: PageHeaderProps) {
   return (
-    <div className="flex items-start justify-between mb-6">
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
       <div>
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav className="flex items-center gap-1 mb-1.5">
+          <nav className="flex items-center gap-1 mb-1.5 flex-wrap">
             {breadcrumbs.map((crumb, i) => (
               <span key={i} className="flex items-center gap-1">
                 {i > 0 && <ChevronRight size={14} className="text-gray-400" />}
@@ -39,7 +39,7 @@ export default function PageHeader({ title, description, breadcrumbs, actions }:
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{description}</p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-3 mt-1">{actions}</div>}
+      {actions && <div className="flex flex-wrap items-center gap-3 sm:mt-1">{actions}</div>}
     </div>
   );
 }
