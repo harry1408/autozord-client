@@ -168,7 +168,26 @@ export default function ShopDetailPage() {
         <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-800">
           <h3 className="font-semibold text-gray-900 dark:text-gray-100">Users ({users.length})</h3>
         </div>
-        <table className="w-full text-sm">
+        {/* Mobile card list */}
+        <div className="md:hidden space-y-2.5 p-4">
+          {users.map(u => (
+            <div key={u.id} className="card p-4">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{u.firstName} {u.lastName}</span>
+                <span className="badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">{u.role}</span>
+              </div>
+              <div className="flex items-center justify-between gap-3 mt-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">{u.email}</span>
+                <span className={`badge ${u.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
+                  {u.isActive ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop table */}
+        <table className="hidden md:block w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-800 text-left text-xs text-gray-500 uppercase tracking-wider">
               <th className="px-5 py-3 font-medium">Name</th>

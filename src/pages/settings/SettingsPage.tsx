@@ -329,45 +329,35 @@ function UsersTab() {
         </button>
       </div>
 
-      <div className="card overflow-hidden">
-        {isLoading ? (
+      {isLoading ? (
+        <div className="card overflow-hidden">
           <LoadingSpinner fullPage />
-        ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-800">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">User</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Email</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Role</th>
-                <th className="text-center px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
-                <th className="px-6 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {users.map(user => (
-                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-950 flex items-center justify-center text-xs font-semibold text-brand-700 dark:text-brand-400 shrink-0">
-                        {user.firstName[0]}{user.lastName[0]}
-                      </div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {user.firstName} {user.lastName}
-                      </p>
+        </div>
+      ) : (
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2.5">
+            {users.map(user => (
+              <div key={user.id} className="card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-950 flex items-center justify-center text-xs font-semibold text-brand-700 dark:text-brand-400 shrink-0">
+                      {user.firstName[0]}{user.lastName[0]}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {user.firstName} {user.lastName}
+                    </p>
+                  </div>
+                  <span className={`badge ${ROLE_COLORS[user.role]}`}>{user.role}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 mt-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
                     {user.email}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`badge ${ROLE_COLORS[user.role]}`}>{user.role}</span>
-                  </td>
-                  <td className="px-6 py-4 text-center">
+                  </span>
+                  <div className="flex items-center gap-2">
                     <span className={`badge ${user.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}>
                       {user.isActive ? 'Active' : 'Inactive'}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
                     <button
                       onClick={() => toggleActiveMutation.mutate({ id: user.id, isActive: !user.isActive })}
                       disabled={toggleActiveMutation.isPending}
@@ -375,13 +365,64 @@ function UsersTab() {
                     >
                       {user.isActive ? 'Deactivate' : 'Activate'}
                     </button>
-                  </td>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block card overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-gray-800">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">User</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Email</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Role</th>
+                  <th className="text-center px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
+                  <th className="px-6 py-3"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                {users.map(user => (
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-950 flex items-center justify-center text-xs font-semibold text-brand-700 dark:text-brand-400 shrink-0">
+                          {user.firstName[0]}{user.lastName[0]}
+                        </div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {user.firstName} {user.lastName}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`badge ${ROLE_COLORS[user.role]}`}>{user.role}</span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`badge ${user.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}>
+                        {user.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => toggleActiveMutation.mutate({ id: user.id, isActive: !user.isActive })}
+                        disabled={toggleActiveMutation.isPending}
+                        className="text-xs font-medium px-2 py-1 rounded transition-colors text-gray-500 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950"
+                      >
+                        {user.isActive ? 'Deactivate' : 'Activate'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
       <NewUserModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>

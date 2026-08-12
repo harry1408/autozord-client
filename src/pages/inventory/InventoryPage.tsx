@@ -346,7 +346,66 @@ export default function InventoryPage() {
               />
             ) : (
               <>
-                <table className="w-full">
+                {/* Mobile card list */}
+                <div className="md:hidden space-y-2.5 p-4">
+                  {parts.map(part => {
+                    const isLowStock = part.quantityOnHand <= part.minStock;
+                    return (
+                      <div
+                        key={part.id}
+                        className={`card p-4 ${isLowStock ? 'border-amber-300 dark:border-amber-800' : ''}`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            {isLowStock && <AlertTriangle size={13} className="text-amber-500 shrink-0" />}
+                            <div>
+                              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{part.name}</p>
+                              {part.partNumber && (
+                                <p className="text-xs text-gray-400 font-mono">{part.partNumber}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              onClick={() => { setEditPart(part); setPartModalOpen(true); }}
+                              className="text-xs text-gray-500 hover:text-brand-600 font-medium px-2 py-1 rounded hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => setDeletePartId(part.id)}
+                              className="text-xs text-gray-500 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-3 mt-2">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {part.category ?? '—'}
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className={`text-sm font-semibold ${isLowStock ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                              {part.quantityOnHand} on hand
+                            </span>
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                              {formatCurrency(part.sellingPrice)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {pagination && (
+                    <div className="card px-4 py-3">
+                      <Pagination meta={pagination} onPageChange={setPage} />
+                    </div>
+                  )}
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden md:block">
+                  <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-800">
                       <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Part</th>
@@ -414,12 +473,13 @@ export default function InventoryPage() {
                       );
                     })}
                   </tbody>
-                </table>
-                {pagination && (
-                  <div className="px-6 border-t border-gray-200 dark:border-gray-800">
-                    <Pagination meta={pagination} onPageChange={setPage} />
-                  </div>
-                )}
+                  </table>
+                  {pagination && (
+                    <div className="px-6 border-t border-gray-200 dark:border-gray-800">
+                      <Pagination meta={pagination} onPageChange={setPage} />
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
@@ -443,35 +503,59 @@ export default function InventoryPage() {
               }
             />
           ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-800">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Supplier</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Contact</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Phone</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Email</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+            <>
+              {/* Mobile card list */}
+              <div className="md:hidden space-y-2.5 p-4">
                 {suppliers.map(s => (
-                  <tr key={s.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{s.name}</p>
-                      {s.address && <p className="text-xs text-gray-400 mt-0.5">{s.address}</p>}
-                    </td>
-                    <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
-                      {s.contact ?? '—'}
-                    </td>
-                    <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
-                      {s.phone ?? '—'}
-                    </td>
-                    <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
-                      {s.email ?? '—'}
-                    </td>
-                  </tr>
+                  <div key={s.id} className="card p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{s.name}</p>
+                        {s.address && <p className="text-xs text-gray-400 mt-0.5">{s.address}</p>}
+                      </div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400 shrink-0">{s.phone ?? '—'}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 mt-2">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{s.contact ?? '—'}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{s.email ?? '—'}</span>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden md:block">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-800">
+                      <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Supplier</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Contact</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Phone</th>
+                      <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Email</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {suppliers.map(s => (
+                      <tr key={s.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{s.name}</p>
+                          {s.address && <p className="text-xs text-gray-400 mt-0.5">{s.address}</p>}
+                        </td>
+                        <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
+                          {s.contact ?? '—'}
+                        </td>
+                        <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
+                          {s.phone ?? '—'}
+                        </td>
+                        <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
+                          {s.email ?? '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       )}

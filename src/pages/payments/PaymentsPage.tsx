@@ -98,17 +98,69 @@ export default function PaymentsPage() {
         </div>
       )}
 
-      <div className="card overflow-hidden">
-        {isLoading ? (
+      {isLoading ? (
+        <div className="card overflow-hidden">
           <LoadingSpinner fullPage />
-        ) : payments.length === 0 ? (
+        </div>
+      ) : payments.length === 0 ? (
+        <div className="card overflow-hidden">
           <EmptyState
             icon={CreditCard}
             title="No payments found"
             description="Payments are recorded from invoice detail pages"
           />
-        ) : (
-          <>
+        </div>
+      ) : (
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2.5">
+            {payments.map(p => {
+              const cardBody = (
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className={p.invoice ? 'text-sm font-semibold text-brand-600' : 'text-sm text-gray-500'}>
+                      {p.invoice ? p.invoice.invoiceNumber : '—'}
+                    </span>
+                    <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                      {formatCurrency(p.amount)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-2">
+                    <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {p.invoice?.customer
+                        ? `${p.invoice.customer.firstName} ${p.invoice.customer.lastName}`
+                        : '—'}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                      <span className="text-xs text-gray-400">{format(new Date(p.paidAt), 'MMM d, yyyy')}</span>
+                    </div>
+                  </div>
+                </>
+              );
+              return p.invoice ? (
+                <Link
+                  key={p.id}
+                  to={`/invoices/${p.invoiceId}`}
+                  className="card p-4 block hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+                >
+                  {cardBody}
+                </Link>
+              ) : (
+                <div key={p.id} className="card p-4">
+                  {cardBody}
+                </div>
+              );
+            })}
+            {pagination && (
+              <div className="card px-4 py-3">
+                <Pagination meta={pagination} onPageChange={setPage} />
+              </div>
+            )}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block card overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -160,9 +212,9 @@ export default function PaymentsPage() {
                 <Pagination meta={pagination} onPageChange={setPage} />
               </div>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

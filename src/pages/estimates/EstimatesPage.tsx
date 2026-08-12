@@ -197,22 +197,91 @@ export default function EstimatesPage() {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
-        {isLoading ? (
-          <LoadingSpinner fullPage />
-        ) : estimates.length === 0 ? (
-          <EmptyState
-            icon={FileText}
-            title="No estimates found"
-            description="Create your first estimate to get started"
-            action={
-              <button onClick={() => setModalOpen(true)} className="btn-primary">
-                <Plus size={16} /> New Estimate
-              </button>
-            }
-          />
-        ) : (
-          <>
+      {isLoading ? (
+        <LoadingSpinner fullPage />
+      ) : estimates.length === 0 ? (
+        <EmptyState
+          icon={FileText}
+          title="No estimates found"
+          description="Create your first estimate to get started"
+          action={
+            <button onClick={() => setModalOpen(true)} className="btn-primary">
+              <Plus size={16} /> New Estimate
+            </button>
+          }
+        />
+      ) : (
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2.5">
+            {estimates.map(est => {
+              const dateLabel = est.expiryDate
+                ? format(new Date(est.expiryDate), 'MMM d, yyyy')
+                : format(new Date(est.createdAt), 'MMM d, yyyy');
+              const convertButton = (
+                <button
+                  onClick={() => convertMutation.mutate(est.id)}
+                  disabled={convertMutation.isPending}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 px-2 py-1 rounded hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
+                >
+                  <ArrowRight size={13} /> Convert to RO
+                </button>
+              );
+
+              if (est.status === 'APPROVED') {
+                return (
+                  <div key={est.id} className="card p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <Link to={`/estimates/${est.id}`} className="text-sm font-bold text-brand-600">
+                        {est.estimateNumber}
+                      </Link>
+                      <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                        {est.customer ? `${est.customer.firstName} ${est.customer.lastName}` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 mt-2">
+                      <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                        {dateLabel}
+                      </span>
+                      <StatusBadge status={est.status} />
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-zinc-800">
+                      {convertButton}
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <Link
+                  key={est.id}
+                  to={`/estimates/${est.id}`}
+                  className="card p-4 block hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-bold text-brand-600">{est.estimateNumber}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {est.customer ? `${est.customer.firstName} ${est.customer.lastName}` : '—'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {dateLabel}
+                    </span>
+                    <StatusBadge status={est.status} />
+                  </div>
+                </Link>
+              );
+            })}
+            {pagination && (
+              <div className="card px-4 py-3">
+                <Pagination meta={pagination} onPageChange={setPage} />
+              </div>
+            )}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block card overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -268,9 +337,9 @@ export default function EstimatesPage() {
                 <Pagination meta={pagination} onPageChange={setPage} />
               </div>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
 
       <NewEstimateModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>

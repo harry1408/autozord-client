@@ -215,24 +215,79 @@ export default function VehiclesPage() {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
+      <div>
         {isLoading ? (
-          <LoadingSpinner fullPage />
+          <div className="card overflow-hidden">
+            <LoadingSpinner fullPage />
+          </div>
         ) : vehicles.length === 0 ? (
-          <EmptyState
-            icon={Car}
-            title="No vehicles found"
-            description={search ? `No vehicles match "${search}"` : 'Add your first vehicle to get started'}
-            action={
-              !search && (
-                <button onClick={() => setModalOpen(true)} className="btn-primary">
-                  <Plus size={16} /> Add Vehicle
-                </button>
-              )
-            }
-          />
+          <div className="card overflow-hidden">
+            <EmptyState
+              icon={Car}
+              title="No vehicles found"
+              description={search ? `No vehicles match "${search}"` : 'Add your first vehicle to get started'}
+              action={
+                !search && (
+                  <button onClick={() => setModalOpen(true)} className="btn-primary">
+                    <Plus size={16} /> Add Vehicle
+                  </button>
+                )
+              }
+            />
+          </div>
         ) : (
           <>
+            {/* Mobile card list */}
+            <div className="md:hidden space-y-2.5">
+              {vehicles.map(v => (
+                <div key={v.id} className="card p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <Link to={`/vehicles/${v.id}`} className="flex items-center gap-3 group min-w-0">
+                      <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center shrink-0">
+                        <Car size={16} className="text-blue-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 truncate">
+                          {v.year} {v.make} {v.model}
+                        </p>
+                        {v.color && <p className="text-xs text-gray-400">{v.color}</p>}
+                      </div>
+                    </Link>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => { setEditVehicle(v); setModalOpen(true); }}
+                        className="text-xs text-gray-500 hover:text-brand-600 font-medium px-2 py-1 rounded hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteId(v.id)}
+                        className="text-xs text-gray-500 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {v.customer ? `${v.customer.firstName} ${v.customer.lastName}` : '—'}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <ClipboardList size={14} className="text-gray-400" />
+                      {v._count?.repairOrders ?? 0}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {pagination && (
+                <div className="card px-4 py-3">
+                  <Pagination meta={pagination} onPageChange={setPage} />
+                </div>
+              )}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block card overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -310,6 +365,7 @@ export default function VehiclesPage() {
                 <Pagination meta={pagination} onPageChange={setPage} />
               </div>
             )}
+            </div>
           </>
         )}
       </div>

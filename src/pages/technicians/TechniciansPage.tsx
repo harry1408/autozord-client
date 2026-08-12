@@ -181,8 +181,53 @@ export default function TechniciansPage() {
           />
         ) : (
           <>
-            <table className="w-full">
-              <thead>
+            {/* Mobile card list */}
+            <div className="md:hidden space-y-2.5">
+              {technicians.map(tech => (
+                <div key={tech.id} className="card p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-950 flex items-center justify-center text-sm font-semibold text-brand-700 dark:text-brand-400 shrink-0">
+                        {tech.user.firstName[0]}{tech.user.lastName[0]}
+                      </div>
+                      <Link to={`/technicians/${tech.id}`} className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        {tech.user.firstName} {tech.user.lastName}
+                      </Link>
+                    </div>
+                    <span className={`badge ${tech.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}>
+                      {tech.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {tech.user.email}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {formatCurrency(tech.hourlyRate)}/hr
+                      </span>
+                      <button
+                        onClick={() => toggleActiveMutation.mutate({ id: tech.id, isActive: !tech.isActive })}
+                        disabled={toggleActiveMutation.isPending}
+                        className="text-xs font-medium px-2 py-1 rounded transition-colors text-gray-500 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950"
+                      >
+                        {tech.isActive ? 'Deactivate' : 'Activate'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {pagination && (
+                <div className="card px-4 py-3">
+                  <Pagination meta={pagination} onPageChange={setPage} />
+                </div>
+              )}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Technician</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Email</th>
@@ -252,6 +297,7 @@ export default function TechniciansPage() {
                 <Pagination meta={pagination} onPageChange={setPage} />
               </div>
             )}
+            </div>
           </>
         )}
       </div>

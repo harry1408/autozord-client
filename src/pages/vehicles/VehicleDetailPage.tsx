@@ -163,43 +163,76 @@ export default function VehicleDetailPage() {
             description="This vehicle has no repair orders yet"
           />
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-800">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">RO #</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Promised</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Mileage In</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <>
+            {/* Mobile card list */}
+            <div className="md:hidden space-y-2.5 p-4">
               {orders.map(ro => (
-                <tr key={ro.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <Link
-                      to={`/repair-orders/${ro.id}`}
-                      className="text-sm font-semibold text-brand-600 hover:underline"
-                    >
-                      {ro.roNumber}
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4">
+                <Link
+                  key={ro.id}
+                  to={`/repair-orders/${ro.id}`}
+                  className="card p-4 block hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-semibold text-brand-600">{ro.roNumber}</span>
                     <StatusBadge status={ro.status} />
-                  </td>
-                  <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
-                    {ro.promisedDate ? format(new Date(ro.promisedDate), 'MMM d, yyyy') : '—'}
-                  </td>
-                  <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
-                    {ro.mileageIn != null ? ro.mileageIn.toLocaleString() + ' mi' : '—'}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                    {format(new Date(ro.createdAt), 'MMM d, yyyy')}
-                  </td>
-                </tr>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {ro.promisedDate
+                        ? `Promised ${format(new Date(ro.promisedDate), 'MMM d, yyyy')}`
+                        : `Created ${format(new Date(ro.createdAt), 'MMM d, yyyy')}`}
+                    </span>
+                    {ro.promisedDate && (
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {format(new Date(ro.createdAt), 'MMM d, yyyy')}
+                      </span>
+                    )}
+                  </div>
+                </Link>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-800">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">RO #</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Promised</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Mileage In</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Created</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {orders.map(ro => (
+                    <tr key={ro.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <Link
+                          to={`/repair-orders/${ro.id}`}
+                          className="text-sm font-semibold text-brand-600 hover:underline"
+                        >
+                          {ro.roNumber}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={ro.status} />
+                      </td>
+                      <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
+                        {ro.promisedDate ? format(new Date(ro.promisedDate), 'MMM d, yyyy') : '—'}
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
+                        {ro.mileageIn != null ? ro.mileageIn.toLocaleString() + ' mi' : '—'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        {format(new Date(ro.createdAt), 'MMM d, yyyy')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

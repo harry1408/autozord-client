@@ -120,34 +120,56 @@ function RevenueTab() {
             {payments.length === 0 ? (
               <div className="py-8 text-center text-sm text-gray-400">No payments in this date range</div>
             ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-800">
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Customer</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Method</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              <>
+                <div className="md:hidden space-y-2 p-4">
                   {payments.map((p, i) => (
-                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                      <td className="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">
-                        {format(new Date(p.paidAt), 'MMM d, yyyy')}
-                      </td>
-                      <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
-                        {p.customer ?? '—'}
-                      </td>
-                      <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
-                        {p.method}
-                      </td>
-                      <td className="px-6 py-3 text-right text-sm font-semibold text-green-600 dark:text-green-400">
-                        {formatCurrency(p.amount)}
-                      </td>
-                    </tr>
+                    <div key={i} className="card p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {format(new Date(p.paidAt), 'MMM d, yyyy')}
+                        </span>
+                        <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                          {formatCurrency(p.amount)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{p.customer ?? '—'}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{p.method}</span>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+                <div className="hidden md:block">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-800">
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Customer</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Method</th>
+                        <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                      {payments.map((p, i) => (
+                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                          <td className="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">
+                            {format(new Date(p.paidAt), 'MMM d, yyyy')}
+                          </td>
+                          <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
+                            {p.customer ?? '—'}
+                          </td>
+                          <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
+                            {p.method}
+                          </td>
+                          <td className="px-6 py-3 text-right text-sm font-semibold text-green-600 dark:text-green-400">
+                            {formatCurrency(p.amount)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </>
@@ -227,34 +249,54 @@ function RepairOrdersTab() {
             {orders.length === 0 ? (
               <div className="py-8 text-center text-sm text-gray-400">No repair orders in this date range</div>
             ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-800">
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">RO #</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Customer</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Vehicle</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Created</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              <>
+                <div className="md:hidden space-y-2 p-4">
                   {orders.map((ro, i) => (
-                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                      <td className="px-6 py-3 text-sm font-semibold text-brand-600">{ro.roNumber}</td>
-                      <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-600 dark:text-gray-400">{ro.customer ?? '—'}</td>
-                      <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-600 dark:text-gray-400">{ro.vehicle ?? '—'}</td>
-                      <td className="px-6 py-3 text-sm">
+                    <div key={i} className="card p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-brand-600">{ro.roNumber}</span>
                         <span className="badge bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                           {ro.status.replace(/_/g, ' ')}
                         </span>
-                      </td>
-                      <td className="px-6 py-3 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
-                        {format(new Date(ro.createdAt), 'MMM d, yyyy')}
-                      </td>
-                    </tr>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{ro.customer ?? '—'}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{ro.vehicle ?? '—'}</span>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+                <div className="hidden md:block">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-800">
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">RO #</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Customer</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Vehicle</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Created</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                      {orders.map((ro, i) => (
+                        <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                          <td className="px-6 py-3 text-sm font-semibold text-brand-600">{ro.roNumber}</td>
+                          <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-600 dark:text-gray-400">{ro.customer ?? '—'}</td>
+                          <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-600 dark:text-gray-400">{ro.vehicle ?? '—'}</td>
+                          <td className="px-6 py-3 text-sm">
+                            <span className="badge bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                              {ro.status.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
+                            {format(new Date(ro.createdAt), 'MMM d, yyyy')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </>
@@ -373,31 +415,52 @@ function InventoryTab() {
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100">Low Stock Alert</h3>
               </div>
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-800">
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Part</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">On Hand</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Min Stock</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Shortage</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {lowStockParts.map((p, i) => (
-                    <tr key={i} className="hover:bg-amber-50/50 dark:hover:bg-amber-950/10">
-                      <td className="px-6 py-3">
+              <div className="md:hidden space-y-2 p-4">
+                {lowStockParts.map((p, i) => (
+                  <div key={i} className="card p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{p.name}</p>
                         {p.partNumber && <p className="text-xs text-gray-400 font-mono">{p.partNumber}</p>}
-                      </td>
-                      <td className="px-6 py-3 text-right text-sm font-semibold text-amber-600 dark:text-amber-400">{p.quantityOnHand}</td>
-                      <td className="px-6 py-3 text-right text-sm text-gray-500 dark:text-gray-400">{p.minStock}</td>
-                      <td className="px-6 py-3 text-right text-sm font-semibold text-red-600 dark:text-red-400">
-                        {Math.max(0, p.minStock - p.quantityOnHand)}
-                      </td>
+                      </div>
+                      <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{p.quantityOnHand}</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Min: {p.minStock}</span>
+                      <span className="text-sm font-semibold text-red-600 dark:text-red-400">
+                        Need: {Math.max(0, p.minStock - p.quantityOnHand)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden md:block">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 dark:border-gray-800">
+                      <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Part</th>
+                      <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">On Hand</th>
+                      <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Min Stock</th>
+                      <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Shortage</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {lowStockParts.map((p, i) => (
+                      <tr key={i} className="hover:bg-amber-50/50 dark:hover:bg-amber-950/10">
+                        <td className="px-6 py-3">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{p.name}</p>
+                          {p.partNumber && <p className="text-xs text-gray-400 font-mono">{p.partNumber}</p>}
+                        </td>
+                        <td className="px-6 py-3 text-right text-sm font-semibold text-amber-600 dark:text-amber-400">{p.quantityOnHand}</td>
+                        <td className="px-6 py-3 text-right text-sm text-gray-500 dark:text-gray-400">{p.minStock}</td>
+                        <td className="px-6 py-3 text-right text-sm font-semibold text-red-600 dark:text-red-400">
+                          {Math.max(0, p.minStock - p.quantityOnHand)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </>
@@ -451,27 +514,21 @@ function ARAgingTab() {
             {details.length === 0 ? (
               <div className="py-8 text-center text-sm text-gray-400">No outstanding invoices</div>
             ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-800">
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Invoice</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Customer</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Total</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Balance</th>
-                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Days Old</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              <>
+                <div className="md:hidden space-y-2 p-4">
                   {details.map((inv, i) => (
-                    <tr
+                    <div
                       key={i}
-                      className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 ${inv.daysOld > 90 ? 'bg-red-50/30 dark:bg-red-950/10' : ''}`}
+                      className={`card p-3 ${inv.daysOld > 90 ? 'bg-red-50/30 dark:bg-red-950/10' : ''}`}
                     >
-                      <td className="px-6 py-3 text-sm font-semibold text-brand-600">{inv.invoiceNumber}</td>
-                      <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-600 dark:text-gray-400">{inv.customer}</td>
-                      <td className="px-6 py-3 hidden md:table-cell text-right text-sm text-gray-600 dark:text-gray-400">{formatCurrency(inv.total)}</td>
-                      <td className="px-6 py-3 text-right text-sm font-semibold text-red-600 dark:text-red-400">{formatCurrency(inv.balance)}</td>
-                      <td className="px-6 py-3 text-right">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-brand-600">{inv.invoiceNumber}</span>
+                        <span className="text-sm font-semibold text-red-600 dark:text-red-400">
+                          {formatCurrency(inv.balance)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{inv.customer}</span>
                         <span className={`badge ${
                           inv.daysOld > 90
                             ? 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'
@@ -483,11 +540,50 @@ function ARAgingTab() {
                         }`}>
                           {inv.daysOld}d
                         </span>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+                <div className="hidden md:block">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-800">
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Invoice</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Customer</th>
+                        <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Total</th>
+                        <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Balance</th>
+                        <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Days Old</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                      {details.map((inv, i) => (
+                        <tr
+                          key={i}
+                          className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 ${inv.daysOld > 90 ? 'bg-red-50/30 dark:bg-red-950/10' : ''}`}
+                        >
+                          <td className="px-6 py-3 text-sm font-semibold text-brand-600">{inv.invoiceNumber}</td>
+                          <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-600 dark:text-gray-400">{inv.customer}</td>
+                          <td className="px-6 py-3 hidden md:table-cell text-right text-sm text-gray-600 dark:text-gray-400">{formatCurrency(inv.total)}</td>
+                          <td className="px-6 py-3 text-right text-sm font-semibold text-red-600 dark:text-red-400">{formatCurrency(inv.balance)}</td>
+                          <td className="px-6 py-3 text-right">
+                            <span className={`badge ${
+                              inv.daysOld > 90
+                                ? 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'
+                                : inv.daysOld > 60
+                                ? 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400'
+                                : inv.daysOld > 30
+                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
+                                : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                            }`}>
+                              {inv.daysOld}d
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </>

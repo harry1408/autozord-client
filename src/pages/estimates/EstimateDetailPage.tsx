@@ -331,7 +331,27 @@ export default function EstimateDetailPage() {
         {(est.laborLines ?? []).length === 0 ? (
           <div className="py-8 text-center text-sm text-gray-400">No labor lines added</div>
         ) : (
-          <table className="w-full">
+          <>
+            <div className="md:hidden space-y-2 p-4">
+              {(est.laborLines ?? []).map(l => (
+                <div key={l.id} className="card p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{l.description}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(l.subtotal)}</span>
+                      <button onClick={() => { setEditLabor(l); setLaborModalOpen(true); }} className="text-xs text-gray-400 hover:text-brand-600 px-1">Edit</button>
+                      <button onClick={() => setDeleteItem({ type: 'labor', itemId: l.id })} className="text-gray-400 hover:text-red-500 p-1">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    {l.hours} hrs × {formatCurrency(l.rate)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <table className="hidden md:block w-full">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800">
                 <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Description</th>
@@ -359,7 +379,8 @@ export default function EstimateDetailPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </>
         )}
       </div>
 
@@ -374,7 +395,30 @@ export default function EstimateDetailPage() {
         {(est.partsLines ?? []).length === 0 ? (
           <div className="py-8 text-center text-sm text-gray-400">No parts added</div>
         ) : (
-          <table className="w-full">
+          <>
+            <div className="md:hidden space-y-2 p-4">
+              {(est.partsLines ?? []).map(p => (
+                <div key={p.id} className="card p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {p.name}
+                      {p.partNumber && <span className="text-xs text-gray-400 ml-2 font-mono">{p.partNumber}</span>}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(p.subtotal)}</span>
+                      <button onClick={() => { setEditPart(p); setPartsModalOpen(true); }} className="text-xs text-gray-400 hover:text-brand-600 px-1">Edit</button>
+                      <button onClick={() => setDeleteItem({ type: 'parts', itemId: p.id })} className="text-gray-400 hover:text-red-500 p-1">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    {p.quantity} × {formatCurrency(p.sellingPrice)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <table className="hidden md:block w-full">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800">
                 <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Part</th>
@@ -405,7 +449,8 @@ export default function EstimateDetailPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </>
         )}
       </div>
 

@@ -63,7 +63,39 @@ export default function EmailLogsPage() {
       ) : logs.length === 0 ? (
         <EmptyState icon={Mail} title="No emails sent yet" />
       ) : (
-        <div className="card overflow-hidden">
+        <>
+          <div className="md:hidden space-y-2.5">
+            {logs.map(log => (
+              <div key={log.id} className="card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{log.to}</span>
+                  {log.status === 'SENT' ? (
+                    <span className="badge bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Sent</span>
+                  ) : (
+                    <span
+                      className="badge bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 cursor-help"
+                      title={log.errorMessage ?? undefined}
+                    >
+                      Failed
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-3 mt-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400 truncate">{log.subject}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`badge ${CATEGORY_STYLES[log.category] ?? CATEGORY_STYLES.GENERIC}`}>
+                      {CATEGORY_LABELS[log.category] ?? log.category}
+                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {new Date(log.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800 text-left text-xs text-gray-500 uppercase tracking-wider">
@@ -103,7 +135,8 @@ export default function EmailLogsPage() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

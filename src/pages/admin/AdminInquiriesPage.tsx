@@ -31,7 +31,31 @@ export default function AdminInquiriesPage() {
       ) : inquiries.length === 0 ? (
         <EmptyState icon={Inbox} title="No inquiries yet" />
       ) : (
-        <div className="card overflow-hidden">
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2.5">
+            {inquiries.map(item => (
+              <div key={item.id} className="card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.inquiry.name}</span>
+                  <span className={`badge ${STATUS_STYLES[item.status] ?? ''}`}>{item.status}</span>
+                </div>
+                <div className="mt-1 space-y-0.5 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1.5"><Mail size={13} /> {item.inquiry.email}</div>
+                  {item.inquiry.phone && <div className="flex items-center gap-1.5"><Phone size={13} /> {item.inquiry.phone}</div>}
+                </div>
+                <div className="flex items-center justify-between gap-3 mt-2">
+                  {item.shop ? (
+                    <Link to={`/admin/shops/${item.shop.id}`} className="text-sm text-brand-600 hover:underline">{item.shop.name}</Link>
+                  ) : <span className="text-sm text-gray-500 dark:text-gray-400">—</span>}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{new Date(item.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800 text-left text-xs text-gray-500 uppercase tracking-wider">
@@ -65,7 +89,8 @@ export default function AdminInquiriesPage() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

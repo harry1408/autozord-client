@@ -320,6 +320,22 @@ export default function InvoiceDetailPage() {
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">Labor</h3>
           </div>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2 p-4">
+            {laborLines.map(l => (
+              <div key={l.id} className="card p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{l.description}</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{formatCurrency(l.subtotal)}</span>
+                </div>
+                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  {l.hours} hrs × {formatCurrency(l.rate)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -340,6 +356,7 @@ export default function InvoiceDetailPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -348,6 +365,25 @@ export default function InvoiceDetailPage() {
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">Parts</h3>
           </div>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2 p-4">
+            {partsLines.map(p => (
+              <div key={p.id} className="card p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {p.name}
+                    {p.partNumber && <span className="text-xs text-gray-400 ml-2 font-mono">{p.partNumber}</span>}
+                  </span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{formatCurrency(p.subtotal)}</span>
+                </div>
+                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  {p.quantity} × {formatCurrency(p.sellingPrice)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -371,6 +407,7 @@ export default function InvoiceDetailPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -387,34 +424,56 @@ export default function InvoiceDetailPage() {
         {payments.length === 0 ? (
           <div className="py-8 text-center text-sm text-gray-400">No payments recorded</div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-800">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Method</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Reference</th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <>
+            {/* Mobile card list */}
+            <div className="md:hidden space-y-2 p-4">
               {payments.map(p => (
-                <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">
-                    {format(new Date(p.paidAt), 'MMM d, yyyy')}
-                  </td>
-                  <td className="px-6 py-3">
+                <div key={p.id} className="card p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{format(new Date(p.paidAt), 'MMM d, yyyy')}</span>
+                    <span className="text-sm font-semibold text-green-600 dark:text-green-400">{formatCurrency(p.amount)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-2">
                     <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
-                  </td>
-                  <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
-                    {p.referenceNumber ?? '—'}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-right font-semibold text-green-600 dark:text-green-400">
-                    {formatCurrency(p.amount)}
-                  </td>
-                </tr>
+                    {p.referenceNumber && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{p.referenceNumber}</span>
+                    )}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-800">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Method</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Reference</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {payments.map(p => (
+                    <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <td className="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">
+                        {format(new Date(p.paidAt), 'MMM d, yyyy')}
+                      </td>
+                      <td className="px-6 py-3">
+                        <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                      </td>
+                      <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
+                        {p.referenceNumber ?? '—'}
+                      </td>
+                      <td className="px-6 py-3 text-sm text-right font-semibold text-green-600 dark:text-green-400">
+                        {formatCurrency(p.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

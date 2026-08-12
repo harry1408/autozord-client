@@ -178,10 +178,12 @@ export default function CustomersPage() {
       </div>
 
       {/* Table */}
-      <div className="card overflow-hidden">
-        {isLoading ? (
+      {isLoading ? (
+        <div className="card overflow-hidden">
           <LoadingSpinner fullPage />
-        ) : customers.length === 0 ? (
+        </div>
+      ) : customers.length === 0 ? (
+        <div className="card overflow-hidden">
           <EmptyState
             icon={Users}
             title="No customers found"
@@ -194,8 +196,63 @@ export default function CustomersPage() {
               )
             }
           />
-        ) : (
-          <>
+        </div>
+      ) : (
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2.5">
+            {customers.map(customer => (
+              <div key={customer.id} className="card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <Link to={`/customers/${customer.id}`} className="text-sm font-bold text-brand-600">
+                    {customer.firstName} {customer.lastName}
+                  </Link>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => { setEditCustomer(customer); setModalOpen(true); }}
+                      className="text-xs text-gray-500 hover:text-brand-600 font-medium px-2 py-1 rounded hover:bg-brand-50 dark:hover:bg-brand-950 transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => setDeleteId(customer.id)}
+                      className="text-xs text-gray-500 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-3 mt-2">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+                      <Phone size={12} className="text-gray-400" /> {customer.phone}
+                    </div>
+                    {customer.email && (
+                      <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+                        <Mail size={12} className="text-gray-400" /> {customer.email}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                      <Car size={13} />{customer._count?.vehicles ?? 0}
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                      <ClipboardList size={13} />{customer._count?.repairOrders ?? 0}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {pagination && (
+              <div className="card px-4 py-3">
+                <Pagination meta={pagination} onPageChange={setPage} />
+              </div>
+            )}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block card overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -275,9 +332,9 @@ export default function CustomersPage() {
                 <Pagination meta={pagination} onPageChange={setPage} />
               </div>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
 
       <CustomerFormModal
         key={editCustomer?.id ?? 'new'}

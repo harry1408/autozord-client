@@ -147,40 +147,69 @@ export default function TechnicianDetailPage() {
         {orders.length === 0 ? (
           <EmptyState icon={ClipboardList} title="No repair orders" description="This technician has no assigned repair orders" />
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-800">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">RO #</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Customer</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Vehicle</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <>
+            {/* Mobile card list */}
+            <div className="md:hidden space-y-2.5 p-4">
               {orders.map(ro => (
-                <tr key={ro.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <Link to={`/repair-orders/${ro.id}`} className="text-sm font-semibold text-brand-600 hover:underline">
-                      {ro.roNumber}
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-700 dark:text-gray-300">
-                    {ro.customer ? `${ro.customer.firstName} ${ro.customer.lastName}` : '—'}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                    {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : '—'}
-                  </td>
-                  <td className="px-6 py-4">
+                <Link
+                  key={ro.id}
+                  to={`/repair-orders/${ro.id}`}
+                  className="card p-4 block hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-semibold text-brand-600">{ro.roNumber}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {ro.customer ? `${ro.customer.firstName} ${ro.customer.lastName}` : '—'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : '—'}
+                    </span>
                     <StatusBadge status={ro.status} />
-                  </td>
-                  <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
-                    {format(new Date(ro.createdAt), 'MMM d, yyyy')}
-                  </td>
-                </tr>
+                  </div>
+                </Link>
               ))}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-800">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">RO #</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Customer</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Vehicle</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {orders.map(ro => (
+                    <tr key={ro.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <Link to={`/repair-orders/${ro.id}`} className="text-sm font-semibold text-brand-600 hover:underline">
+                          {ro.roNumber}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 hidden md:table-cell text-sm text-gray-700 dark:text-gray-300">
+                        {ro.customer ? `${ro.customer.firstName} ${ro.customer.lastName}` : '—'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        {ro.vehicle ? `${ro.vehicle.year} ${ro.vehicle.make} ${ro.vehicle.model}` : '—'}
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={ro.status} />
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400">
+                        {format(new Date(ro.createdAt), 'MMM d, yyyy')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -437,35 +437,58 @@ export default function RepairOrderDetailPage() {
         {(ro.laborLines ?? []).length === 0 ? (
           <div className="py-8 text-center text-sm text-gray-400">No labor lines added</div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-800">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Description</th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Hours</th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Rate</th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subtotal</th>
-                <th className="px-6 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <>
+            <div className="md:hidden space-y-2 p-4">
               {(ro.laborLines ?? []).map(l => (
-                <tr key={l.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{l.description}</td>
-                  <td className="px-6 py-3 text-sm text-right text-gray-600 dark:text-gray-400">{l.hours}</td>
-                  <td className="px-6 py-3 text-sm text-right text-gray-600 dark:text-gray-400">{formatCurrency(l.rate)}</td>
-                  <td className="px-6 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">{formatCurrency(l.subtotal)}</td>
-                  <td className="px-6 py-3">
-                    <div className="flex items-center justify-end gap-2">
+                <div key={l.id} className="card p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{l.description}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(l.subtotal)}</span>
                       <button onClick={() => { setEditLabor(l); setLaborModalOpen(true); }} className="text-xs text-gray-400 hover:text-brand-600 px-1">Edit</button>
                       <button onClick={() => setDeleteItem({ type: 'labor', itemId: l.id })} className="text-gray-400 hover:text-red-500 p-1">
                         <Trash2 size={14} />
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    {l.hours} hrs × {formatCurrency(l.rate)}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-800">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Description</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Hours</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Rate</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subtotal</th>
+                    <th className="px-6 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {(ro.laborLines ?? []).map(l => (
+                    <tr key={l.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <td className="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{l.description}</td>
+                      <td className="px-6 py-3 text-sm text-right text-gray-600 dark:text-gray-400">{l.hours}</td>
+                      <td className="px-6 py-3 text-sm text-right text-gray-600 dark:text-gray-400">{formatCurrency(l.rate)}</td>
+                      <td className="px-6 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">{formatCurrency(l.subtotal)}</td>
+                      <td className="px-6 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => { setEditLabor(l); setLaborModalOpen(true); }} className="text-xs text-gray-400 hover:text-brand-600 px-1">Edit</button>
+                          <button onClick={() => setDeleteItem({ type: 'labor', itemId: l.id })} className="text-gray-400 hover:text-red-500 p-1">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
@@ -480,39 +503,67 @@ export default function RepairOrderDetailPage() {
         {(ro.partsLines ?? []).length === 0 ? (
           <div className="py-8 text-center text-sm text-gray-400">No parts added</div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-800">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Part</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Part #</th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Qty</th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Cost</th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Sell Price</th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subtotal</th>
-                <th className="px-6 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <>
+            <div className="md:hidden space-y-2 p-4">
               {(ro.partsLines ?? []).map(p => (
-                <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{p.name}</td>
-                  <td className="px-6 py-3 text-sm hidden md:table-cell text-gray-500 dark:text-gray-400 font-mono">{p.partNumber ?? '—'}</td>
-                  <td className="px-6 py-3 text-sm text-right text-gray-600 dark:text-gray-400">{p.quantity}</td>
-                  <td className="px-6 py-3 text-sm text-right hidden lg:table-cell text-gray-600 dark:text-gray-400">{formatCurrency(p.unitCost)}</td>
-                  <td className="px-6 py-3 text-sm text-right text-gray-600 dark:text-gray-400">{formatCurrency(p.sellingPrice)}</td>
-                  <td className="px-6 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">{formatCurrency(p.subtotal)}</td>
-                  <td className="px-6 py-3">
-                    <div className="flex items-center justify-end gap-2">
+                <div key={p.id} className="card p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {p.name}
+                      {p.partNumber && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-mono ml-2">{p.partNumber}</span>
+                      )}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatCurrency(p.subtotal)}</span>
                       <button onClick={() => { setEditPart(p); setPartsModalOpen(true); }} className="text-xs text-gray-400 hover:text-brand-600 px-1">Edit</button>
                       <button onClick={() => setDeleteItem({ type: 'parts', itemId: p.id })} className="text-gray-400 hover:text-red-500 p-1">
                         <Trash2 size={14} />
                       </button>
                     </div>
-                  </td>
-                </tr>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    {p.quantity} × {formatCurrency(p.sellingPrice)}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-800">
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Part</th>
+                    <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Part #</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Qty</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Cost</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Sell Price</th>
+                    <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Subtotal</th>
+                    <th className="px-6 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {(ro.partsLines ?? []).map(p => (
+                    <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <td className="px-6 py-3 text-sm text-gray-700 dark:text-gray-300">{p.name}</td>
+                      <td className="px-6 py-3 text-sm hidden md:table-cell text-gray-500 dark:text-gray-400 font-mono">{p.partNumber ?? '—'}</td>
+                      <td className="px-6 py-3 text-sm text-right text-gray-600 dark:text-gray-400">{p.quantity}</td>
+                      <td className="px-6 py-3 text-sm text-right hidden lg:table-cell text-gray-600 dark:text-gray-400">{formatCurrency(p.unitCost)}</td>
+                      <td className="px-6 py-3 text-sm text-right text-gray-600 dark:text-gray-400">{formatCurrency(p.sellingPrice)}</td>
+                      <td className="px-6 py-3 text-sm text-right font-medium text-gray-900 dark:text-gray-100">{formatCurrency(p.subtotal)}</td>
+                      <td className="px-6 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => { setEditPart(p); setPartsModalOpen(true); }} className="text-xs text-gray-400 hover:text-brand-600 px-1">Edit</button>
+                          <button onClick={() => setDeleteItem({ type: 'parts', itemId: p.id })} className="text-gray-400 hover:text-red-500 p-1">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

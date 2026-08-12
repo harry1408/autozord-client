@@ -66,8 +66,38 @@ export default function UsersListPage() {
       ) : users.length === 0 ? (
         <EmptyState icon={Users} title="No users yet" />
       ) : (
-        <div className="card overflow-hidden">
-          <table className="w-full text-sm">
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2.5">
+            {users.map(u => (
+              <div key={u.id} className="card p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{u.firstName} {u.lastName}</span>
+                  <span className="badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">{u.role}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 mt-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{u.email}</span>
+                  <span className={`badge ${u.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
+                    {u.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-zinc-800 flex items-center justify-between gap-3">
+                  {u.shop ? (
+                    <Link to={`/admin/shops/${u.shop.id}`} className="text-brand-600 hover:underline text-sm">
+                      {u.shop.name}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-400 text-sm">—</span>
+                  )}
+                  <ResetPasswordButton userId={u.id} email={u.email} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block card overflow-hidden">
+            <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800 text-left text-xs text-gray-500 uppercase tracking-wider">
                 <th className="px-5 py-3 font-medium">Name</th>
@@ -106,8 +136,9 @@ export default function UsersListPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

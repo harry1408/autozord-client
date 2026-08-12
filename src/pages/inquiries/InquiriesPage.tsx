@@ -109,7 +109,37 @@ export default function InquiriesPage() {
       ) : inquiries.length === 0 ? (
         <EmptyState icon={Inbox} title="No inquiries yet" description="Public inquiries submitted to your shop will show up here." />
       ) : (
-        <div className="card overflow-hidden">
+        <>
+        <div className="md:hidden space-y-2.5">
+          {inquiries.map(item => (
+            <div
+              key={item.id}
+              onClick={() => setSelected(item)}
+              className="card p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.inquiry.name}</span>
+                <span className={`badge ${STATUS_STYLES[item.status] ?? ''}`}>{item.status}</span>
+              </div>
+              <div className="mt-1 space-y-0.5 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-1.5"><Mail size={13} /> {item.inquiry.email}</div>
+                {item.inquiry.phone && <div className="flex items-center gap-1.5"><Phone size={13} /> {item.inquiry.phone}</div>}
+              </div>
+              <div className="flex items-center justify-between gap-3 mt-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                  {item.inquiry.vehicleInfo ? (
+                    <span className="flex items-center gap-1.5"><Car size={13} /> {item.inquiry.vehicleInfo}</span>
+                  ) : '—'}
+                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:block card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800 text-left text-xs text-gray-500 uppercase tracking-wider">
@@ -148,6 +178,7 @@ export default function InquiriesPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       {selected && <RespondModal item={selected} onClose={() => setSelected(null)} />}

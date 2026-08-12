@@ -241,7 +241,43 @@ export default function InvoicesPage() {
           />
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile card list */}
+            <div className="md:hidden space-y-2.5">
+              {invoices.map(inv => (
+                <Link
+                  key={inv.id}
+                  to={`/invoices/${inv.id}`}
+                  className="card p-4 block hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-bold text-brand-600">{inv.invoiceNumber}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                      {inv.customer ? `${inv.customer.firstName} ${inv.customer.lastName}` : '—'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 mt-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        {formatCurrency(inv.total)}
+                      </span>
+                      {inv.balance > 0 && (
+                        <span className="text-xs text-red-600 dark:text-red-400">
+                          Bal {formatCurrency(inv.balance)}
+                        </span>
+                      )}
+                    </div>
+                    <StatusBadge status={inv.status} />
+                  </div>
+                </Link>
+              ))}
+              {pagination && (
+                <div className="card px-4 py-3">
+                  <Pagination meta={pagination} onPageChange={setPage} />
+                </div>
+              )}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
