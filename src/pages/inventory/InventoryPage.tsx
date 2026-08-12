@@ -330,10 +330,12 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="card overflow-hidden">
-            {partsLoading ? (
+          {partsLoading ? (
+            <div className="card overflow-hidden">
               <LoadingSpinner fullPage />
-            ) : parts.length === 0 ? (
+            </div>
+          ) : parts.length === 0 ? (
+            <div className="card overflow-hidden">
               <EmptyState
                 icon={Package}
                 title="No parts found"
@@ -344,10 +346,11 @@ export default function InventoryPage() {
                   </button>
                 }
               />
-            ) : (
+            </div>
+          ) : (
               <>
                 {/* Mobile card list */}
-                <div className="md:hidden space-y-2.5 p-4">
+                <div className="md:hidden space-y-2.5">
                   {parts.map(part => {
                     const isLowStock = part.quantityOnHand <= part.minStock;
                     return (
@@ -404,7 +407,7 @@ export default function InventoryPage() {
                 </div>
 
                 {/* Desktop table */}
-                <div className="hidden md:block">
+                <div className="hidden md:block card overflow-hidden">
                   <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -481,31 +484,34 @@ export default function InventoryPage() {
                   )}
                 </div>
               </>
-            )}
-          </div>
+          )}
         </>
       )}
 
       {/* Suppliers Tab */}
       {activeTab === 'suppliers' && (
-        <div className="card overflow-hidden">
+        <>
           {suppliersLoading ? (
-            <LoadingSpinner fullPage />
+            <div className="card overflow-hidden">
+              <LoadingSpinner fullPage />
+            </div>
           ) : suppliers.length === 0 ? (
-            <EmptyState
-              icon={Truck}
-              title="No suppliers found"
-              description="Add your first supplier"
-              action={
-                <button onClick={() => setSupplierModalOpen(true)} className="btn-primary">
-                  <Plus size={16} /> Add Supplier
-                </button>
-              }
-            />
+            <div className="card overflow-hidden">
+              <EmptyState
+                icon={Truck}
+                title="No suppliers found"
+                description="Add your first supplier"
+                action={
+                  <button onClick={() => setSupplierModalOpen(true)} className="btn-primary">
+                    <Plus size={16} /> Add Supplier
+                  </button>
+                }
+              />
+            </div>
           ) : (
             <>
               {/* Mobile card list */}
-              <div className="md:hidden space-y-2.5 p-4">
+              <div className="md:hidden space-y-2.5">
                 {suppliers.map(s => (
                   <div key={s.id} className="card p-4">
                     <div className="flex items-center justify-between gap-3">
@@ -524,7 +530,7 @@ export default function InventoryPage() {
               </div>
 
               {/* Desktop table */}
-              <div className="hidden md:block">
+              <div className="hidden md:block card overflow-hidden">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -557,7 +563,7 @@ export default function InventoryPage() {
               </div>
             </>
           )}
-        </div>
+        </>
       )}
 
       <PartModal

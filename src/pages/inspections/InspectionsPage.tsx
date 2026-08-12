@@ -186,10 +186,12 @@ export default function InspectionsPage() {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
-        {isLoading ? (
+      {isLoading ? (
+        <div className="card overflow-hidden">
           <LoadingSpinner fullPage />
-        ) : inspections.length === 0 ? (
+        </div>
+      ) : inspections.length === 0 ? (
+        <div className="card overflow-hidden">
           <EmptyState
             icon={ClipboardCheck}
             title="No inspections found"
@@ -200,8 +202,9 @@ export default function InspectionsPage() {
               </button>
             }
           />
-        ) : (
-          <>
+        </div>
+      ) : (
+        <>
             {/* Mobile card list */}
             <div className="md:hidden space-y-2.5">
               {inspections.map(insp => {
@@ -255,7 +258,7 @@ export default function InspectionsPage() {
             </div>
 
             {/* Desktop table */}
-            <div className="hidden md:block">
+            <div className="hidden md:block card overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -329,9 +332,8 @@ export default function InspectionsPage() {
                 </div>
               )}
             </div>
-          </>
-        )}
-      </div>
+        </>
+      )}
 
       <NewInspectionModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>

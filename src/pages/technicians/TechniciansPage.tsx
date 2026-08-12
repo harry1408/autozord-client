@@ -165,10 +165,12 @@ export default function TechniciansPage() {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
-        {isLoading ? (
+      {isLoading ? (
+        <div className="card overflow-hidden">
           <LoadingSpinner fullPage />
-        ) : technicians.length === 0 ? (
+        </div>
+      ) : technicians.length === 0 ? (
+        <div className="card overflow-hidden">
           <EmptyState
             icon={Users}
             title="No technicians found"
@@ -179,8 +181,9 @@ export default function TechniciansPage() {
               </button>
             }
           />
-        ) : (
-          <>
+        </div>
+      ) : (
+        <>
             {/* Mobile card list */}
             <div className="md:hidden space-y-2.5">
               {technicians.map(tech => (
@@ -225,7 +228,7 @@ export default function TechniciansPage() {
             </div>
 
             {/* Desktop table */}
-            <div className="hidden md:block">
+            <div className="hidden md:block card overflow-hidden">
               <table className="w-full">
                 <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -298,9 +301,8 @@ export default function TechniciansPage() {
               </div>
             )}
             </div>
-          </>
-        )}
-      </div>
+        </>
+      )}
 
       <NewTechnicianModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>

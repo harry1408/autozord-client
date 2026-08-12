@@ -36,7 +36,7 @@
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm;
+    @apply bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 shadow-sm;
   }
 
   .btn-primary {

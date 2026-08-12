@@ -225,10 +225,12 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
-        {isLoading ? (
+      {isLoading ? (
+        <div className="card overflow-hidden">
           <LoadingSpinner fullPage />
-        ) : invoices.length === 0 ? (
+        </div>
+      ) : invoices.length === 0 ? (
+        <div className="card overflow-hidden">
           <EmptyState
             icon={Receipt}
             title="No invoices found"
@@ -239,11 +241,12 @@ export default function InvoicesPage() {
               </button>
             }
           />
-        ) : (
-          <>
-            {/* Mobile card list */}
-            <div className="md:hidden space-y-2.5">
-              {invoices.map(inv => (
+        </div>
+      ) : (
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2.5">
+            {invoices.map(inv => (
                 <Link
                   key={inv.id}
                   to={`/invoices/${inv.id}`}
@@ -277,7 +280,8 @@ export default function InvoicesPage() {
               )}
             </div>
 
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block card overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -335,9 +339,9 @@ export default function InvoicesPage() {
                 <Pagination meta={pagination} onPageChange={setPage} />
               </div>
             )}
-          </>
-        )}
-      </div>
+            </div>
+        </>
+      )}
 
       <NewInvoiceModal
         open={modalOpen}
