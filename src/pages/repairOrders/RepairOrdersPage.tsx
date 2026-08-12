@@ -258,7 +258,7 @@ export default function RepairOrdersPage() {
         title="Job Board"
         description="Track all repair work"
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {/* View toggle */}
             <div className="flex items-center bg-gray-100 dark:bg-zinc-800 rounded-lg p-1 gap-1">
               <button

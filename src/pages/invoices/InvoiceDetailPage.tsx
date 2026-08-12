@@ -214,7 +214,7 @@ export default function InvoiceDetailPage() {
         title={`Invoice ${inv.invoiceNumber}`}
         breadcrumbs={[{ label: 'Invoices', to: '/invoices' }, { label: inv.invoiceNumber }]}
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button onClick={() => setPdfModalOpen(true)} className="btn-secondary">
               <Eye size={16} /> View PDF
             </button>

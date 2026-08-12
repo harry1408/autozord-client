@@ -313,7 +313,7 @@ export default function RepairOrderDetailPage() {
         title={ro.roNumber}
         breadcrumbs={[{ label: 'Repair Orders', to: '/repair-orders' }, { label: ro.roNumber }]}
         actions={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {availableTransitions.length > 0 && (
               <div className="flex items-center gap-2">
                 <select

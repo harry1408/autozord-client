@@ -237,7 +237,7 @@ export default function EstimateDetailPage() {
         title={est.estimateNumber}
         breadcrumbs={[{ label: 'Estimates', to: '/estimates' }, { label: est.estimateNumber }]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {est.status === 'DRAFT' && (
               <button onClick={() => statusMutation.mutate('SENT')} disabled={statusMutation.isPending} className="btn-secondary">
                 <Send size={15} /> Send
