@@ -90,6 +90,11 @@ function NewInvoiceModal({ open, onClose, onCreated, initialRoId }: NewInvoiceMo
       api.post<{ success: boolean; data: { id: string } }>('/invoices', data),
     onSuccess: (res, vars) => {
       qc.invalidateQueries({ queryKey: ['invoices'] });
+      // Creating an invoice also flips the RO's status to INVOICED server-side,
+      // so its detail/list views must be refetched too - otherwise (with the
+      // 60s global staleTime) navigating back to that RO still shows stale
+      // pre-invoice data, including the "Generate Invoice" button.
+      qc.invalidateQueries({ queryKey: ['repair-orders'] });
       toast.success('Invoice created — opening PDF…');
       reset();
       setRoSearch('');
