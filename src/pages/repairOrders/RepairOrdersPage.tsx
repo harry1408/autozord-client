@@ -197,13 +197,13 @@ function KanbanCard({ ro }: { ro: RepairOrder }) {
 /* ─── Kanban Board ─────────────────────────────────────── */
 function KanbanBoard({ orders }: { orders: RepairOrder[] }) {
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4 min-h-[calc(100vh-220px)]">
+    <div className="flex flex-col md:flex-row gap-4 md:overflow-x-auto pb-4 md:min-h-[calc(100vh-220px)]">
       {KANBAN_COLUMNS.map(col => {
         const cards = orders.filter(ro => ro.status === col.status);
         return (
-          <div key={col.status} className="flex-shrink-0 w-72">
-            <div className={`bg-white dark:bg-zinc-900 rounded-xl border-t-4 ${col.color} border border-gray-200 dark:border-zinc-800 flex flex-col max-h-[calc(100vh-220px)]`}>
-              <div className="flex items-center justify-between px-3.5 py-3 border-b border-gray-100 dark:border-zinc-800 sticky top-0 bg-white dark:bg-zinc-900 rounded-t-xl z-10">
+          <div key={col.status} className="md:flex-shrink-0 md:w-72">
+            <div className={`bg-white dark:bg-zinc-900 rounded-xl border-t-4 ${col.color} border border-gray-200 dark:border-zinc-800 flex flex-col md:max-h-[calc(100vh-220px)]`}>
+              <div className="flex items-center justify-between px-3.5 py-3 border-b border-gray-100 dark:border-zinc-800 md:sticky md:top-0 bg-white dark:bg-zinc-900 rounded-t-xl z-10">
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full ${col.dot}`} />
                   <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{col.label}</span>
@@ -212,9 +212,9 @@ function KanbanBoard({ orders }: { orders: RepairOrder[] }) {
                   {cards.length}
                 </span>
               </div>
-              <div className="flex-1 overflow-y-auto p-2.5 space-y-2.5">
+              <div className="md:flex-1 md:overflow-y-auto p-2.5 space-y-2.5">
                 {cards.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-gray-400">No orders</div>
+                  <div className="py-4 md:py-8 text-center text-xs text-gray-400">No orders</div>
                 ) : (
                   cards.map(ro => <KanbanCard key={ro.id} ro={ro} />)
                 )}
