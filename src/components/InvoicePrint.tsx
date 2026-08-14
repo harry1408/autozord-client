@@ -88,7 +88,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
     infoTable: { width: '100%', borderCollapse: 'collapse' as const, border: '1px solid #aaa', marginBottom: '8px' },
     infoTh: { padding: '3px 6px 5px', fontWeight: 'bold', backgroundColor: '#f0f0f0', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
     infoTd: { padding: '3px 6px 5px', borderRight: '1px solid #aaa', verticalAlign: 'top' as const },
-    jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '3px 6px', marginBottom: '2px', fontWeight: 'bold', fontSize: '13px' },
+    jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '3px 6px', marginBottom: '6px', fontWeight: 'bold', fontSize: '13px' },
     itemTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     th: { backgroundColor: '#d0d0d0', padding: '3px 5px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, fontWeight: 'bold' },
     thR: { backgroundColor: '#d0d0d0', padding: '3px 5px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'right' as const, fontWeight: 'bold' },
@@ -346,7 +346,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
       {/* ── TRANSACTION HISTORY ────────────────────────────────────────── */}
       {payments.length > 0 && (
         <>
-          <div style={{ fontWeight: 'bold', marginBottom: '3px', marginTop: '6px' }}>Transaction History</div>
+          <div style={{ fontWeight: 'bold', marginBottom: '6px', marginTop: '6px' }}>Transaction History</div>
           <table style={s.txTable}>
             <thead>
               <tr>
@@ -384,7 +384,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
       {/* ── AUTHORIZATION HISTORY ──────────────────────────────────────── */}
       {statusHistory.length > 0 && (
         <>
-          <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>Authorization History:</div>
+          <div style={{ fontWeight: 'bold', marginBottom: '6px' }}>Authorization History:</div>
           <div style={s.authSection}>
             {approvedEvent && (
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', borderBottom: '1px solid #eee', paddingBottom: '6px', fontSize: '12px', color: '#555' }}>
@@ -406,9 +406,25 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
                   <td style={{ padding: '6px 0 8px', fontWeight: 'bold' }}>
                     {jobName}
                     {/* marginLeft, not a literal space - html2canvas drops the
-                        whitespace text node between this text and the
-                        inline-block badge, jamming them together. */}
-                    <span style={{ display: 'inline-block', verticalAlign: 'middle', lineHeight: '20px', backgroundColor: '#166534', color: '#fff', padding: '3px 8px', marginLeft: '8px', borderRadius: '3px', fontSize: '12px', fontWeight: 'normal' }}>Approved</span>
+                        whitespace text node between this text and the badge.
+                        The badge itself is a nested table, not an inline-block
+                        with line-height - html2canvas vertically mispositions
+                        text inside an inline-block+background (renders it hugging
+                        the bottom of the box); a table-cell centers reliably. */}
+                    <table style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: '8px', borderCollapse: 'collapse' as const }}>
+                      <tbody>
+                        <tr>
+                          <td style={{ backgroundColor: '#166534', color: '#fff', padding: '3px 8px', borderRadius: '3px', fontSize: '12px', lineHeight: '20px', fontWeight: 'normal', textAlign: 'center' as const }}>
+                            {/* html2canvas (forPdf) renders this text hugging the
+                                bottom of its line-height box regardless of padding -
+                                a real browser (native print/screen) centers it
+                                correctly on its own, so the corrective offset below
+                                must only apply to the html2canvas capture path. */}
+                            <span style={forPdf ? { position: 'relative' as const, top: '-8px' } : undefined}>Approved</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </td>
                   <td style={{ padding: '5px 0 8px', textAlign: 'right', fontWeight: 'bold' }}>${fmt(invoice.total)}</td>
                 </tr>
