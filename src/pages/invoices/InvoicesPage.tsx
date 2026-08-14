@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Search, Receipt } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,9 +40,10 @@ interface NewInvoiceModalProps {
   open: boolean;
   onClose: () => void;
   onCreated: (id: string, printData: { serviceAdvisor: string; visitType: string; mileageOut: string; extrasWithVehicle: string }) => void;
+  initialRoId?: string;
 }
 
-function NewInvoiceModal({ open, onClose, onCreated }: NewInvoiceModalProps) {
+function NewInvoiceModal({ open, onClose, onCreated, initialRoId }: NewInvoiceModalProps) {
   const qc = useQueryClient();
   const [roSearch, setRoSearch] = useState('');
 
@@ -52,12 +53,37 @@ function NewInvoiceModal({ open, onClose, onCreated }: NewInvoiceModalProps) {
     enabled: open,
   });
 
-  const ros: RepairOrder[] = rosRes?.data.data ?? [];
+  // Fetched separately so the pre-selected RO is always selectable even if
+  // it wouldn't otherwise appear in the (search-filtered, 50-result) list above.
+  const { data: initialRoRes } = useQuery({
+    queryKey: ['repair-order-for-invoice', initialRoId],
+    queryFn: () => api.get(`/repair-orders/${initialRoId}`),
+    enabled: open && !!initialRoId,
+  });
+  const initialRo: RepairOrder | undefined = initialRoRes?.data.data;
+
+  const fetchedRos: RepairOrder[] = rosRes?.data.data ?? [];
+  const ros: RepairOrder[] = initialRo && !fetchedRos.some(r => r.id === initialRo.id)
+    ? [initialRo, ...fetchedRos]
+    : fetchedRos;
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<InvoiceForm>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: { taxRate: 12, discount: 0 },
   });
+
+  useEffect(() => {
+    if (!initialRo) return;
+    const advisor = initialRo.technicians?.[0]?.technician.user;
+    reset({
+      taxRate: 12,
+      discount: 0,
+      repairOrderId: initialRo.id,
+      serviceAdvisor: advisor ? `${advisor.firstName} ${advisor.lastName}` : '',
+      mileageOut: initialRo.mileageOut ? String(initialRo.mileageOut) : '',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialRo?.id]);
 
   const mutation = useMutation({
     mutationFn: ({ serviceAdvisor: _sa, visitType: _vt, mileageOut: _mo, extrasWithVehicle: _ev, ...data }: InvoiceForm) =>
@@ -175,10 +201,24 @@ function NewInvoiceModal({ open, onClose, onCreated }: NewInvoiceModalProps) {
 
 export default function InvoicesPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
+  const roIdFromQuery = searchParams.get('roId') ?? undefined;
+
+  useEffect(() => {
+    if (searchParams.get('new') === '1') {
+      setModalOpen(true);
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev);
+        next.delete('new');
+        return next;
+      }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['invoices', search, statusFilter, page],
@@ -345,8 +385,18 @@ export default function InvoicesPage() {
 
       <NewInvoiceModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          if (roIdFromQuery) {
+            setSearchParams(prev => {
+              const next = new URLSearchParams(prev);
+              next.delete('roId');
+              return next;
+            }, { replace: true });
+          }
+        }}
         onCreated={(id, printData) => navigate(`/invoices/${id}`, { state: { autoPrint: true, printData } })}
+        initialRoId={roIdFromQuery}
       />
     </div>
   );

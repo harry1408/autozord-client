@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, FileText, UserCheck, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, FileText, UserCheck, ChevronRight, Receipt } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -30,6 +30,8 @@ const RO_TRANSITIONS: Record<ROStatus, ROStatus[]> = {
   CLOSED: ['IN_PROGRESS', 'CANCELLED'],
   CANCELLED: [],
 };
+
+const INVOICEABLE_STATUSES: ROStatus[] = ['COMPLETED', 'QUALITY_CHECK', 'CLOSED'];
 
 const laborSchema = z.object({
   description: z.string().min(1, 'Description required'),
@@ -332,13 +334,19 @@ export default function RepairOrderDetailPage() {
             <button onClick={() => setTechModalOpen(true)} className="btn-secondary">
               <UserCheck size={16} /> Assign Tech
             </button>
-            {ro.invoice && (
+            {ro.invoice ? (
               <>
                 <Link to={`/invoices/${ro.invoice.id}`} className="btn-secondary">
                   <FileText size={16} /> Invoice #{ro.invoice.invoiceNumber}
                 </Link>
                 <InvoicePrintActions invoiceId={ro.invoice.id} />
               </>
+            ) : (
+              INVOICEABLE_STATUSES.includes(ro.status) && (
+                <Link to={`/invoices?new=1&roId=${ro.id}`} className="btn-primary">
+                  <Receipt size={16} /> Generate Invoice
+                </Link>
+              )
             )}
           </div>
         }
