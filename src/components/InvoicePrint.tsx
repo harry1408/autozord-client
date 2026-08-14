@@ -88,7 +88,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
     infoTable: { width: '100%', borderCollapse: 'collapse' as const, border: '1px solid #aaa', marginBottom: '8px' },
     infoTh: { padding: '3px 6px 5px', fontWeight: 'bold', backgroundColor: '#f0f0f0', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
     infoTd: { padding: '3px 6px 5px', borderRight: '1px solid #aaa', verticalAlign: 'top' as const },
-    jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '3px 6px', marginBottom: '6px', fontWeight: 'bold', fontSize: '13px' },
+    jobHeader: { display: 'flex', justifyContent: 'space-between', backgroundColor: '#e8e8e8', padding: '6px 6px', marginBottom: '6px', fontWeight: 'bold', fontSize: '13px' },
     itemTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     th: { backgroundColor: '#d0d0d0', padding: '3px 5px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'left' as const, fontWeight: 'bold' },
     thR: { backgroundColor: '#d0d0d0', padding: '3px 5px 5px', borderRight: '1px solid #aaa', borderBottom: '1px solid #aaa', textAlign: 'right' as const, fontWeight: 'bold' },
@@ -103,7 +103,7 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
     summaryRowBold: { display: 'flex', justifyContent: 'space-between', padding: '2px 6px 4px', fontWeight: 'bold', borderTop: '1px solid #aaa', borderBottom: '1px solid #eee' },
     txTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     authSection: { border: '1px solid #aaa', padding: '6px', fontSize: '13px' },
-    sigBox: { border: '1px solid #aaa', height: '40px', marginTop: '4px', width: '140px' },
+    sigBox: { border: '1px solid #aaa', height: '40px', marginTop: '10px', width: '140px' },
   };
 
   return (
@@ -411,16 +411,16 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
                         with line-height - html2canvas vertically mispositions
                         text inside an inline-block+background (renders it hugging
                         the bottom of the box); a table-cell centers reliably. */}
-                    <table style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: '8px', borderCollapse: 'collapse' as const }}>
+                    <table style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: '8px', marginTop: '4px', borderCollapse: 'collapse' as const }}>
                       <tbody>
                         <tr>
-                          <td style={{ backgroundColor: '#166534', color: '#fff', padding: '3px 8px', borderRadius: '3px', fontSize: '12px', lineHeight: '20px', fontWeight: 'normal', textAlign: 'center' as const }}>
+                          <td style={{ backgroundColor: '#166534', color: '#fff', padding: '2px 8px', borderRadius: '3px', fontSize: '12px', lineHeight: '16px', fontWeight: 'normal', textAlign: 'center' as const }}>
                             {/* html2canvas (forPdf) renders this text hugging the
                                 bottom of its line-height box regardless of padding -
                                 a real browser (native print/screen) centers it
                                 correctly on its own, so the corrective offset below
                                 must only apply to the html2canvas capture path. */}
-                            <span style={forPdf ? { position: 'relative' as const, top: '-8px' } : undefined}>Approved</span>
+                            <span style={forPdf ? { position: 'relative' as const, top: '-6px' } : undefined}>Approved</span>
                           </td>
                         </tr>
                       </tbody>
@@ -429,8 +429,8 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
                   <td style={{ padding: '5px 0 8px', textAlign: 'right', fontWeight: 'bold' }}>${fmt(invoice.total)}</td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '6px 0 0', fontWeight: 'bold', borderTop: '1px solid #eee' }}>Total Amount:</td>
-                  <td style={{ padding: '6px 0 0', textAlign: 'right', fontWeight: 'bold', borderTop: '1px solid #eee' }}>${fmt(invoice.total)}</td>
+                  <td style={{ padding: '6px 0 6px', fontWeight: 'bold', borderTop: '1px solid #eee' }}>Total Amount:</td>
+                  <td style={{ padding: '6px 0 6px', textAlign: 'right', fontWeight: 'bold', borderTop: '1px solid #eee' }}>${fmt(invoice.total)}</td>
                 </tr>
               </tbody>
             </table>
