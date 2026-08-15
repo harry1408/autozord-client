@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -10,7 +10,7 @@ import { LogoFull } from '@/components/ui/Logo';
 import api from '@/services/api';
 import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
 import { getRegionPricing } from '@/utils/pricing';
-import { getCountryMeta, getStatesForCountry } from '@/utils/geo';
+import { COUNTRIES, getCountryMeta, getStatesForCountry } from '@/utils/geo';
 import { Region } from '@/types';
 
 const signupSchema = z.object({
@@ -20,6 +20,7 @@ const signupSchema = z.object({
   email: z.string().email('Enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   address: z.string().optional(),
+  country: z.string().min(1, 'Country is required'),
   state: z.string().min(1, 'State/Province is required'),
   city: z.string().min(1, 'City is required'),
   zip: z.string().min(1, 'Postal code is required'),
@@ -102,24 +103,35 @@ function OtpStep({ email }: { email: string }) {
 export default function SignupPage() {
   const [planType, setPlanType] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
   const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignupForm>({
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
   });
 
-  // Region is detected server-side from IP (not user-selected) purely to
-  // show the right currency/price here - the signup endpoint independently
-  // re-derives it from the request IP at submit time, so this is
-  // display-only and can't be spoofed into a different price.
+  // Detected purely from IP, used only to price the plans below and to
+  // default the Country field the first time it loads - the signup
+  // endpoint independently re-derives this from the request IP at submit
+  // time for pricing, so it can't be spoofed into a cheaper region's price
+  // by changing the Country field below.
   const { data: regionRes } = useQuery({
     queryKey: ['detect-region'],
     queryFn: () => api.get<{ success: boolean; data: { country: Region } }>('/public/detect-region'),
     staleTime: Infinity,
   });
-  const region = regionRes?.data.data.country ?? 'CA';
-  const pricing = getRegionPricing(region);
+  const ipRegion = regionRes?.data.data.country ?? 'CA';
+  const pricing = getRegionPricing(ipRegion);
   const yearlySavings = pricing.monthly * 12 - pricing.yearly;
-  const countryMeta = getCountryMeta(region);
-  const stateOptions = getStatesForCountry(region);
+
+  // Country is user-editable and only drives the address fields below
+  // (state/zip options and labels) - it has no effect on the price/currency
+  // shown above, which always reflects the visitor's real IP location.
+  const selectedCountry = watch('country');
+  const countryMeta = getCountryMeta(selectedCountry);
+  const stateOptions = getStatesForCountry(selectedCountry);
+
+  useEffect(() => {
+    if (regionRes) setValue('country', ipRegion);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [regionRes]);
 
   const mutation = useMutation({
     mutationFn: (data: SignupForm) => api.post('/public/signup', { ...data, planType }),
@@ -208,20 +220,33 @@ export default function SignupPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Country</label>
+                  <select
+                    {...register('country', { onChange: () => setValue('state', '', { shouldValidate: true }) })}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  >
+                    {COUNTRIES.map(c => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+                  {errors.country && <p className="mt-1.5 text-xs text-red-400">{errors.country.message}</p>}
+                </div>
+                <div>
                   <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">City</label>
                   <input {...register('city')} placeholder="e.g. Surrey" className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
                   {errors.city && <p className="mt-1.5 text-xs text-red-400">{errors.city.message}</p>}
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{countryMeta.stateLabel}</label>
-                  <select {...register('state')} className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                    <option value="">Select a {countryMeta.stateLabel.toLowerCase()}</option>
-                    {stateOptions.map(s => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
-                  </select>
-                  {errors.state && <p className="mt-1.5 text-xs text-red-400">{errors.state.message}</p>}
-                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{countryMeta.stateLabel}</label>
+                <select {...register('state')} className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                  <option value="">Select a {countryMeta.stateLabel.toLowerCase()}</option>
+                  {stateOptions.map(s => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </select>
+                {errors.state && <p className="mt-1.5 text-xs text-red-400">{errors.state.message}</p>}
               </div>
 
               <div>
