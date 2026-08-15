@@ -224,6 +224,9 @@ export default function SignupPage() {
             <p className="text-center text-xs text-zinc-600 mt-6">
               Already have an account? <Link to="/login" className="text-brand-400 hover:underline">Sign in</Link>
             </p>
+            <p className="text-center text-xs text-zinc-600 mt-2">
+              Looking for a shop instead? <Link to="/inquiry" className="text-brand-400 hover:underline">Submit a service request</Link>
+            </p>
           </>
         )}
       </div>

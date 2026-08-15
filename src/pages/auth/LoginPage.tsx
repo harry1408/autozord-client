@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Eye, EyeOff, Zap, Check } from 'lucide-react';
+import { Eye, EyeOff, Zap, Check, Wrench } from 'lucide-react';
 import { LogoFull } from '@/components/ui/Logo';
 import { useState, useEffect } from 'react';
 import api from '@/services/api';
@@ -172,6 +172,20 @@ export default function LoginPage() {
           <p className="text-center text-xs text-zinc-600 mt-6">
             New shop? <Link to="/signup" className="text-brand-400 hover:underline">Create an account</Link>
           </p>
+
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-zinc-800" />
+            <span className="text-xs text-zinc-600 uppercase tracking-wider">or</span>
+            <div className="flex-1 h-px bg-zinc-800" />
+          </div>
+
+          <Link
+            to="/inquiry"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-zinc-900 border border-zinc-700 hover:border-brand-500/50 text-white font-semibold rounded-xl transition-colors text-sm"
+          >
+            <Wrench size={16} className="text-brand-400" />
+            Looking for a shop? Submit a Service Request
+          </Link>
 
           {/* Mobile demo note */}
           <div className="lg:hidden mt-6 text-center">
