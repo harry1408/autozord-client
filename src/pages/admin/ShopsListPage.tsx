@@ -152,15 +152,24 @@ export default function ShopsListPage() {
               to={`/admin/shops/${shop.id}`}
               className="card p-5 hover:border-brand-400 dark:hover:border-brand-600 transition-colors"
             >
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{shop.name}</h3>
-                <div className="flex flex-col items-end gap-1">
-                  <span className={`badge ${shop.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
-                    {shop.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                  {!shop.isVerified && (
-                    <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400">Pending</span>
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex items-center justify-center overflow-hidden shrink-0">
+                  {shop.settings?.logoUrl ? (
+                    <img src={shop.settings.logoUrl} alt={shop.name} className="w-full h-full object-contain p-1" />
+                  ) : (
+                    <Building2 size={20} className="text-gray-400" />
                   )}
+                </div>
+                <div className="flex-1 min-w-0 flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{shop.name}</h3>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className={`badge ${shop.isActive ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'}`}>
+                      {shop.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                    {!shop.isVerified && (
+                      <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400">Pending</span>
+                    )}
+                  </div>
                 </div>
               </div>
               {(shop.city || shop.state) && (

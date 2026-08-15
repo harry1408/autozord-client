@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Car, ClipboardList, DollarSign, TrendingUp, ShieldCheck, Crown } from 'lucide-react';
+import { ArrowLeft, Users, Car, ClipboardList, DollarSign, TrendingUp, ShieldCheck, Crown, Image as ImageIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '@/services/api';
 import { ShopDetail } from '@/types';
@@ -24,6 +24,74 @@ function planLabel(shop: ShopDetail['shop']): string {
   }
   // Pre-existing shop signed up before regional pricing existed.
   return shop.planType === 'YEARLY' ? 'Yearly ($400/yr CAD)' : 'Monthly ($50/mo CAD)';
+}
+
+function LogoPanel({ shopId, shop }: { shopId: string; shop: ShopDetail['shop'] }) {
+  const qc = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoUrl = shop.settings?.logoUrl;
+
+  const mutation = useMutation({
+    mutationFn: (logoUrl: string) => api.put(`/admin/shops/${shopId}`, { logoUrl }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-shop', shopId] });
+      qc.invalidateQueries({ queryKey: ['admin-shops'] });
+      toast.success('Logo updated');
+    },
+    onError: () => toast.error('Failed to update logo'),
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error('Logo must be under 2 MB'); return; }
+    const reader = new FileReader();
+    reader.onload = () => mutation.mutate(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="card p-5 mb-8 flex items-center gap-4">
+      <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-gray-900 shrink-0 overflow-hidden">
+        {logoUrl ? (
+          <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
+        ) : (
+          <ImageIcon size={22} className="text-gray-400" />
+        )}
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1.5">Shop Logo</p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+          className="hidden"
+          onChange={handleChange}
+        />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={mutation.isPending}
+            className="btn-secondary text-xs"
+          >
+            {mutation.isPending ? 'Uploading...' : logoUrl ? 'Change Logo' : 'Upload Logo'}
+          </button>
+          {logoUrl && (
+            <button
+              type="button"
+              onClick={() => mutation.mutate('')}
+              disabled={mutation.isPending}
+              className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              title="Remove logo"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function SubscriptionPanel({ shopId, shop }: { shopId: string; shop: ShopDetail['shop'] }) {
@@ -144,6 +212,8 @@ export default function ShopDetailPage() {
         title={shop.name}
         description={[shop.address, shop.city, shop.state].filter(Boolean).join(', ') || undefined}
       />
+
+      <LogoPanel shopId={shop.id} shop={shop} />
 
       <SubscriptionPanel shopId={shop.id} shop={shop} />
 
