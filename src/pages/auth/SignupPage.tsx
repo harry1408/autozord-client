@@ -10,7 +10,7 @@ import { LogoFull } from '@/components/ui/Logo';
 import api from '@/services/api';
 import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
 import { getRegionPricing } from '@/utils/pricing';
-import { COUNTRIES, getCountryMeta, getStatesForCountry } from '@/utils/geo';
+import { COUNTRIES, getCitiesForState, getCountryMeta, getStatesForCountry } from '@/utils/geo';
 import { Region } from '@/types';
 
 const signupSchema = z.object({
@@ -125,8 +125,10 @@ export default function SignupPage() {
   // (state/zip options and labels) - it has no effect on the price/currency
   // shown above, which always reflects the visitor's real IP location.
   const selectedCountry = watch('country');
+  const selectedState = watch('state');
   const countryMeta = getCountryMeta(selectedCountry);
   const stateOptions = getStatesForCountry(selectedCountry);
+  const cityOptions = getCitiesForState(selectedState);
 
   useEffect(() => {
     if (regionRes) setValue('country', ipRegion);
@@ -232,27 +234,41 @@ export default function SignupPage() {
                   {errors.country && <p className="mt-1.5 text-xs text-red-400">{errors.country.message}</p>}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">City</label>
-                  <input {...register('city')} placeholder="e.g. Surrey" className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                  {errors.city && <p className="mt-1.5 text-xs text-red-400">{errors.city.message}</p>}
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{countryMeta.stateLabel}</label>
+                  <select
+                    {...register('state', { onChange: () => setValue('city', '', { shouldValidate: true }) })}
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  >
+                    <option value="">Select a {countryMeta.stateLabel.toLowerCase()}</option>
+                    {stateOptions.map(s => (
+                      <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                  </select>
+                  {errors.state && <p className="mt-1.5 text-xs text-red-400">{errors.state.message}</p>}
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{countryMeta.stateLabel}</label>
-                <select {...register('state')} className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                  <option value="">Select a {countryMeta.stateLabel.toLowerCase()}</option>
-                  {stateOptions.map(s => (
-                    <option key={s.value} value={s.value}>{s.label}</option>
-                  ))}
-                </select>
-                {errors.state && <p className="mt-1.5 text-xs text-red-400">{errors.state.message}</p>}
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{countryMeta.zipLabel}</label>
-                <input {...register('zip')} placeholder="e.g. V3X 1R9" className="w-full max-w-[200px] px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                {errors.zip && <p className="mt-1.5 text-xs text-red-400">{errors.zip.message}</p>}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">City</label>
+                  <input
+                    {...register('city')}
+                    list="signup-city-options"
+                    placeholder="e.g. Surrey"
+                    className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  <datalist id="signup-city-options">
+                    {cityOptions.map(c => (
+                      <option key={c} value={c} />
+                    ))}
+                  </datalist>
+                  {errors.city && <p className="mt-1.5 text-xs text-red-400">{errors.city.message}</p>}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{countryMeta.zipLabel}</label>
+                  <input {...register('zip')} placeholder="e.g. V3X 1R9" className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  {errors.zip && <p className="mt-1.5 text-xs text-red-400">{errors.zip.message}</p>}
+                </div>
               </div>
 
               <div>
