@@ -219,6 +219,12 @@ export interface ShopSettings {
   pstNumber?: string;
   gstRate: number;
   pstRate: number;
+  // Merged in from Shop by the server - used by the public directory and
+  // inquiry filtering, not by invoice printing (that still uses `address`).
+  country?: Region | null;
+  state?: string | null;
+  city?: string | null;
+  zip?: string | null;
 }
 
 export interface PaginationMeta {
@@ -325,6 +331,7 @@ export interface PublicShop {
   name: string;
   city?: string;
   state?: string;
+  country?: Region;
   phone?: string;
 }
 

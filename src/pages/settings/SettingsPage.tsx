@@ -10,6 +10,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
+import { COUNTRIES, getStatesForCountry, getCountryMeta } from '@/utils/geo';
 
 const ROLES: Role[] = ['SHOP_ADMIN', 'MANAGER', 'TECHNICIAN', 'RECEPTIONIST'];
 
@@ -25,6 +26,10 @@ const ROLE_COLORS: Record<Role, string> = {
 const shopSettingsSchema = z.object({
   shopName: z.string().min(1, 'Shop name required'),
   address: z.string().optional(),
+  country: z.string().min(1, 'Country is required'),
+  state: z.string().min(1, 'State/Province is required'),
+  city: z.string().min(1, 'City is required'),
+  zip: z.string().min(1, 'Postal code is required'),
   phone: z.string().optional(),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   taxRate: z.coerce.number().min(0).max(100),
@@ -63,15 +68,23 @@ function ShopProfileTab() {
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors, isDirty } } = useForm<ShopSettingsForm>({
     resolver: zodResolver(shopSettingsSchema),
+    defaultValues: { country: 'CA' },
   });
 
   const logoUrl = watch('logoUrl');
+  const country = watch('country');
+  const countryMeta = getCountryMeta(country);
+  const stateOptions = getStatesForCountry(country);
 
   useEffect(() => {
     if (settings) {
       reset({
         shopName: settings.shopName,
         address: settings.address ?? '',
+        country: settings.country ?? 'CA',
+        state: settings.state ?? '',
+        city: settings.city ?? '',
+        zip: settings.zip ?? '',
         phone: settings.phone ?? '',
         email: settings.email ?? '',
         taxRate: settings.taxRate,
@@ -156,7 +169,43 @@ function ShopProfileTab() {
         </div>
         <div>
           <label className="label">Address</label>
-          <input {...register('address')} className="input" placeholder="123 Main Street, City, State 12345" />
+          <input {...register('address')} className="input" placeholder="123 Main Street" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="label">Country *</label>
+            <select
+              {...register('country', { onChange: () => setValue('state', '', { shouldDirty: true }) })}
+              className="input"
+            >
+              {COUNTRIES.map(c => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+            {errors.country && <p className="mt-1 text-xs text-red-500">{errors.country.message}</p>}
+          </div>
+          <div>
+            <label className="label">{countryMeta.stateLabel} *</label>
+            <select {...register('state')} className="input">
+              <option value="">Select a {countryMeta.stateLabel.toLowerCase()}</option>
+              {stateOptions.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+            {errors.state && <p className="mt-1 text-xs text-red-500">{errors.state.message}</p>}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="label">City *</label>
+            <input {...register('city')} className="input" placeholder="e.g. Surrey" />
+            {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city.message}</p>}
+          </div>
+          <div>
+            <label className="label">{countryMeta.zipLabel} *</label>
+            <input {...register('zip')} className="input" placeholder="e.g. V3X 1R9" />
+            {errors.zip && <p className="mt-1 text-xs text-red-500">{errors.zip.message}</p>}
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>

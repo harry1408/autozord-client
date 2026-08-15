@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -9,6 +9,7 @@ import api from '@/services/api';
 import { PublicShop } from '@/types';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
+import { getCountryMeta, getStatesForCountry } from '@/utils/geo';
 
 const inquirySchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -26,12 +27,46 @@ export default function InquiryFormPage() {
   const preselectedShopId = searchParams.get('shopId');
   const [selectedShopIds, setSelectedShopIds] = useState<string[]>(preselectedShopId ? [preselectedShopId] : []);
   const [submitted, setSubmitted] = useState(false);
+  const [country, setCountry] = useState('');
+  const [state, setState] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['public-shops'],
     queryFn: () => api.get<{ success: boolean; data: PublicShop[] }>('/public/shops'),
   });
   const shops = data?.data.data ?? [];
+
+  // If we arrived with a specific shop pre-selected (e.g. from that shop's
+  // own directory listing), jump the country/state filters to match it so
+  // it's visible and checked without the visitor having to find it manually.
+  useEffect(() => {
+    if (!preselectedShopId || shops.length === 0) return;
+    const preselected = shops.find(s => s.id === preselectedShopId);
+    if (preselected) {
+      if (preselected.country) setCountry(preselected.country);
+      if (preselected.state) setState(preselected.state);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shops.length, preselectedShopId]);
+
+  const countryOptions = useMemo(() => {
+    const codes = Array.from(new Set(shops.map(s => s.country).filter((c): c is NonNullable<typeof c> => !!c)));
+    return codes.map(code => ({ value: code, label: getCountryMeta(code).label }));
+  }, [shops]);
+
+  const stateOptions = useMemo(() => {
+    if (!country) return [];
+    const raw = Array.from(new Set(shops.filter(s => s.country === country).map(s => s.state).filter((s): s is string => !!s)));
+    const labels = getStatesForCountry(country);
+    return raw
+      .map(value => ({ value, label: labels.find(l => l.value === value)?.label ?? value }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [shops, country]);
+
+  const filteredShops = useMemo(
+    () => shops.filter(s => (!country || s.country === country) && (!state || s.state === state)),
+    [shops, country, state]
+  );
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<InquiryForm>({
     resolver: zodResolver(inquirySchema),
@@ -72,27 +107,69 @@ export default function InquiryFormPage() {
       >
         <div>
           <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-            Shops ({selectedShopIds.length} selected)
+            Find shops
           </label>
           {isLoading ? (
             <LoadingSpinner size="sm" />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {shops.map(shop => (
-                <label
-                  key={shop.id}
-                  className="flex items-center gap-2.5 px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-200 cursor-pointer hover:border-zinc-700"
+            <>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <select
+                  value={country}
+                  onChange={e => { setCountry(e.target.value); setState(''); }}
+                  className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
                 >
-                  <input
-                    type="checkbox"
-                    checked={selectedShopIds.includes(shop.id)}
-                    onChange={() => toggleShop(shop.id)}
-                    className="accent-brand-600"
-                  />
-                  {shop.name}
-                </label>
-              ))}
-            </div>
+                  <option value="">Country</option>
+                  {countryOptions.map(c => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                  ))}
+                </select>
+                <select
+                  value={state}
+                  onChange={e => setState(e.target.value)}
+                  disabled={!country}
+                  className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">{country ? getCountryMeta(country).stateLabel : 'State/Province'}</option>
+                  {stateOptions.map(s => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                Shops ({selectedShopIds.length} selected)
+              </label>
+              {filteredShops.length === 0 ? (
+                <p className="text-sm text-zinc-500 px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl">
+                  {country ? 'No shops found for that country/state.' : 'Pick a country (and state) above, or browse all shops below.'}
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {filteredShops.map(shop => (
+                    <label
+                      key={shop.id}
+                      className="flex items-center gap-2.5 px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-200 cursor-pointer hover:border-zinc-700"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedShopIds.includes(shop.id)}
+                        onChange={() => toggleShop(shop.id)}
+                        className="accent-brand-600"
+                      />
+                      <span>
+                        {shop.name}
+                        {(shop.city || shop.state) && (
+                          <span className="block text-xs text-zinc-500">
+                            {[shop.city, shop.state].filter(Boolean).join(', ')}
+                          </span>
+                        )}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </>
           )}
           {selectedShopIds.length === 0 && (
             <p className="mt-1.5 text-xs text-red-400">Select at least one shop</p>
