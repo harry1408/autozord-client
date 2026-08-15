@@ -38,9 +38,13 @@ function CreateShopModal({ open, onClose }: { open: boolean; onClose: () => void
 
   const mutation = useMutation({
     mutationFn: (data: ShopForm) => api.post('/admin/shops', data),
-    onSuccess: () => {
+    onSuccess: (_res, variables) => {
       qc.invalidateQueries({ queryKey: ['admin-shops'] });
-      toast.success('Shop created');
+      toast.success(
+        variables.adminEmail
+          ? `Shop created. ${variables.adminEmail} will get a verification code by email before they can log in.`
+          : 'Shop created'
+      );
       reset();
       onClose();
     },

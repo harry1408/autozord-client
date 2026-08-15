@@ -59,10 +59,10 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    const { accessToken, logout } = useAuthStore.getState();
+    const { accessToken, logout, setUser } = useAuthStore.getState();
     if (!accessToken) { setAuthReady(true); return; }
     api.get('/auth/me')
-      .then(() => setAuthReady(true))
+      .then((res) => { setUser(res.data.data); setAuthReady(true); })
       .catch(() => { logout(); setAuthReady(true); });
   }, []);
 

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import GlobalModals from '@/components/GlobalModals';
+import ShopVerificationOverlay from '@/components/ShopVerificationOverlay';
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,6 +34,7 @@ export default function AppLayout() {
         </main>
       </div>
       <GlobalModals />
+      <ShopVerificationOverlay />
     </div>
   );
 }

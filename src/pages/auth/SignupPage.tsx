@@ -51,9 +51,9 @@ function OtpStep({ email }: { email: string }) {
         <CheckCircle2 size={48} className="mx-auto text-brand-400 mb-4" />
         <h1 className="text-2xl font-black text-white mb-2">Email verified</h1>
         <p className="text-zinc-400 text-sm mb-6">
-          We'll verify your account and email you once you can log in — usually within one business day.
+          You can log in now. We're still reviewing your shop's registration and will notify you by email as soon as it's fully verified.
         </p>
-        <Link to="/login" className="text-sm text-brand-400 hover:underline">Back to sign in</Link>
+        <Link to="/login" className="text-sm text-brand-400 hover:underline">Sign in now</Link>
       </div>
     );
   }

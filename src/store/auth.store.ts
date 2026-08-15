@@ -8,6 +8,7 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   setTokens: (token: string, user: User, refreshToken?: string) => void;
+  setUser: (user: User) => void;
   logout: () => void;
 }
 
@@ -23,6 +24,10 @@ export const useAuthStore = create<AuthState>()(
       // token without clobbering the persisted refresh token.
       setTokens: (token, user, refreshToken) =>
         set({ accessToken: token, user, isAuthenticated: true, refreshToken: refreshToken ?? get().refreshToken }),
+      // Refreshes the stored user (e.g. shopStatus) without touching tokens -
+      // used on mount so a freshly-verified shop's lock overlay clears without
+      // requiring a re-login.
+      setUser: (user) => set({ user }),
       logout: () =>
         set({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false }),
     }),

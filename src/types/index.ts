@@ -25,6 +25,7 @@ export interface User {
   role: Role;
   shopId: string | null;
   isActive: boolean;
+  shopStatus?: string | null;
 }
 
 export interface Customer {
