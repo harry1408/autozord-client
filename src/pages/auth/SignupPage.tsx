@@ -10,6 +10,7 @@ import { LogoFull } from '@/components/ui/Logo';
 import api from '@/services/api';
 import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
 import { getRegionPricing } from '@/utils/pricing';
+import { getCountryMeta, getStatesForCountry } from '@/utils/geo';
 import { Region } from '@/types';
 
 const signupSchema = z.object({
@@ -18,6 +19,10 @@ const signupSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  address: z.string().optional(),
+  state: z.string().min(1, 'State/Province is required'),
+  city: z.string().min(1, 'City is required'),
+  zip: z.string().min(1, 'Postal code is required'),
   acceptedTerms: z.boolean().refine(v => v === true, { message: 'You must accept the Terms & Conditions to continue' }),
 });
 
@@ -113,6 +118,8 @@ export default function SignupPage() {
   const region = regionRes?.data.data.country ?? 'CA';
   const pricing = getRegionPricing(region);
   const yearlySavings = pricing.monthly * 12 - pricing.yearly;
+  const countryMeta = getCountryMeta(region);
+  const stateOptions = getStatesForCountry(region);
 
   const mutation = useMutation({
     mutationFn: (data: SignupForm) => api.post('/public/signup', { ...data, planType }),
@@ -192,6 +199,35 @@ export default function SignupPage() {
                 <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Shop Name</label>
                 <input {...register('shopName')} className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 {errors.shopName && <p className="mt-1.5 text-xs text-red-400">{errors.shopName.message}</p>}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Shop Address (optional)</label>
+                <input {...register('address')} placeholder="Street address" className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">City</label>
+                  <input {...register('city')} placeholder="e.g. Surrey" className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  {errors.city && <p className="mt-1.5 text-xs text-red-400">{errors.city.message}</p>}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{countryMeta.stateLabel}</label>
+                  <select {...register('state')} className="w-full px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <option value="">Select a {countryMeta.stateLabel.toLowerCase()}</option>
+                    {stateOptions.map(s => (
+                      <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                  </select>
+                  {errors.state && <p className="mt-1.5 text-xs text-red-400">{errors.state.message}</p>}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">{countryMeta.zipLabel}</label>
+                <input {...register('zip')} placeholder="e.g. V3X 1R9" className="w-full max-w-[200px] px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                {errors.zip && <p className="mt-1.5 text-xs text-red-400">{errors.zip.message}</p>}
               </div>
 
               <div>
