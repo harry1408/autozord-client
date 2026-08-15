@@ -4,11 +4,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Check, CheckCircle2, Mail } from 'lucide-react';
+import { Check, CheckCircle2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { LogoFull } from '@/components/ui/Logo';
 import api from '@/services/api';
 import TermsCheckboxField from '@/components/legal/TermsCheckboxField';
+import OtpVerifyPanel from '@/components/auth/OtpVerifyPanel';
 import { getRegionPricing } from '@/utils/pricing';
 import { COUNTRIES, getCitiesForState, getCountryMeta, getStatesForCountry } from '@/utils/geo';
 import { Region } from '@/types';
@@ -34,17 +35,7 @@ function errMsg(err: unknown, fallback: string): string {
 }
 
 function OtpStep({ email }: { email: string }) {
-  const [otp, setOtp] = useState('');
   const [verified, setVerified] = useState(false);
-
-  const verifyMutation = useMutation({
-    mutationFn: () => api.post('/public/verify-otp', { email, otp }),
-    onSuccess: () => setVerified(true),
-  });
-
-  const resendMutation = useMutation({
-    mutationFn: () => api.post('/public/resend-otp', { email }),
-  });
 
   if (verified) {
     return (
@@ -59,45 +50,7 @@ function OtpStep({ email }: { email: string }) {
     );
   }
 
-  return (
-    <div className="text-center">
-      <Mail size={40} className="mx-auto text-brand-400 mb-4" />
-      <h1 className="text-2xl font-black text-white mb-2">Check your email</h1>
-      <p className="text-zinc-400 text-sm mb-6">
-        We sent a 6-digit code to <span className="text-white">{email}</span>
-      </p>
-
-      <input
-        value={otp}
-        onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-        placeholder="000000"
-        className="w-full text-center tracking-[0.5em] text-2xl px-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-white placeholder-zinc-700 focus:outline-none focus:ring-2 focus:ring-brand-500 mb-4"
-      />
-
-      {verifyMutation.isError && (
-        <p className="text-sm text-red-400 mb-4">{errMsg(verifyMutation.error, 'Invalid code')}</p>
-      )}
-      {resendMutation.isSuccess && (
-        <p className="text-sm text-brand-400 mb-4">A new code has been sent.</p>
-      )}
-
-      <button
-        onClick={() => verifyMutation.mutate()}
-        disabled={otp.length !== 6 || verifyMutation.isPending}
-        className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm mb-3"
-      >
-        {verifyMutation.isPending ? 'Verifying...' : 'Verify'}
-      </button>
-
-      <button
-        onClick={() => resendMutation.mutate()}
-        disabled={resendMutation.isPending}
-        className="text-sm text-zinc-500 hover:text-white transition-colors"
-      >
-        {resendMutation.isPending ? 'Sending...' : 'Resend code'}
-      </button>
-    </div>
-  );
+  return <OtpVerifyPanel email={email} onVerified={() => setVerified(true)} />;
 }
 
 export default function SignupPage() {

@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/auth.store';
 import toast from 'react-hot-toast';
+import OtpVerifyPanel from '@/components/auth/OtpVerifyPanel';
 
 const loginSchema = z.object({
   email:    z.string().email('Enter a valid email'),
@@ -38,20 +39,45 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Set when login fails specifically because the email was never
+  // OTP-verified - lets the user finish verification right here instead of
+  // dead-ending on a toast with no path forward.
+  const [unverified, setUnverified] = useState<LoginForm | null>(null);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const completeLogin = (res: any) => {
+    const loggedInUser = res.data.data.user;
+    setTokens(res.data.data.accessToken, loggedInUser, res.data.data.refreshToken);
+    toast.success(`Welcome back, ${loggedInUser.firstName}!`);
+    const target =
+      loggedInUser.role === 'CUSTOMER' ? '/shops' :
+      loggedInUser.role === 'GLOBAL_ADMIN' ? '/admin/shops' :
+      from;
+    navigate(target, { replace: true });
+  };
+
   const onSubmit = async (data: LoginForm) => {
     try {
       const res = await api.post('/auth/login', data);
-      const loggedInUser = res.data.data.user;
-      setTokens(res.data.data.accessToken, loggedInUser, res.data.data.refreshToken);
-      toast.success(`Welcome back, ${loggedInUser.firstName}!`);
-      const target =
-        loggedInUser.role === 'CUSTOMER' ? '/shops' :
-        loggedInUser.role === 'GLOBAL_ADMIN' ? '/admin/shops' :
-        from;
-      navigate(target, { replace: true });
+      completeLogin(res);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Login failed';
+      if (msg.toLowerCase().includes('verify your email')) {
+        setUnverified(data);
+        return;
+      }
       toast.error(msg);
+    }
+  };
+
+  const handleVerified = async () => {
+    if (!unverified) return;
+    try {
+      const res = await api.post('/auth/login', unverified);
+      completeLogin(res);
+    } catch {
+      toast.success('Email verified - please sign in.');
+      setUnverified(null);
     }
   };
 
@@ -120,6 +146,18 @@ export default function LoginPage() {
         </div>
 
         <div className="w-full max-w-md">
+        {unverified ? (
+          <>
+            <OtpVerifyPanel email={unverified.email} onVerified={handleVerified} autoSendOnMount />
+            <button
+              onClick={() => setUnverified(null)}
+              className="w-full text-center text-xs text-zinc-600 hover:text-zinc-400 mt-6"
+            >
+              Back to sign in
+            </button>
+          </>
+        ) : (
+          <>
           <h1 className="text-2xl font-black text-white mb-1">Sign in</h1>
           <p className="text-zinc-500 text-sm mb-8">Enter your credentials to continue</p>
 
@@ -194,6 +232,8 @@ export default function LoginPage() {
               {' '}· <span className="text-brand-400">info@autozord.com</span>
             </a>
           </div>
+          </>
+        )}
         </div>
       </div>
     </div>
