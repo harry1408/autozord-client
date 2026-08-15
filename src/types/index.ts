@@ -316,6 +316,12 @@ export interface AdminUserSummary {
   shop?: { id: string; name: string } | null;
 }
 
+export interface ShopLogoHistoryEntry {
+  id: string;
+  logoUrl: string;
+  createdAt: string;
+}
+
 export interface ShopDetail {
   shop: Shop;
   users: Pick<AdminUserSummary, 'id' | 'email' | 'firstName' | 'lastName' | 'role' | 'isActive' | 'createdAt'>[];
