@@ -289,6 +289,8 @@ export interface Shop {
   updatedAt: string;
   _count?: { users: number; customers: number; vehicles: number; repairOrders: number };
   settings?: { logoUrl?: string | null } | null;
+  status?: SubscriptionStatus;
+  daysLeft?: number;
 }
 
 export type EmailCategory = 'OTP' | 'PASSWORD_RESET' | 'INVOICE' | 'REGISTRATION' | 'ACCOUNT_VERIFIED' | 'DB_DUMP' | 'GENERIC';

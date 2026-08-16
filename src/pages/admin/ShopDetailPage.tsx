@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Car, ClipboardList, DollarSign, TrendingUp, ShieldCheck, Crown, Image as ImageIcon, X, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Users, Car, ClipboardList, DollarSign, TrendingUp, ShieldCheck, Crown, Image as ImageIcon, X, RotateCcw, Clock, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import api from '@/services/api';
 import { ShopDetail, ShopLogoHistoryEntry } from '@/types';
@@ -136,6 +136,13 @@ function LogoPanel({ shopId, shop }: { shopId: string; shop: ShopDetail['shop'] 
   );
 }
 
+const STATUS_BADGES: Record<string, { label: string; className: string }> = {
+  TRIAL: { label: 'Trial', className: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400' },
+  ACTIVE: { label: 'Active', className: 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' },
+  EXPIRED: { label: 'Expired', className: 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400' },
+  SUSPENDED: { label: 'Suspended', className: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' },
+};
+
 function SubscriptionPanel({ shopId, shop }: { shopId: string; shop: ShopDetail['shop'] }) {
   const qc = useQueryClient();
   const [paidUntil, setPaidUntil] = useState('');
@@ -160,6 +167,14 @@ function SubscriptionPanel({ shopId, shop }: { shopId: string; shop: ShopDetail[
           {!shop.isVerified && (
             <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400">Pending Verification</span>
           )}
+          {shop.status && shop.status !== 'PENDING_VERIFICATION' && STATUS_BADGES[shop.status] && (
+            <span className={`badge flex items-center gap-1 ${STATUS_BADGES[shop.status].className}`}>
+              {shop.status === 'TRIAL' && <Clock size={12} />}
+              {shop.status === 'EXPIRED' && <AlertTriangle size={12} />}
+              {STATUS_BADGES[shop.status].label}
+              {shop.status === 'TRIAL' && shop.daysLeft != null ? ` · ${shop.daysLeft}d left` : ''}
+            </span>
+          )}
           {shop.planType && (
             <span className="badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
               {planLabel(shop)}
@@ -171,8 +186,15 @@ function SubscriptionPanel({ shopId, shop }: { shopId: string; shop: ShopDetail[
       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
         {shop.trialEndsAt && (
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Trial Ends</p>
-            <p className="text-gray-900 dark:text-gray-100">{format(new Date(shop.trialEndsAt), 'MMM d, yyyy')}</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+              {shop.status === 'TRIAL' ? 'Trial Ends' : 'Trial Ended'}
+            </p>
+            <p className={shop.status === 'EXPIRED' ? 'text-red-600 dark:text-red-400 font-medium' : 'text-gray-900 dark:text-gray-100'}>
+              {format(new Date(shop.trialEndsAt), 'MMM d, yyyy')}
+              {shop.status === 'TRIAL' && shop.daysLeft != null && (
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1.5">({shop.daysLeft}d left)</span>
+              )}
+            </p>
           </div>
         )}
         {shop.paidUntil && (

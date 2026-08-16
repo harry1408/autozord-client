@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, Building2, Users, Car, ClipboardList, ShieldCheck } from 'lucide-react';
+import { Plus, Building2, Users, Car, ClipboardList, ShieldCheck, Clock, AlertTriangle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -168,6 +168,16 @@ export default function ShopsListPage() {
                     </span>
                     {!shop.isVerified && (
                       <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400">Pending</span>
+                    )}
+                    {shop.status === 'TRIAL' && (
+                      <span className="badge flex items-center gap-1 bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400">
+                        <Clock size={11} /> Trial{shop.daysLeft != null ? ` · ${shop.daysLeft}d left` : ''}
+                      </span>
+                    )}
+                    {shop.status === 'EXPIRED' && (
+                      <span className="badge flex items-center gap-1 bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400">
+                        <AlertTriangle size={11} /> Expired
+                      </span>
                     )}
                   </div>
                 </div>
