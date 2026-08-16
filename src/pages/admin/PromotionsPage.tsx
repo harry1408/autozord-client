@@ -7,7 +7,9 @@ import { LogoIcon } from '@/components/ui/Logo';
 import PageHeader from '@/components/ui/PageHeader';
 import toast from 'react-hot-toast';
 
-type PromoRegion = 'US' | 'CA';
+type PromoRegion = 'US' | 'CA' | 'IN';
+
+const REGION_LABELS: Record<PromoRegion, string> = { US: 'United States', CA: 'Canada', IN: 'India' };
 
 // Kept in sync by hand with the server's copy in
 // autozord-server/src/utils/promoEmail.ts, which is what actually gets
@@ -34,6 +36,10 @@ const REGION_COPY: Record<PromoRegion, { subject: string; regionLine: string }> 
   CA: {
     subject: 'Give your shop a system it deserves - try Autozord free for 30 days',
     regionLine: 'Join repair shops across Canada, from coast to coast, already running their day on Autozord.',
+  },
+  IN: {
+    subject: 'Give your shop a system it deserves - try Autozord free for 30 days',
+    regionLine: 'Join repair shops across India already running their day on Autozord.',
   },
 };
 
@@ -63,7 +69,7 @@ export default function PromotionsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-6">
         <div>
           <div className="inline-flex items-center gap-1 p-1 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full">
-            {(['US', 'CA'] as const).map(r => (
+            {(['US', 'CA', 'IN'] as const).map(r => (
               <button
                 key={r}
                 onClick={() => setRegion(r)}
@@ -74,7 +80,7 @@ export default function PromotionsPage() {
                     : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 )}
               >
-                {r === 'US' ? 'United States' : 'Canada'}
+                {REGION_LABELS[r]}
               </button>
             ))}
           </div>
@@ -140,7 +146,7 @@ export default function PromotionsPage() {
             <Megaphone size={16} className="text-gray-400" /> Send this email
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            Sends the {region === 'US' ? 'United States' : 'Canada'} version above to one recipient.
+            Sends the {REGION_LABELS[region]} version above to one recipient.
           </p>
           <label className="label">Recipient email</label>
           <input
