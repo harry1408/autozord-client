@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Building2, Users, Inbox, Mail, LogOut, DatabaseBackup, Menu, X } from 'lucide-react';
+import { Building2, Users, Inbox, Mail, LogOut, DatabaseBackup, Megaphone, Menu, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { LogoFull } from '@/components/ui/Logo';
 import { useAuthStore } from '@/store/auth.store';
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/admin/shops', icon: Building2, label: 'Shops' },
   { to: '/admin/users', icon: Users, label: 'Users' },
   { to: '/admin/inquiries', icon: Inbox, label: 'Inquiries' },
+  { to: '/admin/promotions', icon: Megaphone, label: 'Promotions' },
   { to: '/admin/emails', icon: Mail, label: 'Email Activity' },
   { to: '/admin/backup', icon: DatabaseBackup, label: 'Backup' },
 ];
