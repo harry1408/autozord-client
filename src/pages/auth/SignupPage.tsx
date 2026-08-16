@@ -55,6 +55,10 @@ function OtpStep({ email }: { email: string }) {
 
 export default function SignupPage() {
   const [planType, setPlanType] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
+  // Its own button alongside Monthly/Yearly - always pairs with Monthly
+  // pricing (that's what applies once the 30 days are up), just with a
+  // longer trial than the default 7 days.
+  const [extendedTrial, setExtendedTrial] = useState(false);
   const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
   const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
@@ -89,7 +93,7 @@ export default function SignupPage() {
   }, [regionRes]);
 
   const mutation = useMutation({
-    mutationFn: (data: SignupForm) => api.post('/public/signup', { ...data, planType }),
+    mutationFn: (data: SignupForm) => api.post('/public/signup', { ...data, planType, extendedTrial }),
     onSuccess: (_res, variables) => setSignedUpEmail(variables.email),
   });
 
@@ -105,23 +109,24 @@ export default function SignupPage() {
         ) : (
           <>
             <h1 className="text-2xl font-black text-white mb-1 text-center">Create your shop account</h1>
-            <p className="text-zinc-500 text-sm mb-8 text-center">7-day free trial on either plan, no card required today</p>
+            <p className="text-zinc-500 text-sm mb-8 text-center">No card required today - pick a plan and start your trial</p>
 
             <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-5">
               <div>
                 <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Choose a plan</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-2.5">
                   {(['MONTHLY', 'YEARLY'] as const).map(value => {
                     const isYearly = value === 'YEARLY';
                     const price = isYearly ? pricing.yearly : pricing.monthly;
+                    const active = planType === value && !extendedTrial;
                     return (
                       <button
                         key={value}
                         type="button"
-                        onClick={() => setPlanType(value)}
+                        onClick={() => { setPlanType(value); setExtendedTrial(false); }}
                         className={clsx(
-                          'relative text-left px-4 py-3 rounded-xl border transition-colors',
-                          planType === value
+                          'relative text-left px-3 py-3 rounded-xl border transition-colors',
+                          active
                             ? 'border-brand-500 bg-brand-600/10'
                             : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'
                         )}
@@ -131,22 +136,54 @@ export default function SignupPage() {
                             Save {pricing.symbol}{yearlySavings.toLocaleString()}
                           </span>
                         )}
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-1.5 mb-1">
                           <div className={clsx(
                             'w-4 h-4 rounded-full border flex items-center justify-center shrink-0',
-                            planType === value ? 'border-brand-400 bg-brand-500' : 'border-zinc-600'
+                            active ? 'border-brand-400 bg-brand-500' : 'border-zinc-600'
                           )}>
-                            {planType === value && <Check size={10} className="text-white" />}
+                            {active && <Check size={10} className="text-white" />}
                           </div>
                           <span className="text-sm font-bold text-white">{isYearly ? 'Yearly' : 'Monthly'}</span>
                         </div>
-                        <p className="text-lg font-black text-white">
-                          {pricing.symbol}{price.toLocaleString()} <span className="text-xs font-normal text-zinc-500">{pricing.currency}{isYearly ? '/year' : '/month'}</span>
+                        <p className="text-base font-black text-white leading-tight">
+                          {pricing.symbol}{price.toLocaleString()} <span className="text-xs font-normal text-zinc-500">{pricing.currency}{isYearly ? '/yr' : '/mo'}</span>
                         </p>
                       </button>
                     );
                   })}
+
+                  <button
+                    type="button"
+                    onClick={() => { setPlanType('MONTHLY'); setExtendedTrial(true); }}
+                    className={clsx(
+                      'relative text-left px-3 py-3 rounded-xl border transition-colors',
+                      extendedTrial
+                        ? 'border-brand-500 bg-brand-600/10'
+                        : 'border-zinc-700 bg-zinc-900 hover:border-zinc-600'
+                    )}
+                  >
+                    <span className="absolute -top-2 right-3 px-1.5 py-0.5 bg-brand-600 text-white text-[9px] font-bold rounded-full uppercase">
+                      Free
+                    </span>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <div className={clsx(
+                        'w-4 h-4 rounded-full border flex items-center justify-center shrink-0',
+                        extendedTrial ? 'border-brand-400 bg-brand-500' : 'border-zinc-600'
+                      )}>
+                        {extendedTrial && <Check size={10} className="text-white" />}
+                      </div>
+                      <span className="text-sm font-bold text-white">30-Day Trial</span>
+                    </div>
+                    <p className="text-base font-black text-white leading-tight">
+                      Free <span className="text-xs font-normal text-zinc-500">30 days</span>
+                    </p>
+                  </button>
                 </div>
+                {extendedTrial && (
+                  <p className="text-xs text-zinc-500 mt-2">
+                    Free for 30 days, then {pricing.symbol}{pricing.monthly.toLocaleString()} {pricing.currency}/month unless you cancel.
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
