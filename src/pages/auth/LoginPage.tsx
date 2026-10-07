@@ -87,7 +87,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-between w-[44%] bg-black px-12 py-10 border-r border-white/5">
         {/* Logo */}
         <div>
-          <LogoFull className="h-14 w-auto" />
+          <LogoFull size={56} />
         </div>
 
         {/* Mid content */}
@@ -142,7 +142,7 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
         {/* Mobile logo */}
         <div className="lg:hidden mb-8">
-          <LogoFull className="h-12 w-auto" />
+          <LogoFull size={48} />
         </div>
 
         <div className="w-full max-w-md">

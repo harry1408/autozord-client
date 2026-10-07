@@ -183,7 +183,7 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
           expanded ? 'justify-start px-4' : 'justify-center'
         )}>
           {expanded ? (
-            <LogoFull className="h-8 w-auto" />
+            <LogoFull size={32} />
           ) : (
             <LogoIcon className="h-9 w-9" />
           )}
@@ -259,7 +259,7 @@ export default function Sidebar({ open, onClose, expanded, onToggleExpand }: Sid
         )}
       >
         <div className="flex items-center justify-between h-14 px-4 border-b border-white/10 shrink-0">
-          <LogoFull className="h-8 w-auto" />
+          <LogoFull size={32} />
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
