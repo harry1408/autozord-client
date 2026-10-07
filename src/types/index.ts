@@ -14,6 +14,8 @@ export type ROStatus =
 export type EstimateStatus = 'DRAFT' | 'SENT' | 'APPROVED' | 'DECLINED' | 'EXPIRED';
 export type InvoiceStatus = 'DRAFT' | 'SENT' | 'PARTIALLY_PAID' | 'PAID' | 'VOID';
 export type PaymentMethod = 'CASH' | 'CARD' | 'CHECK' | 'FINANCING' | 'OTHER';
+export type CardType = 'DEBIT' | 'CREDIT';
+export type CardBrand = 'VISA' | 'MASTERCARD' | 'AMEX' | 'DISCOVER' | 'OTHER';
 export type InspectionStatus = 'IN_PROGRESS' | 'COMPLETED';
 export type ItemStatus = 'OK' | 'ATTENTION' | 'CRITICAL';
 
@@ -157,6 +159,8 @@ export interface Payment {
   invoiceId: string;
   amount: number;
   method: PaymentMethod;
+  cardType?: CardType | null;
+  cardBrand?: CardBrand | null;
   referenceNumber?: string;
   notes?: string;
   paidAt: string;

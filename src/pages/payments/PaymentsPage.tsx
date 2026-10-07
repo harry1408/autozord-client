@@ -8,6 +8,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
+import { CardDetailsChip } from '@/components/payments/CardBrandLogo';
 import { format } from 'date-fns';
 
 const formatCurrency = (val: number) =>
@@ -135,6 +136,7 @@ export default function PaymentsPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                      <CardDetailsChip cardType={p.cardType} cardBrand={p.cardBrand} />
                       <span className="text-xs text-gray-400">{format(new Date(p.paidAt), 'MMM d, yyyy')}</span>
                     </div>
                   </div>
@@ -197,7 +199,10 @@ export default function PaymentsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                        <CardDetailsChip cardType={p.cardType} cardBrand={p.cardBrand} />
+                      </div>
                     </td>
                     <td className="px-6 py-4 hidden lg:table-cell text-sm text-gray-500 dark:text-gray-400 font-mono">
                       {p.referenceNumber ?? '—'}

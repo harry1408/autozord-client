@@ -6,11 +6,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '@/services/api';
-import { Invoice, Payment, PaymentMethod, ShopSettings } from '@/types';
+import { Invoice, Payment, PaymentMethod, CardType, CardBrand, ShopSettings } from '@/types';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Modal from '@/components/ui/Modal';
+import { CardDetailsChip, CARD_BRAND_LABELS } from '@/components/payments/CardBrandLogo';
 import InvoicePrint, { PrintFormData } from '@/components/InvoicePrint';
 import EmailInvoiceModal from '@/components/EmailInvoiceModal';
 import PdfPreviewModal from '@/components/PdfPreviewModal';
@@ -22,10 +23,14 @@ const formatCurrency = (val: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
 
 const PAYMENT_METHODS: PaymentMethod[] = ['CASH', 'CARD', 'CHECK', 'FINANCING', 'OTHER'];
+const CARD_TYPES: CardType[] = ['CREDIT', 'DEBIT'];
+const CARD_BRANDS: CardBrand[] = ['VISA', 'MASTERCARD', 'AMEX', 'DISCOVER', 'OTHER'];
 
 const paymentSchema = z.object({
   amount: z.coerce.number().min(0.01, 'Amount must be positive'),
   method: z.enum(['CASH', 'CARD', 'CHECK', 'FINANCING', 'OTHER']),
+  cardType: z.enum(['CREDIT', 'DEBIT']).optional(),
+  cardBrand: z.enum(['VISA', 'MASTERCARD', 'AMEX', 'DISCOVER', 'OTHER']).optional(),
   referenceNumber: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -50,13 +55,19 @@ interface RecordPaymentModalProps {
 function RecordPaymentModal({ open, onClose, invoiceId, balance }: RecordPaymentModalProps) {
   const qc = useQueryClient();
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<PaymentForm>({
+  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<PaymentForm>({
     resolver: zodResolver(paymentSchema),
-    defaultValues: { amount: balance, method: 'CASH' },
+    defaultValues: { amount: balance, method: 'CASH', cardType: 'CREDIT', cardBrand: 'VISA' },
   });
+  const method = watch('method');
 
   const mutation = useMutation({
-    mutationFn: (data: PaymentForm) => api.post('/payments', { ...data, invoiceId }),
+    mutationFn: (data: PaymentForm) => api.post('/payments', {
+      ...data,
+      invoiceId,
+      cardType: data.method === 'CARD' ? data.cardType : undefined,
+      cardBrand: data.method === 'CARD' ? data.cardBrand : undefined,
+    }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['invoices', invoiceId] });
       toast.success('Payment recorded');
@@ -96,6 +107,26 @@ function RecordPaymentModal({ open, onClose, invoiceId, balance }: RecordPayment
             ))}
           </select>
         </div>
+        {method === 'CARD' && (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label">Card Type</label>
+              <select {...register('cardType')} className="input">
+                {CARD_TYPES.map(t => (
+                  <option key={t} value={t}>{t === 'CREDIT' ? 'Credit' : 'Debit'}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Card Brand</label>
+              <select {...register('cardBrand')} className="input">
+                {CARD_BRANDS.map(b => (
+                  <option key={b} value={b}>{CARD_BRAND_LABELS[b]}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
         <div>
           <label className="label">Reference # (check #, auth code, etc.)</label>
           <input {...register('referenceNumber')} className="input" placeholder="Optional" />
@@ -434,7 +465,10 @@ export default function InvoiceDetailPage() {
                     <span className="text-sm font-semibold text-green-600 dark:text-green-400">{formatCurrency(p.amount)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3 mt-2">
-                    <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                      <CardDetailsChip cardType={p.cardType} cardBrand={p.cardBrand} />
+                    </div>
                     {p.referenceNumber && (
                       <span className="text-xs text-gray-500 dark:text-gray-400">{p.referenceNumber}</span>
                     )}
@@ -460,7 +494,10 @@ export default function InvoiceDetailPage() {
                         {format(new Date(p.paidAt), 'MMM d, yyyy')}
                       </td>
                       <td className="px-6 py-3">
-                        <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`badge ${METHOD_COLORS[p.method]}`}>{p.method}</span>
+                          <CardDetailsChip cardType={p.cardType} cardBrand={p.cardBrand} />
+                        </div>
                       </td>
                       <td className="px-6 py-3 hidden md:table-cell text-sm text-gray-500 dark:text-gray-400">
                         {p.referenceNumber ?? '—'}
