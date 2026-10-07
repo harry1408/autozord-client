@@ -28,6 +28,10 @@ const CATEGORY_STYLES: Record<string, string> = {
   GENERIC: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
 };
 
+function formatAddrList(value: string): string {
+  return value.split(',').map(a => a.trim()).filter(Boolean).join(', ');
+}
+
 export default function EmailLogsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-email-logs'],
@@ -93,6 +97,12 @@ export default function EmailLogsPage() {
                     </span>
                   </div>
                 </div>
+                {(log.cc || log.bcc) && (
+                  <div className="mt-2 space-y-0.5">
+                    {log.cc && <p className="text-xs text-gray-400 truncate">CC: {formatAddrList(log.cc)}</p>}
+                    {log.bcc && <p className="text-xs text-gray-400 truncate">BCC: {formatAddrList(log.bcc)}</p>}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -102,6 +112,8 @@ export default function EmailLogsPage() {
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-800 text-left text-xs text-gray-500 uppercase tracking-wider">
                 <th className="px-5 py-3 font-medium">To</th>
+                <th className="px-5 py-3 font-medium">CC</th>
+                <th className="px-5 py-3 font-medium">BCC</th>
                 <th className="px-5 py-3 font-medium">Type</th>
                 <th className="px-5 py-3 font-medium">Subject</th>
                 <th className="px-5 py-3 font-medium">Status</th>
@@ -112,6 +124,8 @@ export default function EmailLogsPage() {
               {logs.map(log => (
                 <tr key={log.id} className="border-b border-gray-100 dark:border-gray-800/50 last:border-0">
                   <td className="px-5 py-3 font-medium text-gray-900 dark:text-gray-100">{log.to}</td>
+                  <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{log.cc ? formatAddrList(log.cc) : '—'}</td>
+                  <td className="px-5 py-3 text-gray-500 dark:text-gray-400">{log.bcc ? formatAddrList(log.bcc) : '—'}</td>
                   <td className="px-5 py-3">
                     <span className={`badge ${CATEGORY_STYLES[log.category] ?? CATEGORY_STYLES.GENERIC}`}>
                       {CATEGORY_LABELS[log.category] ?? log.category}

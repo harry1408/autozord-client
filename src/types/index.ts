@@ -299,6 +299,8 @@ export type EmailStatus = 'SENT' | 'FAILED';
 export interface EmailLog {
   id: string;
   to: string;
+  cc?: string | null;
+  bcc?: string | null;
   subject: string;
   category: EmailCategory;
   status: EmailStatus;
