@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Car, ClipboardList } from 'lucide-react';
+import { Plus, Search, Car, ClipboardList, Loader2, CheckCircle2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '@/services/api';
 import { Vehicle, Customer } from '@/types';
+import { decodeVIN, pickVehicleBasics } from '@/utils/vinDecode';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
@@ -48,7 +49,7 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
 
   const customers: Customer[] = customersRes?.data.data ?? [];
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<VehicleForm>({
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting }, reset } = useForm<VehicleForm>({
     resolver: zodResolver(vehicleSchema),
     defaultValues: vehicle
       ? {
@@ -64,6 +65,39 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
         }
       : { year: new Date().getFullYear() },
   });
+
+  const vin = watch('vin');
+  const [vinStatus, setVinStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [decodedVin, setDecodedVin] = useState<string | null>(null);
+
+  useEffect(() => {
+    const cleanVin = (vin ?? '').trim().toUpperCase();
+    if (cleanVin.length !== 17 || cleanVin === decodedVin) {
+      if (cleanVin.length !== 17) setVinStatus('idle');
+      return;
+    }
+
+    let cancelled = false;
+    setVinStatus('loading');
+    decodeVIN(cleanVin)
+      .then(results => {
+        if (cancelled) return;
+        const basics = pickVehicleBasics(results);
+        if (!basics.make && !basics.model && !basics.year) {
+          setVinStatus('error');
+          return;
+        }
+        if (basics.make) setValue('make', basics.make, { shouldValidate: true });
+        if (basics.model) setValue('model', basics.model, { shouldValidate: true });
+        if (basics.year) setValue('year', basics.year, { shouldValidate: true });
+        if (basics.engineSize) setValue('engineSize', basics.engineSize);
+        setDecodedVin(cleanVin);
+        setVinStatus('done');
+      })
+      .catch(() => { if (!cancelled) setVinStatus('error'); });
+
+    return () => { cancelled = true; };
+  }, [vin, decodedVin, setValue]);
 
   const mutation = useMutation({
     mutationFn: (data: VehicleForm) =>
@@ -134,8 +168,23 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="label">VIN</label>
-            <input {...register('vin')} className="input" placeholder="1HGBH41JXMN109186" />
+            <label className="label flex items-center gap-1.5">
+              VIN
+              {vinStatus === 'loading' && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-normal text-gray-400 normal-case">
+                  <Loader2 size={11} className="animate-spin" /> Decoding...
+                </span>
+              )}
+              {vinStatus === 'done' && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-normal text-green-600 dark:text-green-400 normal-case">
+                  <CheckCircle2 size={11} /> Auto-filled
+                </span>
+              )}
+              {vinStatus === 'error' && (
+                <span className="text-[10px] font-normal text-gray-400 normal-case">Couldn't decode VIN - enter details manually</span>
+              )}
+            </label>
+            <input {...register('vin')} className="input font-mono uppercase tracking-wide" maxLength={17} placeholder="1HGBH41JXMN109186" />
           </div>
           <div>
             <label className="label">License Plate</label>

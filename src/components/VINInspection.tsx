@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ShieldCheck, ExternalLink, AlertTriangle, Car, ChevronDown, ChevronUp, Loader2, Hash } from 'lucide-react';
 import axios from 'axios';
+import { decodeVIN as decodeVINShared } from '@/utils/vinDecode';
 
 interface VINInspectionProps {
   vin?: string;
@@ -52,8 +53,8 @@ interface Recall {
 }
 
 async function decodeVIN(vin: string) {
-  const res = await axios.get(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`);
-  return (res.data.Results as DecodeResult[]).filter(
+  const results = await decodeVINShared(vin);
+  return (results as DecodeResult[]).filter(
     r => DECODE_FIELDS.includes(r.Variable) && r.Value && r.Value !== 'Not Applicable' && r.Value !== '0'
   );
 }
