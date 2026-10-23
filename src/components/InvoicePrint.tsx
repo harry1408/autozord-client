@@ -104,6 +104,15 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
     txTable: { width: '100%', borderCollapse: 'collapse' as const, marginBottom: '8px', border: '1px solid #aaa' },
     authSection: { border: '1px solid #aaa', padding: '6px', fontSize: '13px' },
     sigBox: { border: '1px solid #aaa', height: '40px', marginTop: '10px', width: '140px' },
+    footer: { marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #aaa', textAlign: 'center' as const },
+    // Square 160px source (new_logo.png trimmed to its alpha bounds), so an
+    // explicit 32x32 can't distort. inline-block rather than block so the
+    // parent's textAlign centers it, same as the shop logo in the header.
+    // Deliberately small: captureInvoicePdf scales the whole page down to fit
+    // A4, so every pixel of footer height shrinks the invoice body with it.
+    footerLogo: { height: '32px', width: '32px', display: 'inline-block' },
+    footerNote: { marginTop: '3px', fontSize: '11px', color: '#666' },
+    footerLink: { color: '#e60000', textDecoration: 'underline' },
   };
 
   return (
@@ -437,6 +446,22 @@ export default function InvoicePrint({ invoice, shop, printData, forPdf }: Props
           </div>
         </>
       )}
+
+      {/* ── AUTOZORD FOOTER ────────────────────────────────────────────── */}
+      {/* Centered stack: mark on top, caption on the line below.
+          The image is served from /public (same-origin) so html2canvas can
+          capture it for the emailed PDF; it waits for images in its cloned
+          document. Unconditional, unlike the shop's own logo in the header,
+          so every invoice carries it.
+          The link renders as styled text in both outputs and stays clickable
+          in a browser print-to-PDF, but not in the emailed attachment - that
+          one is a rasterized screenshot, so no anchors survive. */}
+      <div style={s.footer}>
+        <img src="/autozord-mark.png" alt="Autozord" style={s.footerLogo} />
+        <div style={s.footerNote}>
+          Powered by <a href="https://autozord.com" style={s.footerLink}>Autozord</a> &middot; Auto Repair Shop Management
+        </div>
+      </div>
     </div>
   );
 }
