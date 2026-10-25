@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '@/services/api';
 import { Vehicle, Customer } from '@/types';
-import { decodeVIN, pickVehicleBasics } from '@/utils/vinDecode';
+import { decodeVIN, pickVehicleBasics, pickVehicleSpecs, VehicleSpec } from '@/utils/vinDecode';
 import PageHeader from '@/components/ui/PageHeader';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
@@ -69,11 +69,20 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
   const vin = watch('vin');
   const [vinStatus, setVinStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
   const [decodedVin, setDecodedVin] = useState<string | null>(null);
+  // Read-only extras from the same decode response - shown in this modal so
+  // the full spec sheet is visible before the vehicle is ever saved. Only the
+  // four fields pickVehicleBasics fills are persisted; these are display only.
+  const [specs, setSpecs] = useState<VehicleSpec[]>([]);
 
   useEffect(() => {
     const cleanVin = (vin ?? '').trim().toUpperCase();
     if (cleanVin.length !== 17 || cleanVin === decodedVin) {
-      if (cleanVin.length !== 17) setVinStatus('idle');
+      if (cleanVin.length !== 17) {
+        setVinStatus('idle');
+        // Functional update so clearing an already-empty list can't queue a
+        // pointless re-render on every keystroke.
+        setSpecs(prev => (prev.length ? [] : prev));
+      }
       return;
     }
 
@@ -85,16 +94,22 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
         const basics = pickVehicleBasics(results);
         if (!basics.make && !basics.model && !basics.year) {
           setVinStatus('error');
+          setSpecs(prev => (prev.length ? [] : prev));
           return;
         }
         if (basics.make) setValue('make', basics.make, { shouldValidate: true });
         if (basics.model) setValue('model', basics.model, { shouldValidate: true });
         if (basics.year) setValue('year', basics.year, { shouldValidate: true });
         if (basics.engineSize) setValue('engineSize', basics.engineSize);
+        setSpecs(pickVehicleSpecs(results));
         setDecodedVin(cleanVin);
         setVinStatus('done');
       })
-      .catch(() => { if (!cancelled) setVinStatus('error'); });
+      .catch(() => {
+        if (cancelled) return;
+        setVinStatus('error');
+        setSpecs(prev => (prev.length ? [] : prev));
+      });
 
     return () => { cancelled = true; };
   }, [vin, decodedVin, setValue]);
@@ -106,6 +121,13 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
       qc.invalidateQueries({ queryKey: ['vehicles'] });
       toast.success(isEdit ? 'Vehicle updated' : 'Vehicle created');
       reset();
+      // The modal is keyed 'new', so it stays mounted between consecutive
+      // adds. Without clearing these, re-entering the same VIN would match
+      // decodedVin and short-circuit the effect - no decode, no specs, no
+      // auto-fill badge.
+      setDecodedVin(null);
+      setSpecs([]);
+      setVinStatus('idle');
       onClose();
     },
     onError: () => toast.error('Failed to save vehicle'),
@@ -191,6 +213,32 @@ function VehicleFormModal({ open, onClose, vehicle }: VehicleFormModalProps) {
             <input {...register('licensePlate')} className="input" placeholder="ABC-1234" />
           </div>
         </div>
+
+        {/* Everything the VIN decode returned, not just the four fields written
+            into the form above. Read-only and never submitted - it's here so
+            the full spec sheet is visible before deciding to save. */}
+        {specs.length > 0 && (
+          <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 px-4 py-3">
+            <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+              <Car size={12} /> Decoded from VIN
+              <span className="font-normal normal-case tracking-normal text-gray-400">
+                — not saved, for reference only
+              </span>
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-5 gap-y-2.5">
+              {specs.map(spec => (
+                <div key={spec.variable}>
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                    {spec.label}
+                  </p>
+                  <p className="text-xs font-medium text-gray-800 dark:text-gray-200 mt-0.5 break-words">
+                    {spec.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="label">Color</label>
