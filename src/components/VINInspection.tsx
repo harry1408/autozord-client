@@ -2,41 +2,15 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ShieldCheck, ExternalLink, AlertTriangle, Car, ChevronDown, ChevronUp, Loader2, Hash } from 'lucide-react';
 import axios from 'axios';
-import { decodeVIN as decodeVINShared } from '@/utils/vinDecode';
+import {
+  decodeVIN as decodeVINShared,
+  SPEC_FIELDS as DECODE_FIELDS,
+  SPEC_LABELS as FIELD_LABELS,
+} from '@/utils/vinDecode';
 
 interface VINInspectionProps {
   vin?: string;
 }
-
-const DECODE_FIELDS = [
-  'Make', 'Model', 'Model Year', 'Trim', 'Series',
-  'Body Class', 'Drive Type', 'Fuel Type - Primary',
-  'Displacement (L)', 'Engine Number of Cylinders',
-  'Engine Configuration', 'Transmission Style',
-  'Number of Seats', 'Number of Doors',
-  'Manufacturer Name', 'Plant Country',
-  'Vehicle Type',
-];
-
-const FIELD_LABELS: Record<string, string> = {
-  'Make': 'Make',
-  'Model': 'Model',
-  'Model Year': 'Year',
-  'Trim': 'Trim',
-  'Series': 'Series',
-  'Body Class': 'Body Style',
-  'Drive Type': 'Drive Type',
-  'Fuel Type - Primary': 'Fuel Type',
-  'Displacement (L)': 'Engine (L)',
-  'Engine Number of Cylinders': 'Cylinders',
-  'Engine Configuration': 'Engine Config',
-  'Transmission Style': 'Transmission',
-  'Number of Seats': 'Seats',
-  'Number of Doors': 'Doors',
-  'Manufacturer Name': 'Manufacturer',
-  'Plant Country': 'Made In',
-  'Vehicle Type': 'Vehicle Type',
-};
 
 interface DecodeResult {
   Variable: string;
